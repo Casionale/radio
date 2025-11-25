@@ -41,9 +41,9 @@ class RadioManager {
         this.updateElement("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)", this.data?.playing_next?.song?.artist);
         this.updateImage("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > img:nth-child(1)", this.data?.playing_next?.song?.art);
 
-        this.updateElement("div.playlist:nth-child(5) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)", this.data?.song_history[0]?.song?.title);
-        this.updateElement("div.playlist:nth-child(5) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)", this.data?.song_history[0]?.song?.artist);
-        this.updateImage("div.playlist:nth-child(5) > div:nth-child(1) > img:nth-child(1)", this.data?.song_history[0]?.song?.art);
+        this.updateElement("section.queue-section:nth-child(2) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)", this.data?.song_history[0]?.song?.title);
+        this.updateElement("section.queue-section:nth-child(2) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)", this.data?.song_history[0]?.song?.artist);
+        this.updateImage("section.queue-section:nth-child(2) > div:nth-child(2) > div:nth-child(1) > img:nth-child(1)", this.data?.song_history[0]?.song?.art);
 
         this.updateElement("div.track-item:nth-child(2) > div:nth-child(2) > div:nth-child(1)", this.data?.song_history[1]?.song?.title);
         this.updateElement("div.track-item:nth-child(2) > div:nth-child(2) > div:nth-child(2)", this.data?.song_history[1]?.song?.artist);

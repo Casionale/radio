@@ -8,6 +8,8 @@ class RadioManager {
         this.timeElapsed = 0;                     // Текущее время проигрывания (в секундах)
 
         this.start(); // сразу запускаем
+
+        this.timesong = 0; // Буффер таймера
     }
 
     // Метод для запроса данных с сервера
@@ -17,6 +19,7 @@ class RadioManager {
             if (!response.ok) throw new Error(`Ошибка ${response.status}`);
             const json = await response.json();
             this.data = json;
+            this.timesong = this.data?.now_playing?.elapsed;
             this.timeElapsed = 0; // сброс времени проигрывания
             console.log("✅ Данные обновлены:", this.data);
 
@@ -34,9 +37,9 @@ class RadioManager {
         this.updateElement(".album-title", this.data?.now_playing?.song?.title);
         this.updateImage(".album-artwork", this.data?.now_playing?.song?.art);
 
-        this.updateElement("div.playlist:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)", this.data?.playing_next?.song?.title);
-        this.updateElement("div.playlist:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)", this.data?.playing_next?.song?.artist);
-        this.updateImage("div.playlist:nth-child(3) > div:nth-child(1) > img:nth-child(1)", this.data?.playing_next?.song?.art);
+        this.updateElement("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)", this.data?.playing_next?.song?.title);
+        this.updateElement("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)", this.data?.playing_next?.song?.artist);
+        this.updateImage("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > img:nth-child(1)", this.data?.playing_next?.song?.art);
 
         this.updateElement("div.playlist:nth-child(5) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)", this.data?.song_history[0]?.song?.title);
         this.updateElement("div.playlist:nth-child(5) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)", this.data?.song_history[0]?.song?.artist);
@@ -113,8 +116,46 @@ class RadioManager {
 
     // Метод для обновления отображения таймера (реализуешь сам)
     updateTimerDisplay() {
-        // TODO: обновить отображение времени проигрывания
-    }
+        // Получаем данные из this.data
+        const playedAt = this.data?.now_playing?.played_at; // timestamp начала воспроизведения
+        const duration = this.data?.now_playing?.duration;   // длительность песни в секундах
+      
+        // Если данных нет — выходим
+        if (!playedAt || !duration) {
+          return;
+        }
+      
+        // Текущее время в миллисекундах
+        const currentTime = new Date().getTime()/1000;
+      
+        // Прошедшее время в секундах (с округлением до целого)
+        const elapsed = Math.floor((currentTime - playedAt));
+      
+        // Ограничиваем elapsed длительностью песни
+        const safeElapsed = Math.min(elapsed, duration);
+      
+        // Оставшееся время
+        const remaining = duration - safeElapsed;
+      
+        // Форматируем время
+        const elapsedStr = formatSeconds(safeElapsed);
+        const totalStr = formatSeconds(duration);
+      
+        // Обновляем отображение:
+        // - текущее время (elapsed)
+        // - общая длительность (duration)
+        this.updateElement("span.time-display:nth-child(1)", elapsedStr);
+        this.updateElement("span.time-display:nth-child(3)", totalStr);
+      
+        // Обновляем ширину прогресс‑бара (в процентах)
+        const progressPercent = (safeElapsed / duration) * 100;
+        document.querySelector('.progress-bar').style.width = `${progressPercent}%`;
+      
+        // Логи для отладки
+        console.log(`Elapsed: ${safeElapsed}s, Remaining: ${remaining}s, Total: ${duration}s`);
+        console.log(`Formatted: ${elapsedStr} / ${totalStr}`);
+        console.log(`Progress: ${progressPercent.toFixed(1)}%`);
+      }
 
     // Метод запуска автоматического обновления данных
     start() {
@@ -179,3 +220,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
 
+const formatSeconds = (seconds) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+};

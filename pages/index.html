@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>e621.station - 90s Road Trip Vibes Music Player | Pop Music Streaming</title>
-  
+
   <link rel="icon" type="image/png" href="/../assets/images/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/../assets/images/favicon.svg" />
   <link rel="shortcut icon" href="/../assets/images/favicon.ico" />
@@ -65,7 +65,9 @@
     <div class="content-wrapper">
 
       <aside class="sidebar">
-        <input type="text" class="queue-input" placeholder="Добавить в очередь.." />
+
+        <input type="text" class="queue-input" placeholder="Добавить в очередь.." aria-label="Добавить трек в очередь">
+
         <div class="sidebar-queues">
           <section class="queue-section">
             <h2 class="section-title">Далее</h2>
@@ -85,8 +87,7 @@
             <div class="playlist">
 
               <div class="track-item">
-                <img src="../assets/images/preloader.png" alt="preloader"
-                  class="track-image" />
+                <img src="../assets/images/preloader.png" alt="preloader" class="track-image" />
                 <div class="track-info">
                   <div class="track-title">Fuego feat. TRAQULA</div>
                   <div class="track-artist">Shotgun Willy, Traqula</div>
@@ -94,8 +95,7 @@
               </div>
 
               <div class="track-item">
-                <img src="../assets/images/preloader.png" alt="preloader"
-                  class="track-image" />
+                <img src="../assets/images/preloader.png" alt="preloader" class="track-image" />
                 <div class="track-info">
                   <div class="track-title">Fuego feat. TRAQULA</div>
                   <div class="track-artist">Shotgun Willy, Traqula</div>
@@ -103,30 +103,27 @@
               </div>
 
               <div class="track-item">
-                <img src="../assets/images/preloader.png" alt="preloader"
-                  class="track-image" />
+                <img src="../assets/images/preloader.png" alt="preloader" class="track-image" />
                 <div class="track-info">
                   <div class="track-title">Да, со мной не просто</div>
                   <div class="track-artist">The Hatters</div>
                 </div>
               </div>
               <div class="track-item">
-                <img src="../assets/images/preloader.png" alt="preloader"
-                  class="track-image" />
+                <img src="../assets/images/preloader.png" alt="preloader" class="track-image" />
                 <div class="track-info">
                   <div class="track-title">Да, со мной не просто</div>
                   <div class="track-artist">The Hatters</div>
                 </div>
               </div>
               <div class="track-item">
-                <img src="../assets/images/preloader.png" alt="preloader"
-                  class="track-image" />
+                <img src="../assets/images/preloader.png" alt="preloader" class="track-image" />
                 <div class="track-info">
                   <div class="track-title">Да, со мной не просто</div>
                   <div class="track-artist">The Hatters</div>
                 </div>
               </div>
-              
+
             </div>
           </section>
         </div>
@@ -135,7 +132,8 @@
       <main class="main-content">
         <section class="album-section">
           <div class="album-container">
-            <img src="../assets/images/albom.png" alt="Hypnoize (2014 Remaster) album artwork by The Notorious B.I.G" class="album-artwork" />
+            <img src="../assets/images/albom.png" alt="Hypnoize (2014 Remaster) album artwork by The Notorious B.I.G"
+              class="album-artwork" />
             <div class="album-info">
               <h2 class="album-title">Hypnoize (2014 Remaster)</h2>
               <p class="album-artist">The Notorius B.I.G</p>
@@ -143,8 +141,9 @@
           </div>
         </section>
       </main>
-      
-      <img src="../assets/images/img_586530a819b225c.png" alt="Anime character illustration" class="character-illustration" />
+
+      <img src="../assets/images/img_586530a819b225c.png" alt="Anime character illustration"
+        class="character-illustration" />
     </div>
 
     <footer class="footer">
@@ -155,9 +154,14 @@
             <button class="control-btn" aria-label="Download">
               <img src="../assets/images/dw.svg" alt="Download" width="26" height="32" />
             </button>
+
             <button class="control-btn play-pause" aria-label="Play/Pause">
-              <img src="../assets/images/play.svg" alt="Play" width="42" height="50" class="play-icon" />
+              <div class="pp-container">
+                <img src="../assets/images/play.svg" class="pp-icon pp-play" alt="Play">
+                <img src="../assets/images/paus.svg" class="pp-icon pp-pause" alt="Pause">
+              </div>
             </button>
+
             <div class="volume-control">
               <button class="control-btn" aria-label="Volume">
                 <img src="../assets/images/vol.svg" alt="Volume" width="42" height="38" />

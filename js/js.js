@@ -56,3 +56,14 @@ function initTextScroll() {
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', initTextScroll);
+
+// Обработка переключения play/pause
+document.querySelectorAll('.play-pause').forEach(button => {
+    button.addEventListener('click', function () {
+        this.classList.toggle('playing');
+
+        // Обновляем aria-label для доступности
+        const isPlaying = this.classList.contains('playing');
+        this.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+    });
+});

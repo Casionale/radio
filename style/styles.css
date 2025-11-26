@@ -41,6 +41,21 @@ body {
     box-sizing: border-box;
 }
 
+/* Custom text selection color */
+::selection {
+    background-color: rgba(112, 129, 225, 0.2);
+    /* #7081e1 with 20% opacity */
+    color: #181a1a;
+    /* Ensure text remains visible */
+}
+
+::-moz-selection {
+    background-color: rgba(112, 129, 225, 0.2);
+    /* #7081e1 with 20% opacity */
+    color: #181a1a;
+    /* Ensure text remains visible */
+}
+
 /* Layout components */
 .main-container {
     display: flex;
@@ -64,6 +79,11 @@ body {
     padding: 20px;
     box-sizing: border-box;
     margin-top: auto;
+}
+
+.character-illustration.centered {
+    right: 30%;
+    /* Центрируем, (100% - 40% width) / 2 = 30% отступ справа */
 }
 
 /* Кнопка Play/Pause — плавная смена иконок через scale */
@@ -147,8 +167,12 @@ body {
     height: 100%;
     padding: 20px;
     background: transparent;
-    align-items: center;
-    justify-content: center;
+    /* align-items: center; */
+    /* justify-content: center; */
+    padding-bottom: 120px;
+    /* Добавляем отступ для футера (высота футера) */
+    position: relative;
+    /* Добавляем для позиционирования дочерних абсолютных элементов */
 }
 
 .main-background {
@@ -244,7 +268,7 @@ body {
 }
 
 .genre-title {
-    font-size: 24px;
+    font-size: clamp(18px, 3vw, 24px);
     font-family: Geologica;
     font-weight: 300;
     text-align: center;
@@ -253,6 +277,9 @@ body {
 }
 
 .header-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
     overflow: hidden;
     font-size: 16px;
@@ -264,21 +291,37 @@ body {
     padding: 8px 20px;
     background: transparent;
     cursor: pointer;
-    transition: color 0.35s ease;
-    justify-self: end;
-}
-
-.header-button {
-    position: relative;
-    overflow: hidden;
-    color: #7081e1;
-    background: transparent;
-    border: 1px solid #7081e17f;
+    margin-left: auto;
     transition:
         color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
         background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-        border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.3s ease-out,
+        padding 0.3s ease-out;
     z-index: 1;
+}
+
+.header-button .button-text {
+    display: inline-block;
+    white-space: nowrap;
+    /* Предотвращаем перенос текста */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    /* Ускорена анимация */
+}
+
+.header-button .button-text.exit {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.header-button .button-text.enter {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.header-button .button-text.active {
+    transform: translateX(0);
+    opacity: 1;
 }
 
 /* Эффект волны при hover */
@@ -293,7 +336,7 @@ body {
     border-radius: 50%;
     transform: translateY(-50%) scale(0);
     transform-origin: center;
-    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     z-index: -1;
 }
@@ -316,7 +359,6 @@ body {
 
 /* Sidebar */
 .sidebar {
-    display: none;
     flex-direction: column;
     width: 33.333%;
     flex: 0 0 33.333%;
@@ -329,15 +371,26 @@ body {
     gap: 20px;
     box-sizing: border-box;
     align-items: flex-start;
-    /* Выравнивание по левому краю */
+    display: flex;
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
 }
 
-/* Внутренний контейнер для ограничения ширины контента */
+.sidebar.hide {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-queues .queue-section {
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
 .sidebar>* {
     width: 100%;
     max-width: 450px;
     margin-right: auto;
-    /* Прижимаем к левому краю */
 }
 
 /* Обновите медиа-запросы */
@@ -350,8 +403,6 @@ body {
         margin-top: 1rem;
         margin-bottom: calc(1rem + 80px);
         box-sizing: border-box;
-        align-items: flex-start;
-        /* Выравнивание по левому краю */
     }
 
     .sidebar>* {
@@ -370,8 +421,6 @@ body {
         margin-top: 1rem;
         margin-bottom: calc(1rem + 80px);
         box-sizing: border-box;
-        align-items: flex-start;
-        /* Выравнивание по левому краю */
     }
 
     .sidebar>* {
@@ -390,8 +439,6 @@ body {
         margin-top: 1rem;
         margin-bottom: calc(1rem + 80px);
         box-sizing: border-box;
-        align-items: flex-start;
-        /* Выравнивание по левому краю */
     }
 
     .sidebar>* {
@@ -483,7 +530,6 @@ body {
     transition: background-color 0.3s ease;
 }
 
-/* Scroll-driven анимация для track-item в sidebar */
 .sidebar-queues .track-item {
     animation: linear track-scroll-in-out;
     animation-timeline: view();
@@ -630,17 +676,39 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 1;
-    padding-top: 100px;
-    padding-bottom: 200px;
+    /* flex: 1; */
+    /* Удалено, так как absolute positioning */
+    /* padding-top: 100px; */
+    /* Удалено, будет регулироваться внутренними элементами или общим padding main-content */
+    /* padding-bottom: 200px; */
+    /* Удалено */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out, visibility 0.5s ease-out;
+    position: absolute;
+    /* Вынимаем из потока документа */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.album-section.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    visibility: hidden;
+    /* Скрываем, чтобы не занимал место */
 }
 
 .album-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    /* Центрируем содержимое по вертикали */
     gap: 14px;
     width: clamp(240px, 50vmin, 420px);
+    height: 100%;
+    /* Чтобы flex item занимал всю высоту */
 }
 
 .album-artwork {
@@ -694,19 +762,91 @@ body {
 .footer-content {
     display: flex;
     flex-direction: column;
+    /* Восстановлено на column */
     gap: 6px;
     align-items: center;
     width: 100%;
     margin-top: 18px;
+    transition: none;
+    /* Убираем лишние переходы */
 }
 
 .player-controls {
     display: flex;
+    flex-direction: row;
+    /* Изменено на row */
     justify-content: space-between;
     align-items: center;
     width: 100%;
     padding: 0 20px;
+    /* Добавлен padding */
     margin-bottom: 10px;
+    box-sizing: border-box;
+    transition: margin-left 0.3s ease-out;
+    /* Переходы для смещения */
+}
+
+#miniAlbumPlaceholder {
+    width: 0;
+    /* Изначально скрыт */
+    opacity: 0;
+    overflow: hidden;
+    transition: width 0.3s ease-out, opacity 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.footer.show-mini-album #miniAlbumPlaceholder {
+    width: 200px;
+    opacity: 1;
+}
+
+/* Стили для мини-альбома в футере, который будет внутри placeholder */
+.mini-album-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    padding-left: clamp(8px, 2vw, 24px);
+}
+
+
+.mini-album-artwork {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.mini-album-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    flex-grow: 1;
+}
+
+.mini-album-title {
+    font-size: 18px;
+    font-family: Geologica;
+    font-weight: 500;
+    color: #181a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-album-artist {
+    font-size: 16px;
+    font-family: Geologica;
+    font-weight: 400;
+    color: #181a1bb2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .time-display {
@@ -715,6 +855,10 @@ body {
     font-weight: 300;
     color: #181a1a;
     font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    /* Чтобы не уменьшался */
+    transition: margin-left 0.3s ease-out;
+    /* Для плавного смещения */
 }
 
 .control-buttons {
@@ -723,6 +867,8 @@ body {
     align-items: center;
     gap: 100px;
     flex: 1;
+    min-width: 250px;
+    transition: margin-left 0.3s ease-out;
 }
 
 .control-btn {
@@ -742,8 +888,10 @@ body {
 }
 
 .volume-control {
+    position: relative; /* Добавлено для позиционирования seek-bar */
     display: flex;
     align-items: center;
+    /* gap: 10px; */ /* Удалено, так как seek-bar будет абсолютно позиционирован */
 }
 
 .progress-container {
@@ -765,12 +913,25 @@ body {
 }
 
 .seek-bar {
-    width: 100%;
-    height: 6px;
+    position: absolute;
+    left: 100%; /* Позиционируем справа от кнопки */
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 10px; /* Отступ между ползунком и кнопкой */
+    width: clamp(50px, calc(60px + 2vw), 70px);
+    height: 0.4rem;
     background-color: #7081e133;
-    border-radius: 3px;
-    margin-top: 8px;
+    border-radius: 10px;
     cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-out;
+}
+
+.volume-control:hover .seek-bar,
+.seek-bar:hover {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 
@@ -779,7 +940,6 @@ input:focus {
     box-shadow: 0 0 0 1px #7081e1 inset;
 }
 
-/* Responsive media queries */
 @media (min-width: 640px) {
     .genre-title {
         display: block;
@@ -811,14 +971,12 @@ input:focus {
         padding-top: 0px;
     }
 
-    /* Webkit браузеры (Chrome, Safari, Edge) - скрываем скроллбар */
     .sidebar-queues::-webkit-scrollbar {
         display: none;
         width: 0;
         height: 0;
     }
 
-    /* При наведении показываем скроллбар */
     .sidebar-queues:hover {
         scrollbar-width: thin;
     }
@@ -837,7 +995,6 @@ input:focus {
         background: #7081e1;
     }
 
-    /* Для Firefox */
     .sidebar-queues:hover {
         scrollbar-color: #7081e17f transparent;
     }
@@ -879,15 +1036,6 @@ input:focus {
 @media (min-width: 768px) {
     .logo {
         width: 150px;
-    }
-
-    .genre-title {
-        font-size: 28px;
-    }
-
-    .header-button {
-        font-size: 20px;
-        padding: 12px 28px;
     }
 
     .album-artwork {
@@ -992,7 +1140,12 @@ input:focus {
     }
 
     .sidebar {
-        display: none;
+        display: flex;
+        transform: translateX(-100%);
+        opacity: 0;
+        position: absolute;
+        height: 100%;
+        width: 100%;
     }
 
     .main-content {
@@ -1002,7 +1155,6 @@ input:focus {
     }
 }
 
-/* Адаптивный футер для мобильных устройств */
 @media (max-width: 767px) {
 
     .footer-content {
@@ -1070,4 +1222,198 @@ input:focus {
         font-size: clamp(13px, calc(14px + 0.3vw), 15px);
         min-width: 35px;
     }
+}
+
+.chat-section {
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    padding: 20px;
+    background: transparent;
+    justify-content: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 120px;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.chat-section.visible {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+    width: 100%;
+    max-width: 600px;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 10px;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #7081e17f transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+    height: 100%;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #7081e17f;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #7081e1;
+}
+
+
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 15px;
+    background-color: #f0f0f0;
+    align-self: flex-start;
+    position: relative;
+    opacity: 0;
+    transform: translateY(100%);
+    animation: linear track-scroll-in-out;
+    animation-timeline: view();
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.chat-message.my-message {
+    background-color: #7081e1;
+    color: white;
+    align-self: flex-end;
+    border-radius: 15px;
+}
+
+
+.message-time {
+    font-size: 10px;
+    color: #888;
+    margin-top: 2px;
+    align-self: flex-end;
+}
+
+.chat-message.my-message .message-time {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.message-text {
+    font-size: 14px;
+    color: #181a1a;
+    word-wrap: break-word;
+}
+
+.chat-message.my-message .message-text {
+    color: white;
+}
+
+.chat-message.sent {
+    align-self: flex-end;
+    background-color: #7081e1;
+    color: white;
+}
+
+.chat-message.received {
+    align-self: flex-start;
+    /* Сообщения нейронки слева */
+    background-color: #e0e0e0;
+    color: #181a1a;
+    border-radius: 15px;
+}
+
+
+.message-timestamp {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    align-self: flex-end;
+    margin-top: 4px;
+}
+
+.chat-message.received .message-timestamp {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.chat-input-area {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    gap: 10px;
+    position: relative;
+    align-items: center;
+}
+
+.chat-input {
+    flex-grow: 1;
+    padding: 12px 65px 12px 20px;
+    border-radius: 600px;
+    border: 1px solid #7081e17f;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #181a1a;
+    font-family: Geologica;
+    font-size: 16px;
+    resize: none;
+    overflow-y: auto;
+    height: 40px;
+    max-height: 80px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.chat-input::-webkit-scrollbar {
+    display: none;
+}
+
+.chat-input::placeholder {
+    color: #181a1ab2;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #7182E2;
+    box-shadow: 0 0 0 1px #7182E2 inset;
+}
+
+.chat-send-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #7081e1;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    padding: 0;
+}
+
+.chat-send-btn:hover {
+    background-color: #5a6ed1;
+    transform: translateY(-50%)
 }

@@ -60,7 +60,7 @@
       <div class="header-content">
         <img src="../assets/images/header_logo.svg" alt="e621.station logo" class="logo" />
         <h1 class="genre-title">90s Road Trip Vibes, Pop</h1>
-        <button class="header-button">Тет-а-тет</button>
+        <button class="header-button" id="headerButton"><span class="button-text active">Тет-а-тет</span></button>
       </div>
     </header>
 
@@ -84,6 +84,7 @@
             </div>
 
           </section>
+
           <section class="queue-section">
             <h2 class="section-title">История</h2>
             <div class="playlist">
@@ -132,7 +133,7 @@
       </aside>
 
       <main class="main-content">
-        <section class="album-section">
+        <section class="album-section" id="albumSection">
           <div class="album-container">
             <img src="../assets/images/albom.png" alt="Hypnoize (2014 Remaster) album artwork by The Notorious B.I.G"
               class="album-artwork" />
@@ -140,6 +141,13 @@
               <h2 class="album-title">Песня</h2>
               <p class="album-artist">Исполнитель</p>
             </div>
+          </div>
+        </section>
+        <section id="chatSection" class="chat-section hidden">
+          <div class="chat-messages"></div>
+          <div class="chat-input-area">
+            <textarea class="chat-input" placeholder="Введите сообщение..." maxlength="1000"></textarea>
+            <button class="chat-send-btn"></button>
           </div>
         </section>
       </main>
@@ -152,7 +160,9 @@
       <div class="footer-content">
         <div class="player-controls">
           <span class="time-display">01:03</span>
+          <div id="miniAlbumPlaceholder"></div>
           <div class="control-buttons">
+            
             <button class="control-btn" aria-label="Download">
               <img src="../assets/images/dw.svg" alt="Download" width="26" height="32" />
             </button>
@@ -170,6 +180,8 @@
               </button>
               <div class="seek-bar" role="slider" aria-label="Volume control"></div>
             </div>
+
+            
           </div>
           <span class="time-display">03:24</span>
         </div>

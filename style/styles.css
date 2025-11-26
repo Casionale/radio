@@ -1,8 +1,9 @@
 /* Reset and base styles */
+
 @font-face {
     font-family: 'Geologica';
-    src: url('../../assets/fonts/Geologica/Geologica-Light.woff2') format('woff2'),
-        url('../assets/fonts/Geologica/Geologica-Light.woff') format('woff');
+    src: url('/assets/fonts/Geologica/Geologica-Light.woff2') format('woff2'),
+        url('/assets/fonts/Geologica/Geologica-Light.woff') format('woff');
     font-weight: 300;
     font-style: normal;
     font-display: swap;
@@ -10,8 +11,8 @@
 
 @font-face {
     font-family: 'Geologica';
-    src: url('../../assets/fonts/Geologica/Geologica-Regular.woff2') format('woff2'),
-        url('../../assets/fonts/Geologica/Geologica-Regular.woff') format('woff');
+    src: url('/assets/fonts/Geologica/Geologica-Regular.woff2') format('woff2'),
+        url('/assets/fonts/Geologica/Geologica-Regular.woff') format('woff');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -19,17 +20,11 @@
 
 @font-face {
     font-family: 'Geologica';
-    src: url('../../assets/fonts/Geologica/Geologica-Medium.woff2') format('woff2'),
-        url('../../assets/fonts/Geologica/Geologica-Medium.woff') format('woff');
+    src: url('/assets/fonts/Geologica/Geologica-Medium.woff2') format('woff2'),
+        url('/assets/fonts/Geologica/Geologica-Medium.woff') format('woff');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
 }
 
 body {
@@ -38,6 +33,12 @@ body {
     background: none;
     overflow: hidden;
     height: 100vh;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* Layout components */
@@ -63,7 +64,6 @@ body {
     padding: 20px;
     box-sizing: border-box;
     margin-top: auto;
-    /* прижимает к низу flex-контейнера */
 }
 
 /* Кнопка Play/Pause — плавная смена иконок через scale */
@@ -274,7 +274,7 @@ body {
     color: #7081e1;
     background: transparent;
     border: 1px solid #7081e17f;
-    transition: 
+    transition:
         color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
         background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
         border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -631,6 +631,7 @@ body {
     align-items: center;
     justify-content: center;
     flex: 1;
+    padding-bottom: 200px;
 }
 
 .album-container {
@@ -638,7 +639,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 14px;
-    width: 100%;
+    width: clamp(240px, 70vmin, 480px);
 }
 
 .album-artwork {
@@ -681,10 +682,10 @@ body {
     width: 100%;
     border-top: 1px solid #7081e17f;
     padding: 0;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    position: fixed;
+    position: absolute;
     bottom: 0;
     z-index: 1000;
 }
@@ -936,10 +937,6 @@ input:focus {
         align-items: center;
         justify-content: center;
         padding-top: 20px;
-    }
-
-    .album-container {
-        max-width: 500px;
     }
 
     .album-artwork {

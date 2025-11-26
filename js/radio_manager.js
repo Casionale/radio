@@ -61,6 +61,9 @@ class RadioManager {
         this.updateElement("div.track-item:nth-child(5) > div:nth-child(2) > div:nth-child(2)", this.data?.song_history[4]?.song?.artist);
         this.updateImage("div.track-item:nth-child(5) > img:nth-child(1)", this.data?.song_history[4]?.song?.art);
 
+        this.updateOnClick(".control-buttons > button:nth-child(1)",()=>{
+            this.downloadFile(this.data?.station?.playlist_m3u_url);
+        });
 
         // TODO: реализовать отображение данных на странице
 
@@ -98,6 +101,34 @@ class RadioManager {
         } catch (err) {
             console.error(`Ошибка при обновлении изображения ${selector}:`, err);
         }
+    }
+
+    updateOnClick(selector, onClick){
+        try {
+            const el = document.querySelector(selector);
+            if (!el) {
+                console.warn(`⚠️ Элемент ${selector} не найден`);
+                return;
+        }
+
+        // Удаляем предыдущий обработчик, если нужно
+        el.onclick = null;
+
+        // Назначаем новый (если он передан)
+        if (typeof onClick === "function") {
+            el.onclick = onClick;
+        }
+        } catch (err) {
+            console.error(`Ошибка при обновлении onClick для ${selector}:`, err);
+        }
+    }
+
+    downloadFile(url){
+        console.log('Скачиваю по адресу '+url);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = "playlist.m3u";
+        a.click();
     }
 
     // Метод для запроса конкретной песни (реализуешь сам)

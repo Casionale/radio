@@ -760,7 +760,6 @@ body {
 
 #miniAlbumPlaceholder {
     width: 0;
-    /* Изначально скрыт */
     opacity: 0;
     overflow: hidden;
     transition: width 0.3s ease-out, opacity 0.3s ease-out;
@@ -837,17 +836,18 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 100px;
+    gap: clamp(20px, 8vw, 100px); /* Адаптивный gap от 20px до 100px */
     flex: 1;
-    min-width: 250px;
-    transition: margin-left 0.3s ease-out;
+    width: fit-content;
+    max-width: 100%;
+    transition: margin-left 0.3s ease-out, gap 0.3s ease-out;
 }
 
 .control-btn {
     background: none;
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .control-btn:hover {
@@ -858,6 +858,23 @@ body {
     width: auto;
     height: auto;
 }
+
+.control-btn.hidden-download {
+    opacity: 0;
+    transform: scale(0);
+    pointer-events: none;
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    position: absolute;
+    left: -9999px;
+}
+
+.volume-control.hidden-volume {
+    opacity: 0;
+    transform: scale(0);
+    pointer-events: none;
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
 
 .volume-control {
     position: relative; /* Добавлено для позиционирования seek-bar */
@@ -1058,7 +1075,7 @@ input:focus {
     }
 
     .control-buttons {
-        gap: 100px;
+        gap: clamp(15px, 6vw, 60px); /* Меньший gap для маленьких экранов */
     }
 }
 
@@ -1152,10 +1169,6 @@ input:focus {
 
 /* Маленькие экраны - скрываем sidebar */
 @media (max-width: 767px) {
-    .content-wrapper {
-        height: 80vh;
-        flex-direction: column;
-    }
 
     .sidebar {
         display: flex;
@@ -1169,7 +1182,12 @@ input:focus {
     .main-content {
         width: 100%;
         flex: 0 0 100%;
-        height: 100%;
+    }
+
+    .seek-bar {
+        width: 50px; /* Фиксированная ширина для маленьких экранов */
+        opacity: 1; /* Всегда видим на мобильных */
+        pointer-events: auto; /* Всегда активен на мобильных */
     }
 }
 
@@ -1195,7 +1213,8 @@ input:focus {
         flex: 1;
         justify-content: space-evenly;
         max-width: min(300px, 80vw);
-        margin: 0 10px;
+        margin: 0;
+        padding-right: 10px;
     }
 
 
@@ -1230,6 +1249,10 @@ input:focus {
 
 /* Для очень маленьких экранов */
 @media (max-width: 480px) {
+    .logo {
+        width: 70px;
+    }
+
     .control-buttons {
         gap: 1rem;
         max-width: min(250px, 85vw);
@@ -1251,7 +1274,6 @@ input:focus {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
-    position: absolute;
     align-items: center;
     box-sizing: border-box;
 }

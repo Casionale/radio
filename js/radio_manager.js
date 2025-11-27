@@ -240,7 +240,7 @@ class RadioManager {
 }
 
 // Создаём экземпляр менеджера
-const radio = new RadioManager("https://radio.bakasenpai.ru/api/nowplaying/e621.station");
+window.radio = new RadioManager("https://radio.bakasenpai.ru/api/nowplaying/e621.station");
 
 
 document.addEventListener("DOMContentLoaded", function(event) {

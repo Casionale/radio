@@ -85,6 +85,68 @@ document.addEventListener('DOMContentLoaded', () => {
     initTextScroll();
     updateLayoutForScreenSize(); // Инициализируем layout при загрузке
 
+    // Логика замены логотипа на маленьких экранах
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        function updateLogo() {
+            if (window.innerWidth < 480) {
+                logo.src = '../assets/images/header_logoSM.svg';
+            } else {
+                logo.src = '../assets/images/header_logo.svg';
+            }
+        }
+
+        // Обновляем при загрузке
+        updateLogo();
+
+        // Обновляем при изменении размера окна
+        window.addEventListener('resize', updateLogo);
+    }
+
+    // Логика скрытия кнопки Download при открытом mini-album на маленьких экранах
+    const miniAlbumPlaceholder = document.getElementById('miniAlbumPlaceholder');
+    const downloadBtn = document.querySelector('.control-btn[aria-label="Download"]');
+    const controlButtons = document.querySelector('.control-buttons');
+
+    if (miniAlbumPlaceholder && downloadBtn && controlButtons) {
+        function updateDownloadButtonVisibility() {
+            const isSmallScreen = window.innerWidth < 600;
+            const isMiniAlbumVisible = miniAlbumPlaceholder.children.length > 0 &&
+                                     miniAlbumPlaceholder.querySelector('.mini-album-container.visible');
+
+            if (isSmallScreen && isMiniAlbumVisible) {
+                // Используем CSS класс для плавного скрытия кнопки
+                downloadBtn.classList.add('hidden-download');
+                controlButtons.classList.add('minimized');
+
+                // Уменьшаем gap когда кнопка скрыта (для маленьких экранов еще меньше)
+                controlButtons.style.setProperty('--control-gap', 'clamp(5px, 2vw, 15px)');
+            } else {
+                // Убираем CSS класс для плавного показа кнопки
+                downloadBtn.classList.remove('hidden-download');
+                controlButtons.classList.remove('minimized');
+
+                // Возвращаем обычный gap
+                controlButtons.style.setProperty('--control-gap', 'clamp(20px, 8vw, 100px)');
+            }
+        }
+
+        // Создаем observer для отслеживания изменений в miniAlbumPlaceholder
+        const observer = new MutationObserver(updateDownloadButtonVisibility);
+        observer.observe(miniAlbumPlaceholder, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        // Обновляем при изменении размера окна
+        window.addEventListener('resize', updateDownloadButtonVisibility);
+
+        // Начальная проверка
+        updateDownloadButtonVisibility();
+    }
+
     if (headerButton) {
         const initialTextSpan = headerButton.querySelector('.button-text.active');
         if (initialTextSpan) {
@@ -145,8 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
             currentVolume = Math.max(0, Math.min(1, volume)); // Ограничиваем от 0 до 1
             updateVolumeDisplay(currentVolume);
 
-            // Здесь можно добавить логику для изменения громкости аудио
-            // Например: audioElement.volume = currentVolume;
+            // Используем radio.setVolume для изменения громкости радио
+            if (window.radio && typeof window.radio.setVolume === 'function') {
+                window.radio.setVolume(currentVolume);
+            }
             console.log('Volume set to:', Math.round(currentVolume * 100) + '%');
         }
 
@@ -168,6 +232,35 @@ document.addEventListener('DOMContentLoaded', () => {
             seekBar.classList.add('dragging'); // Показываем ручку во время перетаскивания
             handleVolumeInteraction(e.clientX);
             e.preventDefault();
+        });
+
+        // Touch события для мобильных устройств
+        seekBar.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            const touch = e.touches[0];
+            handleVolumeInteraction(touch.clientX);
+            e.preventDefault();
+        });
+
+        seekBar.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const touch = e.touches[0];
+                handleVolumeInteraction(touch.clientX);
+                e.preventDefault();
+            }
+        });
+
+        seekBar.addEventListener('touchend', () => {
+            isDragging = false;
+            seekBar.classList.remove('dragging'); // Скрываем ручку после перетаскивания
+
+            // После окончания перетаскивания проверяем, находится ли курсор на элементах
+            // Если курсор ушел - запускаем таймер скрытия
+            setTimeout(() => {
+                if (!isDragging && !volumeControl.matches(':hover') && !seekBar.matches(':hover')) {
+                    hideSeekBarWithDelay();
+                }
+            }, 10); // Небольшая задержка для корректной проверки hover состояния
         });
 
         // Обработка перетаскивания
@@ -371,6 +464,34 @@ if (headerButton) {
     });
 }
 
+
+// Логика отправки сообщений в чат
+function sendMessage() {
+    const messageText = chatInput.value.trim();
+    if (messageText !== '') {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', 'my-message'); // Добавляем класс для моих сообщений
+
+        const now = new Date();
+        const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+        messageElement.innerHTML = `
+            <span class="message-text">${messageText}</span>
+            <span class="message-time">${timeString}</span>
+        `;
+        chatMessages.appendChild(messageElement);
+        chatInput.value = ''; // Очищаем поле ввода
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Прокручиваем до конца
+    }
+}
+
+    // Функция для автоматического изменения высоты textarea
+    function autoResizeTextarea() {
+        chatInput.style.height = 'auto'; // Сброс высоты, чтобы scrollHeight корректно уменьшался и позволяем CSS управлять min/max-height
+        // Устанавливаем высоту, ограничивая её до CSS max-height (72px) для 3 строк
+        chatInput.style.height = Math.min(chatInput.scrollHeight, 72) + 'px';
+    }
+
 // Эффект капли в футере
 document.addEventListener('DOMContentLoaded', () => {
     const footer = document.querySelector('.footer');
@@ -380,6 +501,27 @@ document.addEventListener('DOMContentLoaded', () => {
             createRippleEffect(e.clientX, e.clientY);
         });
     }
+
+    // Обработчик кнопки отправки
+    chatSendBtn.addEventListener('click', () => {
+        sendMessage();
+        autoResizeTextarea(); // Сбрасываем высоту после отправки
+    });
+
+    // Обработчик нажатия Enter в поле ввода
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Предотвращаем стандартный перенос строки
+            sendMessage();
+            autoResizeTextarea(); // Сбрасываем высоту после отправки
+        }
+    });
+
+    // Обработчик ввода для автоматического изменения размера textarea
+    chatInput.addEventListener('input', autoResizeTextarea);
+
+    // Устанавливаем начальную высоту textarea при загрузке страницы
+    autoResizeTextarea();
 });
 
 function createRippleEffect(x, y) {
@@ -421,54 +563,6 @@ function createRippleEffect(x, y) {
         }
     }, 1000); // Время должно соответствовать CSS transition
 }
-
-// Логика отправки сообщений в чат
-function sendMessage() {
-        const messageText = chatInput.value.trim();
-        if (messageText !== '') {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('chat-message', 'my-message'); // Добавляем класс для моих сообщений
-
-            const now = new Date();
-            const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-
-            messageElement.innerHTML = `
-                <span class="message-text">${messageText}</span>
-                <span class="message-time">${timeString}</span>
-            `;
-            chatMessages.appendChild(messageElement);
-            chatInput.value = ''; // Очищаем поле ввода
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Прокручиваем до конца
-        }
-    }
-
-    // Функция для автоматического изменения высоты textarea
-    function autoResizeTextarea() {
-        chatInput.style.height = 'auto'; // Сброс высоты, чтобы scrollHeight корректно уменьшался и позволяем CSS управлять min/max-height
-        // Устанавливаем высоту, ограничивая её до CSS max-height (72px) для 3 строк
-        chatInput.style.height = Math.min(chatInput.scrollHeight, 72) + 'px';
-    }
-
-    // Обработчик кнопки отправки
-    chatSendBtn.addEventListener('click', () => {
-        sendMessage();
-        autoResizeTextarea(); // Сбрасываем высоту после отправки
-    });
-
-    // Обработчик нажатия Enter в поле ввода
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // Предотвращаем стандартный перенос строки
-            sendMessage();
-            autoResizeTextarea(); // Сбрасываем высоту после отправки
-        }
-    });
-
-    // Обработчик ввода для автоматического изменения размера textarea
-    chatInput.addEventListener('input', autoResizeTextarea);
-
-    // Устанавливаем начальную высоту textarea при загрузке страницы
-    document.addEventListener('DOMContentLoaded', autoResizeTextarea);
 
 // Обновляем layout при изменении размера окна
 window.addEventListener('resize', updateLayoutForScreenSize);

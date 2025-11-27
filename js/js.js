@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clearTimeout(hideSeekBarTimer);
             seekBar.style.opacity = '1';
             seekBar.style.pointerEvents = 'auto';
+            seekBar.style.width = 'clamp(50px, calc(60px + 2vw), 70px)'; /* Устанавливаем полную ширину */
         }
 
         function hideSeekBarWithDelay() {
@@ -112,13 +113,88 @@ document.addEventListener('DOMContentLoaded', () => {
             hideSeekBarTimer = setTimeout(() => {
                 seekBar.style.opacity = '0';
                 seekBar.style.pointerEvents = 'none';
+                seekBar.style.width = '0'; /* Устанавливаем ширину 0 */
             }, 1000); // Задержка в 1 секунду
         }
 
         volumeControl.addEventListener('mouseenter', showSeekBar);
-        volumeControl.addEventListener('mouseleave', hideSeekBarWithDelay);
+        volumeControl.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+                hideSeekBarWithDelay();
+            }
+        });
         seekBar.addEventListener('mouseenter', showSeekBar);
-        seekBar.addEventListener('mouseleave', hideSeekBarWithDelay);
+        seekBar.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+                hideSeekBarWithDelay();
+            }
+        });
+
+        // Логика управления громкостью
+        let isDragging = false;
+        let currentVolume = 0.5; // Начальный уровень громкости 50%
+
+        function updateVolumeDisplay(volume) {
+            const percentage = volume * 100;
+            seekBar.style.setProperty('--volume-level', `${percentage}%`);
+            // Используем CSS custom properties для динамического обновления
+            seekBar.style.setProperty('--volume-position', `${percentage}%`);
+        }
+
+        function setVolume(volume) {
+            currentVolume = Math.max(0, Math.min(1, volume)); // Ограничиваем от 0 до 1
+            updateVolumeDisplay(currentVolume);
+
+            // Здесь можно добавить логику для изменения громкости аудио
+            // Например: audioElement.volume = currentVolume;
+            console.log('Volume set to:', Math.round(currentVolume * 100) + '%');
+        }
+
+        function getVolumeFromPosition(clientX) {
+            const rect = seekBar.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const percentage = Math.max(0, Math.min(1, x / rect.width));
+            return percentage;
+        }
+
+        function handleVolumeInteraction(clientX) {
+            const volume = getVolumeFromPosition(clientX);
+            setVolume(volume);
+        }
+
+        // Обработка клика на ползунке
+        seekBar.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            seekBar.classList.add('dragging'); // Показываем ручку во время перетаскивания
+            handleVolumeInteraction(e.clientX);
+            e.preventDefault();
+        });
+
+        // Обработка перетаскивания
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                handleVolumeInteraction(e.clientX);
+            }
+        });
+
+        // Остановка перетаскивания
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                seekBar.classList.remove('dragging'); // Скрываем ручку после перетаскивания
+                isDragging = false;
+
+                // После окончания перетаскивания проверяем, находится ли курсор на элементах
+                // Если курсор ушел - запускаем таймер скрытия
+                setTimeout(() => {
+                    if (!isDragging && !volumeControl.matches(':hover') && !seekBar.matches(':hover')) {
+                        hideSeekBarWithDelay();
+                    }
+                }, 10); // Небольшая задержка для корректной проверки hover состояния
+            }
+        });
+
+        // Инициализация начального уровня громкости
+        updateVolumeDisplay(currentVolume);
     }
 
 });
@@ -183,8 +259,8 @@ if (headerButton) {
 
     headerButton.addEventListener('click', () => {
         const currentTextSpan = headerButton.querySelector('.button-text.active');
-        const newText = isChatMode ? 'я закончил' : 'Тет-а-тет';
-        const targetWidth = isChatMode ? yaZakonchilWidth : tetATetWidth;
+        const newText = !isChatMode ? 'я закончил' : 'Тет-а-тет';
+        const targetWidth = !isChatMode ? yaZakonchilWidth : tetATetWidth;
 
         // Анимация текста кнопки
         if (currentTextSpan) {
@@ -293,6 +369,57 @@ if (headerButton) {
             updateLayoutForScreenSize();
         }
     });
+}
+
+// Эффект капли в футере
+document.addEventListener('DOMContentLoaded', () => {
+    const footer = document.querySelector('.footer');
+
+    if (footer) {
+        footer.addEventListener('click', (e) => {
+            createRippleEffect(e.clientX, e.clientY);
+        });
+    }
+});
+
+function createRippleEffect(x, y) {
+    const footer = document.querySelector('.footer');
+    if (!footer) return;
+
+    // Получаем размеры и позицию footer
+    const footerRect = footer.getBoundingClientRect();
+
+    // Рассчитываем координаты относительно footer
+    const relativeX = x - footerRect.left;
+    const relativeY = y - footerRect.top;
+
+    // Создаем элемент для эффекта капли
+    const ripple = document.createElement('div');
+    ripple.className = 'ripple-effect';
+
+    // Устанавливаем начальную позицию относительно footer
+    ripple.style.left = relativeX + 'px';
+    ripple.style.top = relativeY + 'px';
+
+    // Добавляем в footer
+    footer.appendChild(ripple);
+
+    // Вычисляем максимальный размер (диагональ footer)
+    const maxSize = Math.sqrt(footerRect.width ** 2 + footerRect.height ** 2) * 2;
+
+    // Запускаем анимацию
+    requestAnimationFrame(() => {
+        ripple.style.width = maxSize + 'px';
+        ripple.style.height = maxSize + 'px';
+        ripple.style.opacity = '0';
+    });
+
+    // Удаляем элемент после завершения анимации
+    setTimeout(() => {
+        if (ripple.parentNode) {
+            ripple.parentNode.removeChild(ripple);
+        }
+    }, 1000); // Время должно соответствовать CSS transition
 }
 
 // Логика отправки сообщений в чат

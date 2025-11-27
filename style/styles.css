@@ -728,6 +728,7 @@ body {
     position: absolute;
     bottom: 0;
     z-index: 1000;
+    overflow: hidden; /* Ограничиваем область эффекта капли */
 }
 
 .footer-content {
@@ -894,20 +895,76 @@ body {
     top: 50%;
     transform: translateY(-50%);
     margin-left: 10px; /* Отступ между ползунком и кнопкой */
-    width: clamp(50px, calc(60px + 2vw), 70px);
+    width: 0; /* Начальная ширина 0 */
     height: 0.4rem;
     background-color: #7081e133;
     border-radius: 10px;
     cursor: pointer;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease-out;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: block; /* Всегда занимает место для позиционирования */
+    z-index: 10; /* Поверх других элементов */
 }
 
-.volume-control:hover .seek-bar,
-.seek-bar:hover {
+/* Фоновая полоска громкости */
+.seek-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: var(--volume-level, 50%); /* Динамическая ширина на основе уровня громкости */
+    background-color: #7081e1;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+/* Ручка ползунка */
+.seek-bar::after {
+    content: '';
+    position: absolute;
+    right: calc(100% - var(--volume-position, 50%)); /* Позиция соответствует уровню громкости */
+    top: 50%;
+    transform: translate(50%, -50%);
+    width: 12px;
+    height: 12px;
+    background-color: #7081e1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    opacity: 0; /* Изначально скрыта */
+}
+
+/* CSS hover эффекты теперь обрабатываются через JavaScript */
+
+/* Эффект капли в футере */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(112, 129, 225, 0.4) 0%, rgba(112, 129, 225, 0.2) 50%, rgba(112, 129, 225, 0) 100%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1; /* На заднем фоне footer */
+    transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    width: 0;
+    height: 0;
     opacity: 1;
-    pointer-events: auto;
+    overflow: hidden; /* Ограничиваем область эффекта */
+}
+
+/* Hover эффекты для ползунка */
+.seek-bar:hover::before {
+    background-color: #5a6fd9;
+}
+
+.seek-bar:hover::after,
+.seek-bar.dragging::after {
+    opacity: 1; /* Показываем ручку при hover и перетаскивании */
+    background-color: #5a6fd9;
+    transform: translate(50%, -50%) scale(1.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -1119,12 +1176,12 @@ input:focus {
 @media (max-width: 767px) {
 
     .footer-content {
-        margin-top: 10px;
+        margin-top: 5px;
         gap: 4px;
     }
 
     .player-controls {
-        padding: 0 15px;
+        padding: 0 10px;
         margin-bottom: 8px;
     }
 

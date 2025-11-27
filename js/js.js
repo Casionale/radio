@@ -49,8 +49,41 @@ function initTextScroll() {
     }
 }
 
+// Функция для обновления видимости элементов в зависимости от размера экрана и состояния чата
+function updateLayoutForScreenSize() {
+    const isSmallScreen = window.innerWidth < 1024;
+    const isChatOpen = isChatMode;
+
+    if (isSmallScreen && isChatOpen) {
+        // Маленький экран + открытый чат: скрываем sidebar, показываем изображение
+        if (sidebar) {
+            sidebar.style.display = 'none';
+        }
+        if (characterIllustration) {
+            characterIllustration.style.display = 'block';
+        }
+    } else if (isSmallScreen && !isChatOpen) {
+        // Маленький экран + закрытый чат: показываем sidebar, скрываем изображение
+        if (sidebar) {
+            sidebar.style.display = '';
+        }
+        if (characterIllustration) {
+            characterIllustration.style.display = 'none';
+        }
+    } else {
+        // Большой экран: всегда показываем sidebar и изображение
+        if (sidebar) {
+            sidebar.style.display = '';
+        }
+        if (characterIllustration) {
+            characterIllustration.style.display = 'block';
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initTextScroll();
+    updateLayoutForScreenSize(); // Инициализируем layout при загрузке
 
     if (headerButton) {
         const initialTextSpan = headerButton.querySelector('.button-text.active');
@@ -104,7 +137,7 @@ const headerButton = document.getElementById('headerButton');
 const sidebar = document.querySelector('.sidebar');
 const queueSections = document.querySelectorAll('.sidebar-queues .queue-section');
 
-let isSidebarHidden = false; // Состояние сайдбара, изначально показан
+let isChatMode = false; // Общее состояние: false = обычный режим, true = режим чата
 let tetATetWidth = 0;
 let yaZakonchilWidth = 0;
 const paddingCompensation = 40; // 20px padding left + 20px padding right
@@ -150,8 +183,8 @@ if (headerButton) {
 
     headerButton.addEventListener('click', () => {
         const currentTextSpan = headerButton.querySelector('.button-text.active');
-        const newText = isSidebarHidden ? 'Тет-а-тет' : 'я закончил';
-        const targetWidth = isSidebarHidden ? tetATetWidth : yaZakonchilWidth;
+        const newText = isChatMode ? 'я закончил' : 'Тет-а-тет';
+        const targetWidth = isChatMode ? yaZakonchilWidth : tetATetWidth;
 
         // Анимация текста кнопки
         if (currentTextSpan) {
@@ -174,8 +207,8 @@ if (headerButton) {
         }
 
         if (sidebar) {
-            if (isSidebarHidden) {
-                // Показать сайдбар
+            if (isChatMode) {
+                // Показать сайдбар (выходим из режима чата)
                 sidebar.classList.remove('hide');
                 queueSections.forEach(section => {
                     section.style.transitionDelay = '';
@@ -184,6 +217,7 @@ if (headerButton) {
                     section.style.opacity = '';
                 });
             } else {
+                // Скрыть сайдбар (входим в режим чата)
                 sidebar.classList.add('hide');
                 queueSections.forEach(section => {
                     const randomDelay = Math.random() * 0.3 + 0.1; // От 0.1s до 0.4s
@@ -195,7 +229,6 @@ if (headerButton) {
                     section.style.opacity = '0';
                 });
             }
-            isSidebarHidden = !isSidebarHidden; // Переключаем состояние
         }
 
         // Анимация иллюстрации персонажа
@@ -203,9 +236,29 @@ if (headerButton) {
             characterIllustration.classList.toggle('centered');
         }
 
+        // Дополнительная логика для экранов < 1024px при открытом чате
+        const isSmallScreen = window.innerWidth < 1024;
+        if (isSmallScreen && isChatMode) {
+            // При открытом чате на маленьком экране: скрываем sidebar, показываем изображение
+            if (sidebar) {
+                sidebar.style.display = 'none';
+            }
+            if (characterIllustration) {
+                characterIllustration.style.display = 'block';
+            }
+        } else if (isSmallScreen && !isChatMode) {
+            // При закрытом чате на маленьком экране: показываем sidebar, скрываем изображение
+            if (sidebar) {
+                sidebar.style.display = '';
+            }
+            if (characterIllustration) {
+                characterIllustration.style.display = 'none';
+            }
+        }
+
         // Album section, chat, and mini-album logic
         if (albumSection && chatSection && footer && miniAlbumPlaceholder) {
-            if (isMiniAlbumVisible) {
+            if (isChatMode) {
                 // Скрываем чат, показываем основной альбом
                 chatSection.classList.remove('visible');
                 albumSection.classList.remove('hidden');
@@ -234,12 +287,16 @@ if (headerButton) {
                 miniAlbumContainer.classList.add('visible');
                 footer.classList.add('show-mini-album');
             }
-            isMiniAlbumVisible = !isMiniAlbumVisible;
+            isChatMode = !isChatMode;
+
+            // Обновляем layout после изменения состояния чата
+            updateLayoutForScreenSize();
         }
     });
+}
 
-    // Логика отправки сообщений в чат
-    function sendMessage() {
+// Логика отправки сообщений в чат
+function sendMessage() {
         const messageText = chatInput.value.trim();
         if (messageText !== '') {
             const messageElement = document.createElement('div');
@@ -285,4 +342,6 @@ if (headerButton) {
 
     // Устанавливаем начальную высоту textarea при загрузке страницы
     document.addEventListener('DOMContentLoaded', autoResizeTextarea);
-}
+
+// Обновляем layout при изменении размера окна
+window.addEventListener('resize', updateLayoutForScreenSize);

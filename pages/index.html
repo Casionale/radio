@@ -40,7 +40,6 @@
         <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
       </filter>
     </defs>
-    <!-- Уменьшенные круги: r уменьшен, animate скорректирован -->
     <circle class="viz-circle" id="circle1" cx="30" cy="50" r="10" fill="#7081e1" opacity="0.6"
       filter="url(#circleBlur)">
       <animate attributeName="r" values="10;12.5;10" dur="2s" repeatCount="indefinite" />
@@ -68,7 +67,8 @@
 
       <aside class="sidebar">
 
-        <input type="text" class="queue-input" placeholder="Добавить в очередь.." aria-label="Добавить трек в очередь">
+        <input type="text" class="queue-input" placeholder="Добавить в очередь.." aria-label="Добавить трек в очередь"
+          id="library">
 
         <div class="sidebar-queues">
           <section class="queue-section">
@@ -146,23 +146,24 @@
         <section id="chatSection" class="chat-section hidden">
           <div class="chat-messages"></div>
           <div class="chat-input-area">
-            <textarea class="chat-input" placeholder="Введите сообщение..." maxlength="1000"></textarea>
+            <textarea class="chat-input" placeholder="Введите сообщение.." maxlength="1000" style="height: 66px;"
+              name="message" id="chat-input" aria-label="Поле ввода сообщения" aria-required="true"></textarea>
             <button class="chat-send-btn"></button>
           </div>
         </section>
       </main>
 
-      <img src="../assets/images/img_586530a819b225c.png" alt="Anime character illustration"
+      <img src="../assets/images/img_neco.png" alt="Anime character illustration"
         class="character-illustration" />
     </div>
 
     <footer class="footer">
       <div class="footer-content">
         <div class="player-controls">
-          <span class="time-display">01:03</span>
+          <span class="time-display">00:00</span>
           <div id="miniAlbumPlaceholder"></div>
           <div class="control-buttons">
-            
+
             <button class="control-btn" aria-label="Download">
               <img src="../assets/images/dw.svg" alt="Download" width="26" height="32" />
             </button>
@@ -181,9 +182,9 @@
               <div class="seek-bar" role="slider" aria-label="Volume control"></div>
             </div>
 
-            
+
           </div>
-          <span class="time-display">03:24</span>
+          <span class="time-display">00:00</span>
         </div>
         <div class="progress-container">
           <div class="progress-bar"></div>

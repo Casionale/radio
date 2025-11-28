@@ -27,8 +27,8 @@
   <meta property="og:description"
     content="Stream 90s road trip vibes and pop music with our modern music player interface. Create playlists and discover classic tracks." />
 
-  <script type="module"
-    src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fdhiwise326851back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+  <!--script type="module"
+  <src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fdhiwise326851back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script-->
   <script src="../js/radio_manager.js"></script>
 </head>
 
@@ -146,6 +146,22 @@
         <section id="chatSection" class="chat-section hidden">
           <div class="chat-messages"></div>
           <div class="chat-input-area">
+            <div class="loader" id="typingIndicator">
+              <svg width="40" height="40" viewBox="0 0 100 100">
+                <defs>
+                  <mask id="clipping">
+                    <polygon points="0,0 100,0 100,100 0,100" fill="black"></polygon>
+                    <polygon points="25,25 75,25 50,75" fill="white"></polygon>
+                    <polygon points="50,25 75,75 25,75" fill="white"></polygon>
+                    <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                    <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                    <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                    <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  </mask>
+                </defs>
+              </svg>
+              <div class="box"></div>
+            </div>
             <textarea class="chat-input" placeholder="Введите сообщение.." maxlength="1000" style="height: 66px;"
               name="message" id="chat-input" aria-label="Поле ввода сообщения" aria-required="true"></textarea>
             <button class="chat-send-btn"></button>

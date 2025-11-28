@@ -268,7 +268,6 @@ const observer = new MutationObserver(() => {
 
     if (current !== lastVolume) {
         lastVolume = current;
-        console.log("Громкость изменилась:", current);
         
         // твой код реакции на изменение громкости
         const volumeRatio = parseFloat(current) / 100;

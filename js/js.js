@@ -211,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.radio && typeof window.radio.setVolume === 'function') {
                 window.radio.setVolume(currentVolume);
             }
-            console.log('Volume set to:', Math.round(currentVolume * 100) + '%');
         }
 
         function getVolumeFromPosition(clientX) {
@@ -339,6 +338,7 @@ const chatSection = document.getElementById('chatSection'); // Получаем 
 const chatMessages = chatSection.querySelector('.chat-messages'); // Получаем контейнер для сообщений чата
 const chatInput = chatSection.querySelector('.chat-input');       // Получаем поле ввода чата
 const chatSendBtn = chatSection.querySelector('.chat-send-btn');   // Получаем кнопку отправки чата
+const typingIndicator = document.getElementById('typingIndicator'); // Получаем индикатор печати
 let miniAlbumContainer = null;
 let isMiniAlbumVisible = false;
 
@@ -465,23 +465,96 @@ if (headerButton) {
 }
 
 
+// Функция для генерации ответа от ИИ (временная реализация)
+function generateAIResponse(userMessage) {
+    // Здесь будет логика для подключения к нейронной сети
+    // Пока возвращаем временное сообщение
+
+    const responses = [
+        "Я пока не умею этого, но когда-нибудь я смогу тебе ответить! 🤖",
+        "Извини, но я еще обучаюсь. Скоро смогу вести полноценный разговор! 💭",
+        "Мои алгоритмы еще не готовы к такому уровню общения, но я учусь! 📚",
+        "Технически я еще не подключен к нейронной сети, но скоро это исправим! ⚡",
+        "Спасибо за сообщение! Я пока не могу ответить по-настоящему, но ценю твой интерес! 😊"
+    ];
+
+    // Возвращаем случайный ответ из массива
+    return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Функция для добавления ответа от ИИ в чат
+function addAIResponse(responseText) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('chat-message', 'incoming'); // Изменяем на incoming для ИИ
+
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
+    messageContent.textContent = responseText;
+
+    const now = new Date();
+    const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    const messageTime = document.createElement('div');
+    messageTime.classList.add('message-time');
+    messageTime.textContent = timeString;
+
+    messageElement.appendChild(messageContent);
+    messageElement.appendChild(messageTime);
+
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Прокручиваем до конца
+}
+
+// Функция для показа индикатора печати
+function showTypingIndicator() {
+    if (typingIndicator) {
+        typingIndicator.classList.add('visible');
+    }
+}
+
+// Функция для скрытия индикатора печати
+function hideTypingIndicator() {
+    if (typingIndicator) {
+        typingIndicator.classList.remove('visible');
+    }
+}
+
 // Логика отправки сообщений в чат
 function sendMessage() {
     const messageText = chatInput.value.trim();
     if (messageText !== '') {
         const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message', 'my-message'); // Добавляем класс для моих сообщений
+        messageElement.classList.add('chat-message', 'outgoing'); // Изменяем класс на outgoing
+
+        const messageContent = document.createElement('div');
+        messageContent.classList.add('message-content');
+        messageContent.textContent = messageText;
 
         const now = new Date();
         const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 
-        messageElement.innerHTML = `
-            <span class="message-text">${messageText}</span>
-            <span class="message-time">${timeString}</span>
-        `;
+        const messageTime = document.createElement('div');
+        messageTime.classList.add('message-time');
+        messageTime.textContent = timeString;
+
+        messageElement.appendChild(messageContent);
+        messageElement.appendChild(messageTime);
+
         chatMessages.appendChild(messageElement);
         chatInput.value = ''; // Очищаем поле ввода
         chatMessages.scrollTop = chatMessages.scrollHeight; // Прокручиваем до конца
+
+        // Показываем индикатор печати
+        showTypingIndicator();
+
+        // Генерируем ответ от ИИ через небольшую задержку (имитация "размышления")
+        setTimeout(() => {
+            // Скрываем индикатор печати
+            hideTypingIndicator();
+
+            const aiResponse = generateAIResponse(messageText);
+            addAIResponse(aiResponse);
+        }, 1500); // Задержка 1.5 секунды
     }
 }
 
@@ -563,6 +636,59 @@ function createRippleEffect(x, y) {
         }
     }, 1000); // Время должно соответствовать CSS transition
 }
+
+// Анимация появления/исчезновения сообщений при скролле
+function initChatMessageAnimation() {
+    const chatMessages = document.querySelector('.chat-messages');
+    if (!chatMessages) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const message = entry.target;
+
+            if (entry.isIntersecting) {
+                // Сообщение входит в область видимости - показываем
+                message.style.opacity = '';
+                message.style.transform = '';
+            } else {
+                // Сообщение выходит из области видимости - скрываем
+                const randomDelay = Math.random() * 0.3 + 0.1; // От 0.1s до 0.4s
+                const randomDuration = Math.random() * 0.5 + 0.5; // От 0.5s до 1.0s
+
+                message.style.transitionDelay = `${randomDelay}s`;
+                message.style.transitionDuration = `${randomDuration}s`;
+                message.style.transform = 'translateY(20px)';
+                message.style.opacity = '0';
+            }
+        });
+    }, {
+        root: chatMessages,
+        threshold: 0.1,
+        rootMargin: '50px'
+    });
+
+    // Наблюдаем за всеми существующими сообщениями
+    const existingMessages = chatMessages.querySelectorAll('.chat-message');
+    existingMessages.forEach(message => observer.observe(message));
+
+    // Наблюдаем за новыми сообщениями
+    const observerForNewMessages = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.classList && node.classList.contains('chat-message')) {
+                    observer.observe(node);
+                }
+            });
+        });
+    });
+
+    observerForNewMessages.observe(chatMessages, { childList: true });
+}
+
+// Инициализируем анимацию сообщений при загрузке DOM
+document.addEventListener('DOMContentLoaded', () => {
+    initChatMessageAnimation();
+});
 
 // Обновляем layout при изменении размера окна
 window.addEventListener('resize', updateLayoutForScreenSize);

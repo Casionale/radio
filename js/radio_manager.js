@@ -37,6 +37,10 @@ class RadioManager {
         this.updateElement(".album-title", this.data?.now_playing?.song?.title);
         this.updateImage(".album-artwork", this.data?.now_playing?.song?.art);
 
+        this.updateElement(".mini-album-artist", this.data?.now_playing?.song?.artist);
+        this.updateElement(".mini-album-title", this.data?.now_playing?.song?.title);
+        this.updateImage(".mini-album-artwork", this.data?.now_playing?.song?.art);
+
         this.updateElement("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)", this.data?.playing_next?.song?.title);
         this.updateElement("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)", this.data?.playing_next?.song?.artist);
         this.updateImage("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > img:nth-child(1)", this.data?.playing_next?.song?.art);
@@ -176,16 +180,12 @@ class RadioManager {
         // - текущее время (elapsed)
         // - общая длительность (duration)
         this.updateElement("span.time-display:nth-child(1)", elapsedStr);
-        this.updateElement("span.time-display:nth-child(3)", totalStr);
+        this.updateElement("span.time-display:nth-child(4)", totalStr);
       
         // Обновляем ширину прогресс‑бара (в процентах)
         const progressPercent = (safeElapsed / duration) * 100;
         document.querySelector('.progress-bar').style.width = `${progressPercent}%`;
       
-        // Логи для отладки
-        console.log(`Elapsed: ${safeElapsed}s, Remaining: ${remaining}s, Total: ${duration}s`);
-        console.log(`Formatted: ${elapsedStr} / ${totalStr}`);
-        console.log(`Progress: ${progressPercent.toFixed(1)}%`);
       }
 
     // Метод запуска автоматического обновления данных
@@ -256,3 +256,26 @@ const formatSeconds = (seconds) => {
   const secs = seconds % 60;
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
+
+
+const el = document.querySelector('.seek-bar');
+
+let lastVolume = null;
+
+const observer = new MutationObserver(() => {
+    const current = el.style.getPropertyValue('--volume-level');
+
+    if (current !== lastVolume) {
+        lastVolume = current;
+        console.log("Громкость изменилась:", current);
+        
+        // твой код реакции на изменение громкости
+        const volumeRatio = parseFloat(current) / 100;
+        window.radio.setVolume(volumeRatio);
+    }
+});
+
+observer.observe(el, {
+    attributes: true,
+    attributeFilter: ['style']
+});

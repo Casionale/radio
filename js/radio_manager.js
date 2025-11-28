@@ -259,6 +259,7 @@ const formatSeconds = (seconds) => {
 
 
 const el = document.querySelector('.seek-bar');
+const chatWindowBtn = document.querySelector('#headerButton');
 
 let lastVolume = null;
 
@@ -278,4 +279,8 @@ const observer = new MutationObserver(() => {
 observer.observe(el, {
     attributes: true,
     attributeFilter: ['style']
+});
+
+chatWindowBtn.addEventListener("click", ()=>{
+    window.radio.updateHTML();
 });

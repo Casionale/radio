@@ -81,9 +81,71 @@ function updateLayoutForScreenSize() {
     }
 }
 
+// Функция для установки fallback изображений
+function setupImageFallbacks() {
+    // Находим все изображения, которые могут нуждаться в fallback
+    const images = document.querySelectorAll('img.album-artwork, img.mini-album-artwork, img.track-image, img.station-icon');
+
+    images.forEach(img => {
+        // Если изображение еще не имеет обработчика ошибки
+        if (!img.hasAttribute('data-fallback-set')) {
+            const fallbackSrc = getFallbackImageForElement(img);
+
+            img.onerror = function() {
+                console.warn(`⚠️ Ошибка загрузки изображения: ${this.src}, используем fallback: ${fallbackSrc}`);
+                this.src = fallbackSrc;
+                this.onerror = null; // Убираем обработчик, чтобы избежать бесконечного цикла
+            };
+
+            img.setAttribute('data-fallback-set', 'true');
+        }
+    });
+}
+
+// Вспомогательная функция для определения fallback изображения для элемента
+function getFallbackImageForElement(img) {
+    const classList = img.classList;
+
+    if (classList.contains('album-artwork') || classList.contains('mini-album-artwork')) {
+        return '../assets/images/albom.png';
+    }
+
+    if (classList.contains('track-image')) {
+        return '../assets/images/preloader.png';
+    }
+
+    if (classList.contains('station-icon')) {
+        return '../assets/images/preloaderRad.png';
+    }
+
+    return '../assets/images/albom.png';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initTextScroll();
     updateLayoutForScreenSize(); // Инициализируем layout при загрузке
+    setupImageFallbacks(); // Устанавливаем fallback для существующих изображений
+
+    // Наблюдаем за добавлением новых изображений в DOM
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    // Проверяем, есть ли в добавленном элементе изображения
+                    const images = node.querySelectorAll ? node.querySelectorAll('img.album-artwork, img.mini-album-artwork, img.track-image, img.station-icon') : [];
+                    if (images.length > 0 || (node.tagName === 'IMG' && (node.classList.contains('album-artwork') || node.classList.contains('mini-album-artwork') || node.classList.contains('track-image') || node.classList.contains('station-icon')))) {
+                        setupImageFallbacks();
+                    }
+                }
+            });
+        });
+    });
+
+    // Начинаем наблюдение за изменениями в DOM
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
     // Логика замены логотипа на маленьких экранах
     const logo = document.querySelector('.logo');
@@ -298,6 +360,16 @@ document.querySelectorAll('.play-pause').forEach(button => {
 
         const isPlaying = this.classList.contains('playing');
         this.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+
+        // Обновляем состояние Media Session
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+        }
+
+        // Обновляем состояние визуализатора
+        if (window.audioVisualizer) {
+            window.audioVisualizer.onPlaybackStateChange(isPlaying);
+        }
     });
 });
 
@@ -445,13 +517,15 @@ if (headerButton) {
                     miniAlbumContainer = document.createElement('div');
                     miniAlbumContainer.classList.add('mini-album-container');
                     miniAlbumContainer.innerHTML = `
-                        <img src="../assets/images/albom.png" alt="Album artwork" class="mini-album-artwork" />
+                        <img src="" alt="Album artwork" class="mini-album-artwork" />
                         <div class="mini-album-info">
                             <div class="mini-album-title">Песня</div>
                             <div class="mini-album-artist">Исполнитель</div>
                         </div>
                     `;
                     miniAlbumPlaceholder.appendChild(miniAlbumContainer); // Вставляем в плейсхолдер
+                    // Устанавливаем fallback для нового изображения
+                    setupImageFallbacks();
                 }
                 miniAlbumContainer.classList.add('visible');
                 footer.classList.add('show-mini-album');
@@ -690,65 +764,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initChatMessageAnimation();
 });
 
-// Логика выпадающего меню поиска
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('library');
-    const searchDropdown = document.getElementById('searchDropdown');
-
-    if (searchInput && searchDropdown) {
-        // Показываем меню при фокусе на поле ввода
-        searchInput.addEventListener('focus', function() {
-            searchDropdown.classList.add('active');
-        });
-
-        // Скрываем меню при клике вне области
-        document.addEventListener('click', function(e) {
-            if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
-                searchDropdown.classList.remove('active');
-            }
-        });
-
-        // Обработка выбора опций в меню
-        searchDropdown.addEventListener('click', function(e) {
-            const dropdownItem = e.target.closest('.dropdown-item');
-            if (dropdownItem) {
-                const source = dropdownItem.dataset.source;
-
-                switch (source) {
-                    case 'ncs':
-                        searchInput.value = 'NCS: ';
-                        searchInput.focus();
-                        showToast('Поиск в NCS - введите название трека');
-                        break;
-                    case 'spotify':
-                        searchInput.value = 'Spotify: ';
-                        searchInput.focus();
-                        showToast('Поиск в Spotify - введите название трека');
-                        break;
-                    case 'youtube':
-                        searchInput.value = 'YouTube: ';
-                        searchInput.focus();
-                        showToast('Поиск в YouTube Music - введите название');
-                        break;
-                    case 'soundcloud':
-                        searchInput.value = 'SoundCloud: ';
-                        searchInput.focus();
-                        showToast('Поиск в SoundCloud - введите название трека');
-                        break;
-                    case 'radio-add':
-                        const radioUrl = prompt('Введите URL радиостанции:');
-                        if (radioUrl) {
-                            addRadioStation(radioUrl);
-                        }
-                        break;
-                }
-
-                searchDropdown.classList.remove('active');
-            }
-        });
-    }
-});
-
 // Функция для добавления радиостанции
 function addRadioStation(url) {
     // Здесь можно добавить логику для сохранения радиостанции
@@ -834,19 +849,47 @@ document.addEventListener('DOMContentLoaded', function() {
     // Переменная для хранения текущего URL радиостанции
     let currentRadioUrl = 'https://radio.bakasenpai.ru/stream'; // URL нашей радиостанции
 
-    // Показываем/скрываем выпадающий список
+    // Показываем/скрываем выпадающий список при наведении
     if (currentStation && stationsDropdown) {
-        currentStation.addEventListener('click', function() {
-            stationsDropdown.classList.toggle('active');
-            stationToggle.textContent = stationsDropdown.classList.contains('active') ? '▲' : '▼';
+        let isHoveringMenu = false;
+
+        function showMenu() {
+            stationsDropdown.classList.add('active');
+            stationToggle.classList.add('active');
+        }
+
+        function hideMenu() {
+            stationsDropdown.classList.remove('active');
+            stationToggle.classList.remove('active');
+        }
+
+        currentStation.addEventListener('mouseenter', function() {
+            isHoveringMenu = true;
+            showMenu();
         });
 
-        // Скрываем при клике вне области
-        document.addEventListener('click', function(e) {
-            if (!currentStation.contains(e.target) && !stationsDropdown.contains(e.target)) {
-                stationsDropdown.classList.remove('active');
-                stationToggle.textContent = '▼';
-            }
+        currentStation.addEventListener('mouseleave', function() {
+            isHoveringMenu = false;
+            // Задержка для проверки, не перешел ли курсор на dropdown
+            setTimeout(() => {
+                if (!isHoveringMenu) {
+                    hideMenu();
+                }
+            }, 100);
+        });
+
+        stationsDropdown.addEventListener('mouseenter', function() {
+            isHoveringMenu = true;
+        });
+
+        stationsDropdown.addEventListener('mouseleave', function() {
+            isHoveringMenu = false;
+            // Задержка для проверки, не перешел ли курсор обратно на currentStation
+            setTimeout(() => {
+                if (!isHoveringMenu) {
+                    hideMenu();
+                }
+            }, 100);
         });
     }
 
@@ -918,7 +961,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Скрываем dropdown
                 stationsDropdown.classList.remove('active');
-                stationToggle.textContent = '▼';
+                stationToggle.classList.remove('active');
 
                 showToast(`Переключено на: ${stationName}`);
             }
@@ -996,9 +1039,9 @@ function showAddStationModal() {
             if (url) {
                 addCustomStation(url, name);
                 hideAddStationModal();
-                showToast('Радиостанция добавлена!');
+                showToast('Радиостанция добавлена');
             } else {
-                showToast('Введите URL радиостанции!');
+                showToast('Введите URL радиостанции');
             }
         });
 
@@ -1036,7 +1079,7 @@ function addCustomStation(url, name) {
     stationItem.setAttribute('data-url', url);
 
     stationItem.innerHTML = `
-        <div class="station-icon">📻</div>
+        <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
         <div class="station-details">
             <div class="station-name">${name}</div>
             <div class="station-genre">Пользовательская</div>

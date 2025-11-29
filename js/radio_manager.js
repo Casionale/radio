@@ -76,8 +76,66 @@ class RadioManager {
             this.downloadFile(this.data?.station?.playlist_m3u_url);
         });
 
+        // Обновляем Media Session API для мини-плеера и экрана блокировки
+        this.updateMediaSession();
+
+        // Обновляем мобильное меню если оно активно
+        if (typeof updateMobileMenuContent === 'function') {
+            updateMobileMenuContent();
+        }
+
         // TODO: реализовать отображение данных на странице
 
+    }
+
+    /**
+     * Обновляет Media Session API для мини-плеера и экрана блокировки
+     */
+    updateMediaSession() {
+        if ('mediaSession' in navigator) {
+            const song = this.data?.now_playing?.song;
+            const station = this.data?.station;
+
+            if (song && station) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: song.title || 'Unknown Track',
+                    artist: song.artist || 'Unknown Artist',
+                    album: station.name || 'e621.station',
+                    artwork: [
+                        {
+                            src: song.art || '../assets/images/albom.png',
+                            sizes: '512x512',
+                            type: 'image/png'
+                        },
+                        {
+                            src: song.art || '../assets/images/albom.png',
+                            sizes: '256x256',
+                            type: 'image/png'
+                        }
+                    ]
+                });
+
+                // Обработчики для управления воспроизведением через Media Session
+                navigator.mediaSession.setActionHandler('play', () => {
+                    if (this.audio) {
+                        this.audio.play();
+                    }
+                });
+
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    if (this.audio) {
+                        this.audio.pause();
+                    }
+                });
+
+                navigator.mediaSession.setActionHandler('stop', () => {
+                    if (this.audio) {
+                        this.audio.pause();
+                        this.audio.currentTime = 0;
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -107,11 +165,57 @@ class RadioManager {
                 console.warn(`⚠️ Элемент ${selector} не найден`);
                 return;
             }
-    
-            img.src = src ?? "";
+
+            // Определяем fallback изображение в зависимости от селектора
+            const fallbackSrc = this.getFallbackImage(selector);
+
+            // Устанавливаем обработчик ошибки загрузки
+            img.onerror = function() {
+                console.warn(`⚠️ Ошибка загрузки изображения: ${src}, используем fallback: ${fallbackSrc}`);
+                this.src = fallbackSrc;
+                this.onerror = null; // Убираем обработчик, чтобы избежать бесконечного цикла
+            };
+
+            // Устанавливаем обработчик успешной загрузки
+            img.onload = function() {
+                this.onload = null; // Очищаем обработчик
+            };
+
+            // Если src отсутствует или пустой, сразу используем fallback
+            if (!src || src.trim() === "") {
+                img.src = fallbackSrc;
+            } else {
+                img.src = src;
+            }
         } catch (err) {
             console.error(`Ошибка при обновлении изображения ${selector}:`, err);
         }
+    }
+
+    // Метод для определения fallback изображения
+    getFallbackImage(selector) {
+        // Для основных обложек альбомов
+        if (selector.includes('album-artwork') || selector.includes('mini-album-artwork')) {
+            return '../assets/images/albom.png';
+        }
+
+        // Для изображений треков в истории и очереди
+        if (selector.includes('track-image')) {
+            return '../assets/images/preloader.png';
+        }
+
+        // Для иконок радиостанций
+        if (selector.includes('station-icon')) {
+            return '../assets/images/preloaderRad.png';
+        }
+
+        // Для изображений "следующий трек"
+        if (selector.includes('playing_next') || selector.includes('song_history')) {
+            return '../assets/images/preloader.png';
+        }
+
+        // По умолчанию используем albom.png
+        return '../assets/images/albom.png';
     }
 
     updateOnClick(selector, onClick){
@@ -232,6 +336,7 @@ class RadioManager {
         // Если сейчас играет — ставим на паузу
         if (!this.audio.paused) {
             this.audio.pause();
+            this.updateVisualizerState(false);
             console.log("⏸️ Радио поставлено на паузу");
         } else {
             // Если остановлено — запускаем (если URL изменился — обновляем)
@@ -239,7 +344,10 @@ class RadioManager {
                 this.audio.src = url;
             }
             this.audio.play()
-                .then(() => console.log("▶️ Радио запущено"))
+                .then(() => {
+                    this.updateVisualizerState(true);
+                    console.log("▶️ Радио запущено");
+                })
                 .catch(err => console.error("Ошибка при воспроизведении:", err));
         }
     }
@@ -248,7 +356,6 @@ class RadioManager {
     setVolume(value) {
         if (this.audio) {
             this.audio.volume = Math.min(Math.max(value, 0), 1); // защита от выхода за диапазон
-            console.log(`🔊 Громкость: ${Math.round(this.audio.volume * 100)}%`);
         }
     }
 
@@ -261,6 +368,13 @@ class RadioManager {
         if (this.timerInterval !== null){
             clearInterval(this.timerInterval);
             this.timerInterval = null;
+        }
+    }
+
+    // Управление состоянием визуализатора
+    updateVisualizerState(isPlaying) {
+        if (window.audioVisualizer) {
+            window.audioVisualizer.onPlaybackStateChange(isPlaying);
         }
     }
 }

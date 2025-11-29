@@ -22,10 +22,27 @@
     content="music streaming, 90s music, road trip vibes, pop music, playlist, music player, e621 station" />
 
   <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="music.song" />
   <meta property="og:title" content="e621.station - 90s Road Trip Vibes Music Player" />
   <meta property="og:description"
     content="Stream 90s road trip vibes and pop music with our modern music player interface. Create playlists and discover classic tracks." />
+  <meta property="og:image" content="../assets/images/albom.png" />
+  <meta property="og:image:width" content="500" />
+  <meta property="og:image:height" content="500" />
+  <meta property="og:image:alt" content="Album artwork for current track" />
+  <meta property="music:album" content="Current Album" />
+  <meta property="music:musician" content="Current Artist" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="e621.station - 90s Road Trip Vibes Music Player" />
+  <meta name="twitter:description" content="Stream 90s road trip vibes and pop music with our modern music player interface." />
+  <meta name="twitter:image" content="../assets/images/albom.png" />
+
+  <!-- Media Session API support -->
+  <meta name="theme-color" content="#7081e1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
   <!--script type="module"-->
   <script src="../js/radio_manager.js"></script>
@@ -41,15 +58,12 @@
     </defs>
     <circle class="viz-circle" id="circle1" cx="30" cy="50" r="10" fill="#7081e1" opacity="0.6"
       filter="url(#circleBlur)">
-      <animate attributeName="r" values="10;12.5;10" dur="2s" repeatCount="indefinite" />
     </circle>
     <circle class="viz-circle" id="circle2" cx="50" cy="50" r="12.5" fill="#4CAF50" opacity="0.6"
       filter="url(#circleBlur)">
-      <animate attributeName="r" values="12.5;15;12.5" dur="2.5s" repeatCount="indefinite" />
     </circle>
     <circle class="viz-circle" id="circle3" cx="70" cy="50" r="9" fill="#f44336" opacity="0.6"
       filter="url(#circleBlur)">
-      <animate attributeName="r" values="9;11;9" dur="1.8s" repeatCount="indefinite" />
     </circle>
   </svg>
 
@@ -72,7 +86,7 @@
               <div class="station-name" id="currentStationName">e621.station</div>
               <div class="station-status">Сейчас играет</div>
             </div>
-            <button class="station-toggle" id="stationToggle">▼</button>
+            <button class="station-toggle" id="stationToggle"><img src="../assets/images/arrowAs.svg" alt="arrow" class="arrow-icon"></button>
           </div>
 
           <div class="stations-dropdown" id="stationsDropdown">
@@ -83,7 +97,7 @@
 
             <div class="stations-list">
               <div class="station-item active" data-url="https://radio.bakasenpai.ru/api/nowplaying/e621.station">
-                <div class="station-icon">🎵</div>
+                <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
                 <div class="station-details">
                   <div class="station-name">e621.station</div>
                   <div class="station-genre">90s Road Trip Vibes</div>
@@ -92,7 +106,7 @@
               </div>
 
               <div class="station-item" data-url="https://s1.cloudmu.id/api/nowplaying/10">
-                <div class="station-icon">📻</div>
+                <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
                 <div class="station-details">
                   <div class="station-name">Rock Hits Radio</div>
                   <div class="station-genre">Рок музыка</div>
@@ -101,7 +115,7 @@
               </div>
 
               <div class="station-item" data-url="https://s1.cloudmu.id/api/nowplaying/14">
-                <div class="station-icon">🎸</div>
+                <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
                 <div class="station-details">
                   <div class="station-name">Radio Paradise</div>
                   <div class="station-genre">Альтернативный рок</div>
@@ -110,7 +124,7 @@
               </div>
 
               <div class="station-item" data-url="https://s1.cloudmu.id/api/nowplaying/1">
-                <div class="station-icon">🎹</div>
+                <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
                 <div class="station-details">
                   <div class="station-name">Jamendo Lounge</div>
                   <div class="station-genre">Электронная музыка</div>
@@ -119,7 +133,7 @@
               </div>
 
               <div class="station-item" data-url="https://s1.cloudmu.id/api/nowplaying/12">
-                <div class="station-icon">🎷</div>
+                <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
                 <div class="station-details">
                   <div class="station-name">ABC Lounge</div>
                   <div class="station-genre">Лаунж музыка</div>
@@ -195,7 +209,7 @@
       <main class="main-content">
         <section class="album-section" id="albumSection">
           <div class="album-container">
-            <img src="../assets/images/albom.png" alt="Hypnoize (2014 Remaster) album artwork by The Notorious B.I.G"
+            <img src="../assets/images/albom.png" alt="Обложка"
               class="album-artwork" />
             <div class="album-info">
               <h2 class="album-title">Песня</h2>
@@ -229,8 +243,7 @@
         </section>
       </main>
 
-      <img src="../assets/images/img_neco.png" alt="Anime character illustration"
-        class="character-illustration" />
+      <img src="../assets/images/img_neco.png" alt="Anime character illustration" class="character-illustration" />
     </div>
 
     <footer class="footer">
@@ -270,6 +283,7 @@
   </div>
 
   <script src="../js/js.js"></script>
+  <script src="../js/audio_visualizer.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.4.0/color-thief.umd.js"></script>
 </body>

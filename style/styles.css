@@ -1,5 +1,11 @@
 /* Reset and base styles */
 
+:root {
+    --main-color: #7182E2;
+    --txt-color: #181A1B;
+    --white-color: #ffffff;
+}
+
 @font-face {
     font-family: 'Geologica';
     src: url('/assets/fonts/geologica/Geologica-Light.woff2') format('woff2'),
@@ -29,7 +35,7 @@
 
 body {
     font-family: 'Geologica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #181a1a;
+    color: var(--txt-color);
     background: none;
     overflow: hidden;
     height: 100vh;
@@ -44,16 +50,13 @@ body {
 /* Custom text selection color */
 ::selection {
     background-color: rgba(112, 129, 225, 0.2);
-    /* #7081e1 with 20% opacity */
-    color: #181a1a;
-    /* Ensure text remains visible */
+    color: var(--txt-color);
 }
 
 ::-moz-selection {
     background-color: rgba(112, 129, 225, 0.2);
     /* #7081e1 with 20% opacity */
-    color: #181a1a;
-    /* Ensure text remains visible */
+    color: var(--txt-color);
 }
 
 /* Layout components */
@@ -280,7 +283,7 @@ body {
     font-size: 16px;
     font-family: Geologica;
     font-weight: 300;
-    color: #7081e1;
+    color: var(--main-color);
     border: 1px solid #7081e17f;
     border-radius: 14px;
     padding: 8px 20px;
@@ -341,15 +344,15 @@ body {
 }
 
 .header-button:hover {
-    color: #7081e1;
-    border-color: #7081e1;
+    color: var(--main-color);
+    border-color: var(--main-color);
 }
 
 /* Плавное нажатие — фон заливает, текст белеет */
 .header-button:active {
-    background-color: #7081e1 !important;
-    color: white !important;
-    border-color: #7081e1 !important;
+    background-color: var(--main-color) !important;
+    color: var(--white-color) !important;
+    border-color: var(--main-color) !important;
 }
 
 /* Sidebar */
@@ -438,8 +441,8 @@ body {
     font-size: 16px;
     font-family: Geologica;
     font-weight: 300;
-    color: #7081e1;
-    border: 1px solid #7081e1;
+    color: var(--main-color);
+    border: 1px solid var(--main-color);
     border-radius: 14px;
     padding: 18px;
     background: transparent;
@@ -479,19 +482,19 @@ body {
 
 .station-name {
     font-weight: 500;
-    color: #181a1a;
+    color: var(--txt-color);
     margin-bottom: 4px;
 }
 
 .station-status {
     font-size: 12px;
-    color: #7081e1;
+    color: var(--main-color);
 }
 
 .station-toggle {
     background: none;
     border: none;
-    color: #7081e1;
+    color: var(--main-color);
     font-size: 16px;
     cursor: pointer;
     padding: 4px;
@@ -499,8 +502,16 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.station-toggle:hover {
-    background-color: rgba(112, 129, 225, 0.1);
+
+.arrow-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+    filter: invert(43%) sepia(86%) saturate(1351%) hue-rotate(201deg) brightness(95%) contrast(92%);
+}
+
+.station-toggle.active .arrow-icon {
+    transform: rotate(180deg);
 }
 
 /* Выпадающий список станций */
@@ -509,12 +520,10 @@ body {
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--white-color);
     border: 1px solid rgba(112, 129, 225, 0.2);
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(124, 116, 218, 0.15);
-    max-height: 400px;
-    overflow-y: auto;
     z-index: 1000;
     margin-top: 8px;
     opacity: 0;
@@ -531,17 +540,17 @@ body {
     pointer-events: auto;
 }
 
-.stations-dropdown::-webkit-scrollbar {
+.stations-list::-webkit-scrollbar {
     width: 6px;
 }
 
-.stations-dropdown::-webkit-scrollbar-thumb {
+.stations-list::-webkit-scrollbar-thumb {
     background: #7081e17f;
     border-radius: 3px;
 }
 
-.stations-dropdown::-webkit-scrollbar-thumb:hover {
-    background: #7081e1;
+.stations-list::-webkit-scrollbar-thumb:hover {
+    background: var(--main-color);
 }
 
 @keyframes station-scroll-in-out {
@@ -573,7 +582,9 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(64, 68, 98, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -589,7 +600,7 @@ body {
 }
 
 .modal-content {
-    background: white;
+    background: var(--white-color);
     border-radius: 16px;
     padding: 24px;
     max-width: 400px;
@@ -611,7 +622,7 @@ body {
 .modal-title {
     font-size: 18px;
     font-weight: 600;
-    color: #181a1a;
+    color: var(--txt-color);
     margin: 0;
 }
 
@@ -627,7 +638,7 @@ body {
     display: block;
     font-size: 14px;
     font-weight: 500;
-    color: #181a1a;
+    color: var(--txt-color);
     margin-bottom: 6px;
 }
 
@@ -637,15 +648,15 @@ body {
     border: 2px solid rgba(112, 129, 225, 0.2);
     border-radius: 8px;
     font-size: 14px;
-    color: #181a1a;
-    background: white;
+    color: var(--txt-color);
+    background: var(--white-color);
     transition: border-color 0.3s ease;
     box-sizing: border-box;
 }
 
 .form-input:focus {
     outline: none;
-    border-color: #7081e1;
+    border-color: var(--main-color);
     box-shadow: 0 0 0 3px rgba(112, 129, 225, 0.1);
 }
 
@@ -667,20 +678,20 @@ body {
 
 .modal-btn.cancel {
     background: rgba(112, 129, 225, 0.1);
-    color: #7081e1;
+    color: var(--main-color);
 }
 
 .modal-btn.cancel:hover {
-    background: rgba(112, 129, 225, 0.2);
+    background: rgba(112, 129, 225, 0.1);
 }
 
 .modal-btn.add {
-    background: #7081e1;
-    color: white;
+    background: var(--main-color);
+    color: var(--white-color);
 }
 
 .modal-btn.add:hover {
-    background: #5a6ed1;
+    background: var(--main-color);
     }
 
 /* Toast уведомления */
@@ -688,11 +699,11 @@ body {
     position: fixed;
     bottom: 20px;
     right: -300px; /* Начинаем за пределами экрана справа */
-    background: #7081e1;
-    color: white;
+    background: var(--main-color);
+    color: var(--white-color);
     padding: 12px 20px;
     border-radius: 8px;
-    z-index: 9999;
+    z-index: 99999;
     font-size: 14px;
     font-weight: 500;
     box-shadow: 0 4px 12px rgba(112, 129, 225, 0.3);
@@ -723,12 +734,12 @@ body {
 .dropdown-header h4 {
     margin: 0;
     font-weight: 500;
-    color: #181a1a;
+    color: var(--txt-color);
 }
 
 .add-station-btn {
-    background-color: #fff;
-    color: #7081e1;
+    background-color: var(--white-color);
+    color: var(--main-color);
     border: none;
     padding: 6px 12px;
     border-radius: 6px;
@@ -744,6 +755,8 @@ body {
 
 .stations-list {
     padding: 8px 0;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .station-item {
@@ -764,19 +777,14 @@ body {
 
 .station-item.active {
     background-color: rgba(112, 129, 225, 0.1);
-    border-left-color: #7081e1;
+    border-left-color: var(--main-color);
 }
 
 .station-icon {
-    width: 32px;
-    height: 32px;
+    width: 50px;
+    height: auto;
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    background: linear-gradient(135deg, #7081e1, #5a6ed1);
-    color: white;
+    object-fit: cover;
 }
 
 .station-details {
@@ -785,7 +793,7 @@ body {
 
 .station-item .station-name {
     font-weight: 500;
-    color: #181a1a;
+    color: var(--txt-color);
     margin-bottom: 2px;
 }
 
@@ -796,9 +804,8 @@ body {
 }
 
 .station-item .station-listeners {
-    font-size: 11px;
-    color: #7081e1;
-    font-weight: 500;
+    font-size: 12px;
+    color: var(--main-color);
 }
 
 .search-dropdown {
@@ -806,7 +813,7 @@ body {
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--white-color);
     border: 1px solid rgba(112, 129, 225, 0.2);
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -834,7 +841,7 @@ body {
     margin: 0 0 8px 0;
     font-size: 12px;
     font-weight: 600;
-    color: #666;
+    color: #181a1bb2;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -863,23 +870,7 @@ body {
     justify-content: center;
     font-size: 12px;
     font-weight: bold;
-    color: white;
-}
-
-.ncs-icon {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-}
-
-.spotify-icon {
-    background: linear-gradient(135deg, #1db954, #1ed760);
-}
-
-.youtube-icon {
-    background: linear-gradient(135deg, #ff0000, #cc0000);
-}
-
-.soundcloud-icon {
-    background: linear-gradient(135deg, #ff7700, #ff5500);
+    color: var(--white-color);
 }
 
 .dropdown-item-text {
@@ -889,18 +880,18 @@ body {
 .dropdown-item-title {
     font-size: 14px;
     font-weight: 500;
-    color: #181a1a;
+    color: var(--txt-color);
     margin-bottom: 2px;
 }
 
 .dropdown-item-subtitle {
     font-size: 12px;
-    color: #666;
+    color: #181a1bb2;
 }
 
 .dropdown-item-action {
     font-size: 12px;
-    color: #7081e1;
+    color: var(--main-color);
     font-weight: 500;
 }
 
@@ -933,7 +924,7 @@ body {
 }
 
 .sidebar-queues:hover::-webkit-scrollbar-thumb:hover {
-    background: #7081e1;
+    background: var(--main-color);
 }
 
 .queue-section {
@@ -946,7 +937,7 @@ body {
     font-size: 20px;
     font-family: Geologica;
     font-weight: 300;
-    color: #181a1ab2;
+    color: #181a1bb2;
     margin-top: 20px;
 }
 
@@ -1035,7 +1026,7 @@ body {
     font-size: 16px;
     font-family: Geologica;
     font-weight: 500;
-    color: #181a1a;
+    color: var(--txt-color);
 }
 
 .track-artist {
@@ -1159,7 +1150,7 @@ body {
     font-family: Geologica;
     font-weight: 500;
     letter-spacing: 1px;
-    color: #181a1a;
+    color: var(--txt-color);
 }
 
 .album-artist {
@@ -1259,7 +1250,7 @@ body {
     font-size: 18px;
     font-family: Geologica;
     font-weight: 500;
-    color: #181a1a;
+    color: var(--txt-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1278,7 +1269,7 @@ body {
     font-family: Geologica;
     font-size: 24px;
     font-weight: 300;
-    color: #181a1a;
+    color: var(--txt-color);
     font-variant-numeric: tabular-nums;
     flex-shrink: 0;
     /* Чтобы не уменьшался */
@@ -1302,6 +1293,10 @@ body {
     border: none;
     cursor: pointer;
     transition: transform 0.3s ease, opacity 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .control-btn:hover {
@@ -1353,7 +1348,7 @@ body {
 }
 
 .progress-bar {
-    background-color: #7081e1;
+    background-color: var(--main-color);
     width: 22%;
     height: 10px;
     border-radius: 0px 5px 5px 0px;
@@ -1386,7 +1381,7 @@ body {
     top: 0;
     height: 100%;
     width: var(--volume-level, 50%); /* Динамическая ширина на основе уровня громкости */
-    background-color: #7081e1;
+    background-color: var(--main-color);
     border-radius: 10px;
     transition: all 0.2s ease;
 }
@@ -1400,7 +1395,7 @@ body {
     transform: translate(50%, -50%);
     width: 12px;
     height: 12px;
-    background-color: #7081e1;
+    background-color: var(--main-color);
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1427,7 +1422,7 @@ body {
 
 /* Hover эффекты для ползунка */
 .seek-bar:hover::before {
-    background-color: #5a6fd9;
+    background-color: var(--main-color);
 }
 
 .seek-bar:hover::after,
@@ -1441,7 +1436,7 @@ body {
 
 input:focus {
     outline: none;
-    box-shadow: 0 0 0 1px #7081e1 inset;
+    box-shadow: 0 0 0 1px var(--main-color) inset;
 }
 
 @media (min-width: 640px) {
@@ -1492,7 +1487,7 @@ input:focus {
     }
 
     .sidebar-queues:hover::-webkit-scrollbar-thumb:hover {
-        background: #7081e1;
+        background: var(--main-color);
     }
 
     .sidebar-queues:hover {
@@ -1764,7 +1759,7 @@ input:focus {
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-    background: #7081e1;
+    background: var(--main-color);
 }
 
 
@@ -1802,13 +1797,13 @@ input:focus {
 
 .incoming .message-content {
     background-color: #AAB4ED;
-    color: #ffffff;
+    color: var(--white-color);
     border-bottom-left-radius: 0.2rem;
 }
 
 .outgoing .message-content {
-    background-color: #7081e1;
-    color: #FFFFFF;
+    background-color: var(--main-color);
+    color: var(--white-color);
     border-bottom-right-radius: 0.2rem;
 }
 
@@ -1817,7 +1812,7 @@ input:focus {
 }
 
 .loader {
-    --color-one: #7081e1;
+    --color-one: var(--main-color);
     --color-two: #AAB4ED;
     --color-three: #7081e180;
     --color-four: #AAB4ED80;
@@ -1973,8 +1968,8 @@ input:focus {
 
 .chat-message.sent {
     align-self: flex-end;
-    background-color: #7081e1;
-    color: white;
+    background-color: var(--main-color);
+    color: var(--white-color);
     --p: 0%;
 }
 
@@ -2005,7 +2000,7 @@ input:focus {
     border-radius: 600px;
     border: 1px solid #7081e17f;
     background-color: rgba(255, 255, 255, 0.2);
-    color: #181a1a;
+    color: var(--txt-color);
     font-family: Geologica;
     font-size: 16px;
     resize: none;
@@ -2027,8 +2022,8 @@ input:focus {
 
 .chat-input:focus {
     outline: none;
-    border-color: #7182E2;
-    box-shadow: 0 0 0 1px #7182E2 inset;
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 1px var(--main-color) inset;
 }
 
 .chat-send-btn {
@@ -2039,7 +2034,7 @@ input:focus {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #7081e1;
+    background-color: var(--main-color);
     border: none;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;

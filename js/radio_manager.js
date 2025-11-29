@@ -10,6 +10,13 @@ class RadioManager {
         this.start(); // сразу запускаем
 
         this.timesong = 0; // Буффер таймера
+
+        // Создаём аудиоплеер сразу
+        this.audio = new Audio();
+        this.audio.crossOrigin = "anonymous"; // если нужно
+        this.audio.src = ""; // пока пусто
+        this.audio.load();
+
     }
 
     // Метод для запроса данных с сервера
@@ -192,12 +199,19 @@ class RadioManager {
     start() {
         this.fetchData();
         this.startTimer();
-        setInterval(() => this.fetchData(), this.updateInterval);
+        this.intervalId = setInterval(() => this.fetchData(), this.updateInterval);
     }
 
     togglePlayButton(){
         try{    
             this.togglePlay(this.data?.station?.listen_url);
+            
+            let paused = this.audio.paused;
+            let btn = document.querySelector('button.control-btn:nth-child(2)');
+            if (!paused)
+                btn.classList.add('playing');
+            else
+                btn.classList.toggle('playing');
         }
         catch{
             console.error("Нет ссылки на поток!");
@@ -235,6 +249,18 @@ class RadioManager {
         if (this.audio) {
             this.audio.volume = Math.min(Math.max(value, 0), 1); // защита от выхода за диапазон
             console.log(`🔊 Громкость: ${Math.round(this.audio.volume * 100)}%`);
+        }
+    }
+
+    stopTimer() {
+        if (this.intervalId !== null) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+
+        if (this.timerInterval !== null){
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
         }
     }
 }
@@ -283,3 +309,8 @@ observer.observe(el, {
 chatWindowBtn.addEventListener("click", ()=>{
     window.radio.updateHTML();
 });
+
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

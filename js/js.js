@@ -852,7 +852,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обработка выбора радиостанции
     if (stationsDropdown) {
-        stationsDropdown.addEventListener('click', function(e) {
+        stationsDropdown.addEventListener('click', async function(e) {
             const stationItem = e.target.closest('.station-item');
             if (stationItem && !e.target.closest('.add-station-btn')) {
                 const stationUrl = stationItem.dataset.url;
@@ -871,14 +871,50 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentStationName.textContent = stationName;
                 }
 
+                let btn = document.querySelector('button.control-btn:nth-child(2)');
+                let value = btn.getAttribute('aria-label');
+
+                const paused = window.radio.audio.paused;
+
                 // Меняем радиостанцию
                 if (stationUrl === 'current') {
                     // Возврат к нашей радиостанции
                     changeRadioStation(currentRadioUrl, stationName);
+                    window.radio.audio.pause();
+                    window.radio.stopTimer();
+                    
+                    window.radio = new RadioManager("https://radio.bakasenpai.ru/api/nowplaying/e621.station");
+
                 } else {
                     // Смена на другую радиостанцию
                     changeRadioStation(stationUrl, stationName);
+                    window.radio.audio.pause();
+                    window.radio.stopTimer();
+                    
+                    window.radio = new RadioManager(stationUrl);
+
+                    await sleep(1000);
+
+
+                    if (!paused){
+                        //console.log('s');
+                        await sleep(1000);
+                        //console.log('e');
+                        window.radio.audio.src = window.radio.data?.station?.listen_url
+                        window.radio.audio.play();
+                    }
+
+                    if (!paused)
+                        btn.classList.add('playing');
+                    else
+                        btn.classList.toggle('playing');
                 }
+
+                
+                
+                
+                
+
 
                 // Скрываем dropdown
                 stationsDropdown.classList.remove('active');

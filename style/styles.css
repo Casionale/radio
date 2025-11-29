@@ -450,6 +450,460 @@ body {
     color: #7081e17f;
 }
 
+/* Селектор радиостанций */
+.radio-selector {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.current-station {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: rgba(112, 129, 225, 0.1);
+    border: 1px solid rgba(112, 129, 225, 0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.current-station:hover {
+    background: rgba(112, 129, 225, 0.15);
+    border-color: rgba(112, 129, 225, 0.3);
+}
+
+.station-info {
+    flex: 1;
+}
+
+.station-name {
+    font-weight: 500;
+    color: #181a1a;
+    margin-bottom: 4px;
+}
+
+.station-status {
+    font-size: 12px;
+    color: #7081e1;
+}
+
+.station-toggle {
+    background: none;
+    border: none;
+    color: #7081e1;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.station-toggle:hover {
+    background-color: rgba(112, 129, 225, 0.1);
+}
+
+/* Выпадающий список станций */
+.stations-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid rgba(112, 129, 225, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(124, 116, 218, 0.15);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 8px;
+    opacity: 0;
+    transform: translateY(-10px);
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.stations-dropdown.active {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.stations-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.stations-dropdown::-webkit-scrollbar-thumb {
+    background: #7081e17f;
+    border-radius: 3px;
+}
+
+.stations-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #7081e1;
+}
+
+@keyframes station-scroll-in-out {
+    entry 0% {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+
+    entry 100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    exit 0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    exit 100% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
+
+/* Модальное окно добавления радиостанции */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: scale(0.8) translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #181a1a;
+    margin: 0;
+}
+
+.modal-body {
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #181a1a;
+    margin-bottom: 6px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid rgba(112, 129, 225, 0.2);
+    border-radius: 8px;
+    font-size: 14px;
+    color: #181a1a;
+    background: white;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #7081e1;
+    box-shadow: 0 0 0 3px rgba(112, 129, 225, 0.1);
+}
+
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.modal-btn.cancel {
+    background: rgba(112, 129, 225, 0.1);
+    color: #7081e1;
+}
+
+.modal-btn.cancel:hover {
+    background: rgba(112, 129, 225, 0.2);
+}
+
+.modal-btn.add {
+    background: #7081e1;
+    color: white;
+}
+
+.modal-btn.add:hover {
+    background: #5a6ed1;
+    }
+
+/* Toast уведомления */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: -300px; /* Начинаем за пределами экрана справа */
+    background: #7081e1;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 9999;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(112, 129, 225, 0.3);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+.toast-notification.show {
+    right: 20px; /* Появляемся на экране */
+    opacity: 1;
+}
+
+.toast-notification.hide {
+    right: -300px; /* Уплываем за экран вправо */
+    opacity: 0;
+}
+
+.dropdown-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dropdown-header h4 {
+    margin: 0;
+    font-weight: 500;
+    color: #181a1a;
+}
+
+.add-station-btn {
+    background-color: #fff;
+    color: #7081e1;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-station-btn:hover {
+    background: rgba(112, 129, 225, 0.2);
+}
+
+.stations-list {
+    padding: 8px 0;
+}
+
+.station-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-left: 3px solid transparent;
+    animation: linear station-scroll-in-out;
+    animation-timeline: view();
+}
+
+.station-item:hover {
+    background-color: #7081e133;
+}
+
+.station-item.active {
+    background-color: rgba(112, 129, 225, 0.1);
+    border-left-color: #7081e1;
+}
+
+.station-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: linear-gradient(135deg, #7081e1, #5a6ed1);
+    color: white;
+}
+
+.station-details {
+    flex: 1;
+}
+
+.station-item .station-name {
+    font-weight: 500;
+    color: #181a1a;
+    margin-bottom: 2px;
+}
+
+.station-item .station-genre {
+    font-size: 12px;
+    color: #181a1bb2;
+    margin-bottom: 2px;
+}
+
+.station-item .station-listeners {
+    font-size: 11px;
+    color: #7081e1;
+    font-weight: 500;
+}
+
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid rgba(112, 129, 225, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    margin-top: 5px;
+}
+
+.search-dropdown.active {
+    display: block;
+}
+
+.dropdown-section {
+    padding: 12px 16px 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-section:last-child {
+    border-bottom: none;
+}
+
+.dropdown-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(112, 129, 225, 0.1);
+}
+
+.dropdown-item-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+}
+
+.ncs-icon {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+}
+
+.spotify-icon {
+    background: linear-gradient(135deg, #1db954, #1ed760);
+}
+
+.youtube-icon {
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+}
+
+.soundcloud-icon {
+    background: linear-gradient(135deg, #ff7700, #ff5500);
+}
+
+.dropdown-item-text {
+    flex: 1;
+}
+
+.dropdown-item-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #181a1a;
+    margin-bottom: 2px;
+}
+
+.dropdown-item-subtitle {
+    font-size: 12px;
+    color: #666;
+}
+
+.dropdown-item-action {
+    font-size: 12px;
+    color: #7081e1;
+    font-weight: 500;
+}
+
 .sidebar-queues {
     display: flex;
     flex-direction: column;
@@ -507,7 +961,7 @@ body {
     gap: 14px;
     align-items: flex-start;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 15px;
     transition: background-color 0.3s ease;
 }
 
@@ -769,7 +1223,7 @@ body {
 }
 
 .footer.show-mini-album #miniAlbumPlaceholder {
-    width: 200px;
+    width: 250px;
     opacity: 1;
 }
 

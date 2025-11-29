@@ -690,5 +690,328 @@ document.addEventListener('DOMContentLoaded', () => {
     initChatMessageAnimation();
 });
 
+// Логика выпадающего меню поиска
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('library');
+    const searchDropdown = document.getElementById('searchDropdown');
+
+    if (searchInput && searchDropdown) {
+        // Показываем меню при фокусе на поле ввода
+        searchInput.addEventListener('focus', function() {
+            searchDropdown.classList.add('active');
+        });
+
+        // Скрываем меню при клике вне области
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                searchDropdown.classList.remove('active');
+            }
+        });
+
+        // Обработка выбора опций в меню
+        searchDropdown.addEventListener('click', function(e) {
+            const dropdownItem = e.target.closest('.dropdown-item');
+            if (dropdownItem) {
+                const source = dropdownItem.dataset.source;
+
+                switch (source) {
+                    case 'ncs':
+                        searchInput.value = 'NCS: ';
+                        searchInput.focus();
+                        showToast('Поиск в NCS - введите название трека');
+                        break;
+                    case 'spotify':
+                        searchInput.value = 'Spotify: ';
+                        searchInput.focus();
+                        showToast('Поиск в Spotify - введите название трека');
+                        break;
+                    case 'youtube':
+                        searchInput.value = 'YouTube: ';
+                        searchInput.focus();
+                        showToast('Поиск в YouTube Music - введите название');
+                        break;
+                    case 'soundcloud':
+                        searchInput.value = 'SoundCloud: ';
+                        searchInput.focus();
+                        showToast('Поиск в SoundCloud - введите название трека');
+                        break;
+                    case 'radio-add':
+                        const radioUrl = prompt('Введите URL радиостанции:');
+                        if (radioUrl) {
+                            addRadioStation(radioUrl);
+                        }
+                        break;
+                }
+
+                searchDropdown.classList.remove('active');
+            }
+        });
+    }
+});
+
+// Функция для добавления радиостанции
+function addRadioStation(url) {
+    // Здесь можно добавить логику для сохранения радиостанции
+    console.log('Добавлена радиостанция:', url);
+    showToast('Радиостанция добавлена: ' + url);
+}
+
+// Имитация поиска в NCS (поскольку настоящий API требует авторизации)
+function searchNCS(query) {
+    // Имитируем результаты поиска
+    const mockResults = [
+        { title: 'Warriors', artist: 'Imagine Dragons', genre: 'Electronic' },
+        { title: 'Thunder', artist: 'Imagine Dragons', genre: 'Rock' },
+        { title: 'Believer', artist: 'Imagine Dragons', genre: 'Rock' },
+        { title: 'Radioactive', artist: 'Imagine Dragons', genre: 'Alternative' },
+        { title: 'Demons', artist: 'Imagine Dragons', genre: 'Alternative' }
+    ];
+
+    const filteredResults = mockResults.filter(track =>
+        track.title.toLowerCase().includes(query.toLowerCase()) ||
+        track.artist.toLowerCase().includes(query.toLowerCase())
+    );
+
+    return filteredResults.slice(0, 5); // Ограничиваем до 5 результатов
+}
+
+// Функция для обработки поиска
+function handleSearch(query) {
+    if (query.startsWith('NCS: ')) {
+        const searchTerm = query.replace('NCS: ', '');
+        const results = searchNCS(searchTerm);
+
+        if (results.length > 0) {
+            showToast(`Найдено ${results.length} треков в NCS`);
+            console.log('Результаты поиска NCS:', results);
+            // Здесь можно добавить логику для отображения результатов
+        } else {
+            showToast('Ничего не найдено в NCS');
+        }
+    }
+    // Здесь можно добавить обработку для других сервисов
+}
+
+// Функция для показа уведомлений
+function showToast(message) {
+    // Создаем toast элемент если его нет
+    let toast = document.querySelector('.toast-notification');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        document.body.appendChild(toast);
+    }
+
+    // Убираем предыдущие классы анимации
+    toast.classList.remove('show', 'hide');
+
+    toast.textContent = message;
+
+    // Запускаем анимацию появления
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10); // Небольшая задержка для корректной работы transition
+
+    // Через 3 секунды запускаем анимацию исчезновения
+    setTimeout(() => {
+        toast.classList.add('hide');
+
+        // Полностью скрываем элемент после анимации
+        setTimeout(() => {
+            toast.classList.remove('show', 'hide');
+        }, 300); // Время transition
+    }, 3000);
+}
+
+// Логика селектора радиостанций
+document.addEventListener('DOMContentLoaded', function() {
+    const currentStationName = document.getElementById('currentStationName');
+    const stationToggle = document.getElementById('stationToggle');
+    const stationsDropdown = document.getElementById('stationsDropdown');
+    const addStationBtn = document.getElementById('addStationBtn');
+    const currentStation = document.querySelector('.current-station');
+
+    // Переменная для хранения текущего URL радиостанции
+    let currentRadioUrl = 'https://radio.bakasenpai.ru/stream'; // URL нашей радиостанции
+
+    // Показываем/скрываем выпадающий список
+    if (currentStation && stationsDropdown) {
+        currentStation.addEventListener('click', function() {
+            stationsDropdown.classList.toggle('active');
+            stationToggle.textContent = stationsDropdown.classList.contains('active') ? '▲' : '▼';
+        });
+
+        // Скрываем при клике вне области
+        document.addEventListener('click', function(e) {
+            if (!currentStation.contains(e.target) && !stationsDropdown.contains(e.target)) {
+                stationsDropdown.classList.remove('active');
+                stationToggle.textContent = '▼';
+            }
+        });
+    }
+
+    // Обработка выбора радиостанции
+    if (stationsDropdown) {
+        stationsDropdown.addEventListener('click', function(e) {
+            const stationItem = e.target.closest('.station-item');
+            if (stationItem && !e.target.closest('.add-station-btn')) {
+                const stationUrl = stationItem.dataset.url;
+                const stationName = stationItem.querySelector('.station-name').textContent;
+
+                // Убираем активный класс со всех элементов
+                document.querySelectorAll('.station-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Добавляем активный класс выбранному
+                stationItem.classList.add('active');
+
+                // Обновляем отображение текущей станции
+                if (currentStationName) {
+                    currentStationName.textContent = stationName;
+                }
+
+                // Меняем радиостанцию
+                if (stationUrl === 'current') {
+                    // Возврат к нашей радиостанции
+                    changeRadioStation(currentRadioUrl, stationName);
+                } else {
+                    // Смена на другую радиостанцию
+                    changeRadioStation(stationUrl, stationName);
+                }
+
+                // Скрываем dropdown
+                stationsDropdown.classList.remove('active');
+                stationToggle.textContent = '▼';
+
+                showToast(`Переключено на: ${stationName}`);
+            }
+        });
+    }
+
+    // Обработка добавления своей радиостанции
+    if (addStationBtn) {
+        addStationBtn.addEventListener('click', function() {
+            showAddStationModal();
+        });
+    }
+});
+
+// Функция для смены радиостанции
+function changeRadioStation(url, name) {
+    if (window.radio && typeof window.radio.setVolume === 'function') {
+        // Здесь можно добавить логику для смены URL потока
+        // Но поскольку у нас фиксированный плеер, просто покажем уведомление
+        console.log(`Переключение на радиостанцию: ${name} (${url})`);
+    }
+}
+
+// Функция для показа модального окна добавления радиостанции
+function showAddStationModal() {
+    // Создаем модальное окно если его нет
+    let modal = document.querySelector('.modal-overlay');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Добавить радиостанцию</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="stationUrl">URL потока радиостанции</label>
+                        <input type="url" class="form-input" id="stationUrl" placeholder="https://example.com/stream.mp3" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="stationName">Название радиостанции</label>
+                        <input type="text" class="form-input" id="stationName" placeholder="Моя радиостанция" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn cancel" id="cancelBtn">Отмена</button>
+                    <button class="modal-btn add" id="confirmBtn">Добавить</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Обработчики событий
+        const cancelBtn = modal.querySelector('#cancelBtn');
+        const confirmBtn = modal.querySelector('#confirmBtn');
+        const stationUrl = modal.querySelector('#stationUrl');
+        const stationName = modal.querySelector('#stationName');
+
+        // Закрытие по клику вне модального окна
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                hideAddStationModal();
+            }
+        });
+
+        // Кнопка отмены
+        cancelBtn.addEventListener('click', hideAddStationModal);
+
+        // Кнопка подтверждения
+        confirmBtn.addEventListener('click', function() {
+            const url = stationUrl.value.trim();
+            const name = stationName.value.trim() || 'Моя радиостанция';
+
+            if (url) {
+                addCustomStation(url, name);
+                hideAddStationModal();
+                showToast('Радиостанция добавлена!');
+            } else {
+                showToast('Введите URL радиостанции!');
+            }
+        });
+
+        // Enter для подтверждения
+        stationName.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                confirmBtn.click();
+            }
+        });
+    }
+
+    // Показываем модальное окно
+    modal.classList.add('active');
+    modal.querySelector('#stationUrl').focus();
+}
+
+// Функция для скрытия модального окна
+function hideAddStationModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.classList.remove('active');
+        // Очищаем поля формы
+        modal.querySelector('#stationUrl').value = '';
+        modal.querySelector('#stationName').value = '';
+    }
+}
+
+// Функция для добавления кастомной радиостанции в список
+function addCustomStation(url, name) {
+    const stationsList = document.querySelector('.stations-list');
+    if (!stationsList) return;
+
+    const stationItem = document.createElement('div');
+    stationItem.className = 'station-item';
+    stationItem.setAttribute('data-url', url);
+
+    stationItem.innerHTML = `
+        <div class="station-icon">📻</div>
+        <div class="station-details">
+            <div class="station-name">${name}</div>
+            <div class="station-genre">Пользовательская</div>
+            <div class="station-listeners">Добавлено</div>
+        </div>
+    `;
+
+    // Вставляем перед последним элементом (чтобы не было в конце)
+    const lastItem = stationsList.lastElementChild;
+    stationsList.insertBefore(stationItem, lastItem);
+}
+
 // Обновляем layout при изменении размера окна
 window.addEventListener('resize', updateLayoutForScreenSize);

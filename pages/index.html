@@ -27,8 +27,7 @@
   <meta property="og:description"
     content="Stream 90s road trip vibes and pop music with our modern music player interface. Create playlists and discover classic tracks." />
 
-  <!--script type="module"
-  <src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fdhiwise326851back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script-->
+  <!--script type="module"-->
   <script src="../js/radio_manager.js"></script>
 </head>
 
@@ -67,8 +66,69 @@
 
       <aside class="sidebar">
 
-        <input type="text" class="queue-input" placeholder="Добавить в очередь.." aria-label="Добавить трек в очередь"
-          id="library">
+        <div class="radio-selector">
+          <div class="current-station">
+            <div class="station-info">
+              <div class="station-name" id="currentStationName">e621.station</div>
+              <div class="station-status">Сейчас играет</div>
+            </div>
+            <button class="station-toggle" id="stationToggle">▼</button>
+          </div>
+
+          <div class="stations-dropdown" id="stationsDropdown">
+            <div class="dropdown-header">
+              <h4>Выберите радиостанцию</h4>
+              <button class="add-station-btn" id="addStationBtn">Добавить радиостанцию</button>
+            </div>
+
+            <div class="stations-list">
+              <div class="station-item active" data-url="current">
+                <div class="station-icon">🎵</div>
+                <div class="station-details">
+                  <div class="station-name">e621.station</div>
+                  <div class="station-genre">90s Road Trip Vibes</div>
+                  <div class="station-listeners">Играет сейчас</div>
+                </div>
+              </div>
+
+              <div class="station-item" data-url="https://radio.bakasenpai.ru/stream">
+                <div class="station-icon">📻</div>
+                <div class="station-details">
+                  <div class="station-name">Rock Hits Radio</div>
+                  <div class="station-genre">Рок музыка</div>
+                  <div class="station-listeners">Онлайн</div>
+                </div>
+              </div>
+
+              <div class="station-item" data-url="https://stream.radioparadise.com/mp3-128">
+                <div class="station-icon">🎸</div>
+                <div class="station-details">
+                  <div class="station-name">Radio Paradise</div>
+                  <div class="station-genre">Альтернативный рок</div>
+                  <div class="station-listeners">Онлайн</div>
+                </div>
+              </div>
+
+              <div class="station-item" data-url="https://streaming.radionomy.com/JamendoLounge">
+                <div class="station-icon">🎹</div>
+                <div class="station-details">
+                  <div class="station-name">Jamendo Lounge</div>
+                  <div class="station-genre">Электронная музыка</div>
+                  <div class="station-listeners">Онлайн</div>
+                </div>
+              </div>
+
+              <div class="station-item" data-url="https://streaming.radionomy.com/ABC-Lounge">
+                <div class="station-icon">🎷</div>
+                <div class="station-details">
+                  <div class="station-name">ABC Lounge</div>
+                  <div class="station-genre">Лаунж музыка</div>
+                  <div class="station-listeners">Онлайн</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="sidebar-queues">
           <section class="queue-section">

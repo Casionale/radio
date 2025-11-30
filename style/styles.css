@@ -39,7 +39,8 @@ body {
     background: none;
     overflow: hidden;
     height: 100vh;
-    padding-bottom: env(safe-area-inset-bottom)
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 * {

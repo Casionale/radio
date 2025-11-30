@@ -64,7 +64,8 @@ body {
 .main-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: auto;
+    min-height: 100dvh;
     width: 100%;
     overflow: hidden;
 }
@@ -261,7 +262,7 @@ body {
     box-sizing: border-box;
 }
 
-.header-content > * {
+.header-content>* {
     box-sizing: border-box;
 }
 
@@ -697,13 +698,14 @@ body {
 
 .modal-btn.add:hover {
     background: var(--main-color);
-    }
+}
 
 /* Toast уведомления */
 .toast-notification {
     position: fixed;
     bottom: 20px;
-    right: -300px; /* Начинаем за пределами экрана справа */
+    right: -300px;
+    /* Начинаем за пределами экрана справа */
     background: var(--main-color);
     color: var(--white-color);
     padding: 12px 20px;
@@ -719,12 +721,14 @@ body {
 }
 
 .toast-notification.show {
-    right: 20px; /* Появляемся на экране */
+    right: 20px;
+    /* Появляемся на экране */
     opacity: 1;
 }
 
 .toast-notification.hide {
-    right: -300px; /* Уплываем за экран вправо */
+    right: -300px;
+    /* Уплываем за экран вправо */
     opacity: 0;
 }
 
@@ -1178,7 +1182,8 @@ body {
     position: absolute;
     bottom: 0;
     z-index: 1000;
-    overflow: hidden; /* Ограничиваем область эффекта капли */
+    overflow: hidden;
+    /* Ограничиваем область эффекта капли */
 }
 
 .footer-content {
@@ -1286,7 +1291,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: clamp(20px, 8vw, 100px); /* Адаптивный gap от 20px до 100px */
+    gap: clamp(20px, 8vw, 100px);
+    /* Адаптивный gap от 20px до 100px */
     flex: 1;
     width: fit-content;
     max-width: 100%;
@@ -1331,13 +1337,14 @@ body {
 
 
 .volume-control {
-    position: relative; /* Добавлено для позиционирования seek-bar */
+    position: relative;
+    /* Добавлено для позиционирования seek-bar */
     display: flex;
     align-items: center;
 }
 
 @media (max-width: 640px) {
-    .volume-control{
+    .volume-control {
         display: none;
     }
 }
@@ -1362,11 +1369,14 @@ body {
 
 .seek-bar {
     position: absolute;
-    left: 100%; /* Позиционируем справа от кнопки */
+    left: 100%;
+    /* Позиционируем справа от кнопки */
     top: 50%;
     transform: translateY(-50%);
-    margin-left: 10px; /* Отступ между ползунком и кнопкой */
-    width: 0; /* Начальная ширина 0 */
+    margin-left: 10px;
+    /* Отступ между ползунком и кнопкой */
+    width: 0;
+    /* Начальная ширина 0 */
     height: 0.4rem;
     background-color: #7081e133;
     border-radius: 10px;
@@ -1374,8 +1384,10 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    display: block; /* Всегда занимает место для позиционирования */
-    z-index: 10; /* Поверх других элементов */
+    display: block;
+    /* Всегда занимает место для позиционирования */
+    z-index: 10;
+    /* Поверх других элементов */
 }
 
 /* Фоновая полоска громкости */
@@ -1385,7 +1397,8 @@ body {
     left: 0;
     top: 0;
     height: 100%;
-    width: var(--volume-level, 50%); /* Динамическая ширина на основе уровня громкости */
+    width: var(--volume-level, 50%);
+    /* Динамическая ширина на основе уровня громкости */
     background-color: var(--main-color);
     border-radius: 10px;
     transition: all 0.2s ease;
@@ -1395,7 +1408,8 @@ body {
 .seek-bar::after {
     content: '';
     position: absolute;
-    right: calc(100% - var(--volume-position, 50%)); /* Позиция соответствует уровню громкости */
+    right: calc(100% - var(--volume-position, 50%));
+    /* Позиция соответствует уровню громкости */
     top: 50%;
     transform: translate(50%, -50%);
     width: 12px;
@@ -1405,7 +1419,8 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    opacity: 0; /* Изначально скрыта */
+    opacity: 0;
+    /* Изначально скрыта */
 }
 
 /* CSS hover эффекты теперь обрабатываются через JavaScript */
@@ -1417,12 +1432,14 @@ body {
     background: radial-gradient(circle, rgba(112, 129, 225, 0.4) 0%, rgba(112, 129, 225, 0.2) 50%, rgba(112, 129, 225, 0) 100%);
     transform: translate(-50%, -50%);
     pointer-events: none;
-    z-index: 1; /* На заднем фоне footer */
+    z-index: 1;
+    /* На заднем фоне footer */
     transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     width: 0;
     height: 0;
     opacity: 1;
-    overflow: hidden; /* Ограничиваем область эффекта */
+    overflow: hidden;
+    /* Ограничиваем область эффекта */
 }
 
 /* Hover эффекты для ползунка */
@@ -1432,7 +1449,8 @@ body {
 
 .seek-bar:hover::after,
 .seek-bar.dragging::after {
-    opacity: 1; /* Показываем ручку при hover и перетаскивании */
+    opacity: 1;
+    /* Показываем ручку при hover и перетаскивании */
     background-color: #5a6fd9;
     transform: translate(50%, -50%) scale(1.2);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -1529,7 +1547,8 @@ input:focus {
     }
 
     .control-buttons {
-        gap: clamp(15px, 6vw, 60px); /* Меньший gap для маленьких экранов */
+        gap: clamp(15px, 6vw, 60px);
+        /* Меньший gap для маленьких экранов */
     }
 }
 
@@ -1639,9 +1658,12 @@ input:focus {
     }
 
     .seek-bar {
-        width: 50px; /* Фиксированная ширина для маленьких экранов */
-        opacity: 1; /* Всегда видим на мобильных */
-        pointer-events: auto; /* Всегда активен на мобильных */
+        width: 50px;
+        /* Фиксированная ширина для маленьких экранов */
+        opacity: 1;
+        /* Всегда видим на мобильных */
+        pointer-events: auto;
+        /* Всегда активен на мобильных */
     }
 }
 
@@ -1761,10 +1783,12 @@ input:focus {
 
 .burger-overlay {
     position: fixed;
-    top: 100%; /* Начинаем от нижней границы header */
+    top: 100%;
+    /* Начинаем от нижней границы header */
     left: 0;
     width: 100vw;
-    height: calc(100vh - 100px); /* Высота экрана минус высота header */
+    height: calc(100vh - 100px);
+    /* Высота экрана минус высота header */
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -2009,11 +2033,9 @@ input:focus {
 .loader .box {
     width: 100px;
     height: 100px;
-    background: linear-gradient(
-        180deg,
-        var(--color-one) 30%,
-        var(--color-two) 70%
-    );
+    background: linear-gradient(180deg,
+            var(--color-one) 30%,
+            var(--color-two) 70%);
     mask: url(#clipping);
     -webkit-mask: url(#clipping);
 }
@@ -2073,6 +2095,7 @@ input:focus {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -2082,15 +2105,19 @@ input:focus {
     0% {
         filter: contrast(15);
     }
+
     20% {
         filter: contrast(3);
     }
+
     40% {
         filter: contrast(3);
     }
+
     60% {
         filter: contrast(15);
     }
+
     100% {
         filter: contrast(15);
     }
@@ -2100,18 +2127,23 @@ input:focus {
     0% {
         filter: hue-rotate(0deg);
     }
+
     20% {
         filter: hue-rotate(-30deg);
     }
+
     40% {
         filter: hue-rotate(-60deg);
     }
+
     60% {
         filter: hue-rotate(-90deg);
     }
+
     80% {
         filter: hue-rotate(-45deg);
     }
+
     100% {
         filter: hue-rotate(0deg);
     }
@@ -2213,9 +2245,12 @@ input:focus {
 }
 
 @keyframes typingBlink {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-5px);
     }

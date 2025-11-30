@@ -73,6 +73,36 @@
         <img src="../assets/images/header_logo.svg" alt="e621.station logo" class="logo" />
         <h1 class="genre-title">90s Road Trip Vibes, Pop</h1>
         <button class="header-button" id="headerButton"><span class="button-text active">Тет-а-тет</span></button>
+        <button class="burger-menu" id="burgerMenu" aria-label="Меню">
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+        </button>
+      </div>
+
+      <!-- Бургер меню -->
+      <div class="burger-overlay" id="burgerOverlay">
+        <nav class="burger-nav">
+          <div class="burger-nav-content">
+            <div class="burger-nav-section">
+              <h3 class="burger-nav-title">Радиостанции</h3>
+              <div class="burger-nav-links">
+                <a href="#" class="burger-nav-link" data-station="e621.station">e621.station</a>
+                <a href="#" class="burger-nav-link" data-station="rock-hits">Rock Hits Radio</a>
+                <a href="#" class="burger-nav-link" data-station="radio-paradise">Radio Paradise</a>
+                <a href="#" class="burger-nav-link" data-station="jamendo-lounge">Jamendo Lounge</a>
+                <a href="#" class="burger-nav-link" data-station="abc-lounge">ABC Lounge</a>
+              </div>
+            </div>
+
+            <div class="burger-nav-section">
+              <h3 class="burger-nav-title">Функции</h3>
+              <div class="burger-nav-links">
+                <a href="#" class="burger-nav-link" id="burgerAddStation">Добавить радиостанцию</a>
+              </div>
+            </div>
+          </div>
+        </nav>
       </div>
     </header>
 

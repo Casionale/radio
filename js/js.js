@@ -1094,3 +1094,87 @@ function addCustomStation(url, name) {
 
 // Обновляем layout при изменении размера окна
 window.addEventListener('resize', updateLayoutForScreenSize);
+
+// === Бургер меню ===
+document.addEventListener('DOMContentLoaded', () => {
+    const burgerMenu = document.getElementById('burgerMenu');
+    const burgerOverlay = document.getElementById('burgerOverlay');
+    const burgerChatToggle = document.getElementById('burgerChatToggle');
+    const burgerAddStation = document.getElementById('burgerAddStation');
+
+    // Функция для переключения бургер меню
+    function toggleBurgerMenu() {
+        burgerMenu.classList.toggle('active');
+        burgerOverlay.classList.toggle('active');
+
+        // Блокируем/разблокируем прокрутку body при открытом меню
+        if (burgerOverlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Обработчик клика по бургер кнопке
+    if (burgerMenu) {
+        burgerMenu.addEventListener('click', toggleBurgerMenu);
+    }
+
+    // Закрытие меню при клике по overlay (но не по контенту)
+    if (burgerOverlay) {
+        burgerOverlay.addEventListener('click', (e) => {
+            if (e.target === burgerOverlay) {
+                toggleBurgerMenu();
+            }
+        });
+    }
+
+
+    // Обработчик для кнопки "Добавить радиостанцию" в бургер меню
+    if (burgerAddStation) {
+        burgerAddStation.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleBurgerMenu(); // Закрываем бургер меню
+            showAddStationModal();
+        });
+    }
+
+    // Обработчики для ссылок радиостанций в бургер меню
+    const burgerNavLinks = document.querySelectorAll('.burger-nav-link[data-station]');
+    burgerNavLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const stationType = link.getAttribute('data-station');
+
+            // Имитируем клик по соответствующей станции в sidebar
+            const stationItems = document.querySelectorAll('.station-item');
+            let targetStation = null;
+
+            // Находим соответствующую станцию
+            switch (stationType) {
+                case 'e621.station':
+                    targetStation = stationItems[0]; // Первая станция (e621.station)
+                    break;
+                case 'rock-hits':
+                    targetStation = stationItems[1]; // Rock Hits Radio
+                    break;
+                case 'radio-paradise':
+                    targetStation = stationItems[2]; // Radio Paradise
+                    break;
+                case 'jamendo-lounge':
+                    targetStation = stationItems[3]; // Jamendo Lounge
+                    break;
+                case 'abc-lounge':
+                    targetStation = stationItems[4]; // ABC Lounge
+                    break;
+            }
+
+            if (targetStation) {
+                // Имитируем клик по станции
+                targetStation.click();
+                toggleBurgerMenu(); // Закрываем бургер меню
+                showToast(`Переключено на: ${targetStation.querySelector('.station-name').textContent}`);
+            }
+        });
+    });
+});

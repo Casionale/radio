@@ -4,6 +4,7 @@
     --main-color: #7182E2;
     --txt-color: #181A1B;
     --white-color: #ffffff;
+    --opasity-bg: rgba(112, 129, 225, 0.2);
 }
 
 @font-face {
@@ -196,6 +197,7 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
+    filter: url(#noiseFilter);
 }
 
 /* Modified .viz-circle (add CSS blur as fallback) */
@@ -230,7 +232,6 @@ body {
 
     100% {
         transform: translate(5px, -5px) scale(1.05);
-        /* Уменьшены translate и scale */
     }
 }
 
@@ -241,7 +242,7 @@ body {
     align-items: center;
     width: 100%;
     height: auto;
-    border-bottom: 1px solid #7182e272;
+    border-bottom: 1px solid var(--opasity-bg);
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px);
@@ -257,7 +258,6 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1840px;
     box-sizing: border-box;
 }
 
@@ -290,7 +290,7 @@ body {
     font-family: Geologica;
     font-weight: 300;
     color: var(--main-color);
-    border: 1px solid #7081e17f;
+    border: 1px solid var(--opasity-bg);
     border-radius: 14px;
     padding: 8px 20px;
     background: transparent;
@@ -333,7 +333,7 @@ body {
     left: -15px;
     width: 30px;
     height: 30px;
-    background: #7081e139;
+    background: var(--opasity-bg);
     border-radius: 50%;
     transform: translateY(-50%) scale(0);
     transform-origin: center;
@@ -351,7 +351,6 @@ body {
     border-color: var(--main-color);
 }
 
-/* Плавное нажатие — фон заливает, текст белеет */
 .header-button:active {
     background-color: var(--main-color) !important;
     color: var(--white-color) !important;
@@ -374,6 +373,7 @@ body {
     transform: translateX(0);
     opacity: 1;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    padding-bottom: calc(50vh - 35dvh);
 }
 
 .sidebar.hide {
@@ -468,7 +468,7 @@ body {
     justify-content: space-between;
     padding: 16px 20px;
     background: rgba(112, 129, 225, 0.1);
-    border: 1px solid rgba(112, 129, 225, 0.2);
+    border: 1px solid var(--opasity-bg);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -476,7 +476,7 @@ body {
 
 .current-station:hover {
     background: rgba(112, 129, 225, 0.15);
-    border-color: rgba(112, 129, 225, 0.3);
+    border-color: var(--opasity-bg);
 }
 
 .station-info {
@@ -524,7 +524,7 @@ body {
     left: 0;
     right: 0;
     background: var(--white-color);
-    border: 1px solid rgba(112, 129, 225, 0.2);
+    border: 1px solid var(--opasity-bg);
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(124, 116, 218, 0.15);
     z-index: 1000;
@@ -648,7 +648,7 @@ body {
 .form-input {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid rgba(112, 129, 225, 0.2);
+    border: 2px solid var(--opasity-bg);
     border-radius: 8px;
     font-size: 14px;
     color: var(--txt-color);
@@ -660,7 +660,7 @@ body {
 .form-input:focus {
     outline: none;
     border-color: var(--main-color);
-    box-shadow: 0 0 0 3px rgba(112, 129, 225, 0.1);
+    box-shadow: 0 0 0 3px var(--opasity-bg);
 }
 
 .modal-footer {
@@ -702,7 +702,6 @@ body {
     position: fixed;
     bottom: 20px;
     right: -300px;
-    /* Начинаем за пределами экрана справа */
     background: var(--main-color);
     color: var(--white-color);
     padding: 12px 20px;
@@ -710,7 +709,7 @@ body {
     z-index: 99999;
     font-size: 14px;
     font-weight: 500;
-    box-shadow: 0 4px 12px rgba(112, 129, 225, 0.3);
+    box-shadow: 0 4px 12px var(--opasity-bg);
     opacity: 0;
     transition: all 0.3s ease-in-out;
     max-width: 300px;
@@ -719,7 +718,6 @@ body {
 
 .toast-notification.show {
     right: 20px;
-    /* Появляемся на экране */
     opacity: 1;
 }
 
@@ -730,7 +728,7 @@ body {
 
 .dropdown-header {
     padding: 16px 20px 12px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(13, 14, 14, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -755,7 +753,7 @@ body {
 }
 
 .add-station-btn:hover {
-    background: rgba(112, 129, 225, 0.2);
+    background: var(--opasity-bg);
 }
 
 .stations-list {
@@ -777,7 +775,7 @@ body {
 }
 
 .station-item:hover {
-    background-color: #7081e133;
+    background-color: var(--opasity-bg);
 }
 
 .station-item.active {
@@ -819,7 +817,7 @@ body {
     left: 0;
     right: 0;
     background: var(--white-color);
-    border: 1px solid rgba(112, 129, 225, 0.2);
+    border: 1px solid var(--opasity-bg);
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     max-height: 300px;
@@ -990,7 +988,7 @@ body {
 }
 
 .track-item:hover {
-    background-color: #7081e133;
+    background-color: var(--opasity-bg);
 }
 
 
@@ -1179,49 +1177,53 @@ body {
     bottom: 0;
     z-index: 1000;
     overflow: hidden;
-    /* Ограничиваем область эффекта капли */
 }
 
 .footer-content {
     display: flex;
     flex-direction: column;
-    /* Восстановлено на column */
     gap: 6px;
     align-items: center;
     width: 100%;
     margin-top: 18px;
     transition: none;
-    /* Убираем лишние переходы */
 }
 
 .player-controls {
+    position: relative;
     display: flex;
     flex-direction: row;
-    /* Изменено на row */
     justify-content: space-between;
     align-items: center;
     width: 100%;
     padding: 0 20px;
-    /* Добавлен padding */
     margin-bottom: 10px;
     box-sizing: border-box;
-    transition: margin-left 0.3s ease-out;
-    /* Переходы для смещения */
 }
 
 #miniAlbumPlaceholder {
-    width: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: width 0.3s ease-out, opacity 0.3s ease-out;
+    position: absolute;
+    margin-left: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 60px;
+    width: 250px;
+
     display: flex;
     align-items: center;
-    flex-shrink: 0;
+
+    opacity: 0;
+    pointer-events: none;
+
+    clip-path: inset(0 100% 0 0);  
+    transition: 
+        opacity 0.35s ease,
+        clip-path 0.45s ease-out;
 }
 
 .footer.show-mini-album #miniAlbumPlaceholder {
-    width: 250px;
     opacity: 1;
+    clip-path: inset(0 0 0 0); /* раскрываем */
 }
 
 /* Стили для мини-альбома в футере, который будет внутри placeholder */
@@ -1271,6 +1273,22 @@ body {
     text-overflow: ellipsis;
 }
 
+.control-btn.play-pause {
+    transition: transform 0.35s ease-out;
+}
+
+/* Только для мобильных */
+@media (max-width: 640px) {
+    /* Когда футер получает класс show-mini-album */
+    .footer.show-mini-album .control-btn.play-pause {
+        transform: translateX(80px); /* сдвиг вправо на ширину мини-альбома или чуть меньше */
+    }
+
+    #miniAlbumPlaceholder {
+        margin-left: 45px;
+    }
+}
+
 .time-display {
     font-family: Geologica;
     font-size: 24px;
@@ -1278,9 +1296,7 @@ body {
     color: var(--txt-color);
     font-variant-numeric: tabular-nums;
     flex-shrink: 0;
-    /* Чтобы не уменьшался */
     transition: margin-left 0.3s ease-out;
-    /* Для плавного смещения */
 }
 
 .control-buttons {
@@ -1288,10 +1304,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: clamp(20px, 8vw, 100px);
-    /* Адаптивный gap от 20px до 100px */
     flex: 1;
-    width: fit-content;
-    max-width: 100%;
     transition: margin-left 0.3s ease-out, gap 0.3s ease-out;
 }
 
@@ -1334,7 +1347,6 @@ body {
 
 .volume-control {
     position: relative;
-    /* Добавлено для позиционирования seek-bar */
     display: flex;
     align-items: center;
 }
@@ -1352,7 +1364,7 @@ body {
     overflow: hidden;
     width: 100%;
     height: 10px;
-    background-color: #7081e133;
+    background-color: var(--opasity-bg);
 }
 
 .progress-bar {
@@ -1366,24 +1378,19 @@ body {
 .seek-bar {
     position: absolute;
     left: 100%;
-    /* Позиционируем справа от кнопки */
     top: 50%;
     transform: translateY(-50%);
     margin-left: 10px;
-    /* Отступ между ползунком и кнопкой */
     width: 0;
-    /* Начальная ширина 0 */
     height: 0.4rem;
-    background-color: #7081e133;
+    background-color: var(--opasity-bg);
     border-radius: 10px;
     cursor: pointer;
     opacity: 0;
     pointer-events: none;
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     display: block;
-    /* Всегда занимает место для позиционирования */
     z-index: 10;
-    /* Поверх других элементов */
 }
 
 /* Фоновая полоска громкости */
@@ -1394,7 +1401,6 @@ body {
     top: 0;
     height: 100%;
     width: var(--volume-level, 50%);
-    /* Динамическая ширина на основе уровня громкости */
     background-color: var(--main-color);
     border-radius: 10px;
     transition: all 0.2s ease;
@@ -1405,7 +1411,6 @@ body {
     content: '';
     position: absolute;
     right: calc(100% - var(--volume-position, 50%));
-    /* Позиция соответствует уровню громкости */
     top: 50%;
     transform: translate(50%, -50%);
     width: 12px;
@@ -1416,10 +1421,8 @@ body {
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     opacity: 0;
-    /* Изначально скрыта */
 }
 
-/* CSS hover эффекты теперь обрабатываются через JavaScript */
 
 /* Эффект капли в футере */
 .ripple-effect {
@@ -1429,13 +1432,11 @@ body {
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 1;
-    /* На заднем фоне footer */
     transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     width: 0;
     height: 0;
     opacity: 1;
     overflow: hidden;
-    /* Ограничиваем область эффекта */
 }
 
 /* Hover эффекты для ползунка */
@@ -1447,7 +1448,7 @@ body {
 .seek-bar.dragging::after {
     opacity: 1;
     /* Показываем ручку при hover и перетаскивании */
-    background-color: #5a6fd9;
+    background-color: var(--main-color);
     transform: translate(50%, -50%) scale(1.2);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -1540,7 +1541,6 @@ input:focus {
 
     .control-buttons {
         gap: clamp(15px, 6vw, 60px);
-        /* Меньший gap для маленьких экранов */
     }
 }
 
@@ -1644,11 +1644,8 @@ input:focus {
 
     .seek-bar {
         width: 50px;
-        /* Фиксированная ширина для маленьких экранов */
         opacity: 1;
-        /* Всегда видим на мобильных */
         pointer-events: auto;
-        /* Всегда активен на мобильных */
     }
 }
 
@@ -1808,7 +1805,7 @@ input:focus {
     color: var(--txt-color);
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(112, 129, 225, 0.2);
+    border-bottom: 1px solid var(--opasity-bg);
 }
 
 .burger-nav-links {
@@ -1933,7 +1930,7 @@ input:focus {
 .message-content {
     padding: 0.8rem 1.2rem;
     border-radius: 1.25rem;
-    box-shadow: 0 2px 8px rgba(129, 138, 220, 0.08);
+    box-shadow: 0 2px 8px var(--opasity-bg);
     font-size: 0.95rem;
     line-height: 1.4;
     letter-spacing: 0.01em;
@@ -2215,7 +2212,7 @@ input:focus {
 }
 
 .chat-send-btn:hover {
-    background-color: #5a6ed1;
+    background-color: var(--main-color);
     transform: translateY(-50%)
 }
 

@@ -52,20 +52,40 @@
 
   <svg class="visualizer-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
     <defs>
+      <!-- Фильтр для размытия -->
       <filter id="circleBlur" x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
       </filter>
+      
+      <filter id="noiseFilter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="turbulence"/>
+        <feColorMatrix type="saturate" values="0" result="noise"/>        <feComponentTransfer result="softNoise">
+          <feFuncA type="linear" slope="0.08"/>
+        </feComponentTransfer>
+        <feBlend in="SourceGraphic" in2="softNoise" mode="overlay"/>
+      </filter>
+      
+      <filter id="combinedFilter">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="turbulence"/>
+        <feColorMatrix type="saturate" values="0" in="turbulence" result="noise"/>
+        <feComponentTransfer in="noise" result="softNoise">
+          <feFuncA type="linear" slope="0.08"/>
+        </feComponentTransfer>
+        <feBlend in="blur" in2="softNoise" mode="overlay"/>
+      </filter>
     </defs>
+    
     <circle class="viz-circle" id="circle1" cx="30" cy="50" r="10" fill="#7081e1" opacity="0.6"
-      filter="url(#circleBlur)">
+      filter="url(#combinedFilter)">
     </circle>
     <circle class="viz-circle" id="circle2" cx="50" cy="50" r="12.5" fill="#4CAF50" opacity="0.6"
-      filter="url(#circleBlur)">
+      filter="url(#combinedFilter)">
     </circle>
     <circle class="viz-circle" id="circle3" cx="70" cy="50" r="9" fill="#f44336" opacity="0.6"
-      filter="url(#circleBlur)">
+      filter="url(#combinedFilter)">
     </circle>
-  </svg>
+</svg>
 
   <div class="main-container">
     <header class="header">

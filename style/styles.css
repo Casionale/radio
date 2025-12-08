@@ -74,16 +74,16 @@ body {
 .character-illustration {
     display: flex;
     justify-content: center;
-    align-items: flex-end;
     flex: 0 0 25%;
-    width: 40%;
-    height: 100%;
+    max-width: 30%;
+    height: auto;
+    align-self: flex-end;
     object-fit: contain;
     object-position: center bottom;
     z-index: 10;
     padding: 20px;
     box-sizing: border-box;
-    margin-top: auto;
+    /*margin-top: auto;*/
 }
 
 .character-illustration.centered {
@@ -150,9 +150,8 @@ body {
     overflow: hidden;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    height: 80vh;
-    padding: 0;
+    height: auto;
+    min-height: calc(100dvh - var(--header-height) - var(--footer-height));    padding: 0;
     gap: 0
 }
 
@@ -235,9 +234,9 @@ body {
     }
 }
 
-/* Header */
 .header {
     display: flex;
+    position: fixed;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -308,9 +307,7 @@ body {
 .header-button .button-text {
     display: inline-block;
     white-space: nowrap;
-    /* Предотвращаем перенос текста */
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    /* Ускорена анимация */
 }
 
 .header-button .button-text.exit {
@@ -366,7 +363,7 @@ body {
     flex-direction: column;
     width: 33.333%;
     flex: 0 0 33.333%;
-    height: 70vh;
+    height: 70dvh;
     padding: 1rem;
     overflow: hidden;
     position: relative;
@@ -728,7 +725,6 @@ body {
 
 .toast-notification.hide {
     right: -300px;
-    /* Уплываем за экран вправо */
     opacity: 0;
 }
 
@@ -1473,10 +1469,6 @@ input:focus {
         padding: 10px 24px;
     }
 
-    .content-wrapper {
-        height: 80vh;
-    }
-
     .sidebar {
         display: flex;
         width: 25%;
@@ -1584,10 +1576,6 @@ input:focus {
         padding: 10px 30px;
     }
 
-    .content-wrapper {
-        height: 80vh;
-    }
-
     .sidebar {
         display: flex;
         width: 25%;
@@ -1624,9 +1612,6 @@ input:focus {
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-    .content-wrapper {
-        height: 80vh;
-    }
 
     .sidebar {
         display: flex;
@@ -1723,7 +1708,6 @@ input:focus {
     }
 }
 
-/* Для экранов меньше 600px сделать position relative для header и footer */
 @media (max-width: 600px) {
     .header {
         position: relative;
@@ -1784,11 +1768,9 @@ input:focus {
 .burger-overlay {
     position: fixed;
     top: 100%;
-    /* Начинаем от нижней границы header */
     left: 0;
     width: 100vw;
     height: calc(100vh - 100px);
-    /* Высота экрана минус высота header */
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);

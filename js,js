@@ -1,10 +1,11 @@
 class RadioManager {
     constructor(apiUrl, updateInterval = 5000) {
-        this.apiUrl = apiUrl;                     // Адрес API
+        this.apiUrl = apiUrl;                     // Адрес API или прямой поток
         this.updateInterval = updateInterval;     // Интервал обновления JSON
         this.data = null;                         // Текущее состояние данных станции
         this.timerInterval = null;                // Интервал таймера (обновление времени песни)
         this.timeElapsed = 0;                     // Текущее время проигрывания (в секундах)
+        this.isDirectStream = !apiUrl.includes('/api/') || apiUrl.endsWith('.mp3') || apiUrl.endsWith('.aac'); // Флаг: прямой поток?
 
         this.start(); // сразу запускаем
 
@@ -15,12 +16,14 @@ class RadioManager {
         this.audio.crossOrigin = "anonymous"; // если нужно
         this.audio.src = ""; // пока пусто
         this.audio.load();
-
     }
 
     // Метод для запроса данных с сервера
     async fetchData() {
         try {
+            if (this.isDirectStream) {
+                throw new Error('Direct stream mode'); // Пропускаем fetch для прямых потоков
+            }
             const response = await fetch(this.apiUrl);
             if (!response.ok) throw new Error(`Ошибка ${response.status}`);
             const json = await response.json();
@@ -30,22 +33,30 @@ class RadioManager {
 
             this.updateHTML();
         } catch (error) {
-            console.error("Ошибка при получении данных:", error);
+            console.warn('Fetch failed, switching to direct stream mode:', error);
+            this.isDirectStream = true; // Переключаем флаг навсегда
+            // Fallback данные для UI
+            this.data = {
+                now_playing: { song: { title: 'Неизвестный трек', artist: 'Неизвестный исполнитель', art: '' } },
+                playing_next: { song: { title: 'N/A', artist: 'N/A', art: '' } },
+                song_history: Array(5).fill({ song: { title: 'N/A', artist: 'N/A', art: '' } }),
+                station: { listen_url: this.apiUrl, playlist_m3u_url: '' }
+            };
+            this.updateHTML();
         }
     }
 
-    // Метод для расстановки данных в HTML
+    // Метод для расстановки данных в HTML (реализуешь сам)
     updateHTML() {
         this.updateElement(".album-title", this.data?.now_playing?.song?.title);
+        
         this.updateElement(".album-artist", this.data?.now_playing?.song?.artist);
+        this.updateElement(".album-title", this.data?.now_playing?.song?.title);
         this.updateImage(".album-artwork", this.data?.now_playing?.song?.art);
 
         this.updateElement(".mini-album-artist", this.data?.now_playing?.song?.artist);
         this.updateElement(".mini-album-title", this.data?.now_playing?.song?.title);
         this.updateImage(".mini-album-artwork", this.data?.now_playing?.song?.art);
-
-        // Обновляем иконку радиостанции
-        this.updateImage(".station-icon", this.data?.station?.image);
 
         this.updateElement("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)", this.data?.playing_next?.song?.title);
         this.updateElement("section.queue-section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)", this.data?.playing_next?.song?.artist);
@@ -70,9 +81,9 @@ class RadioManager {
         this.updateElement("div.track-item:nth-child(5) > div:nth-child(2) > div:nth-child(1)", this.data?.song_history[4]?.song?.title);
         this.updateElement("div.track-item:nth-child(5) > div:nth-child(2) > div:nth-child(2)", this.data?.song_history[4]?.song?.artist);
         this.updateImage("div.track-item:nth-child(5) > img:nth-child(1)", this.data?.song_history[4]?.song?.art);
-
+        
         this.updateOnClick(".control-buttons > button:nth-child(1)",()=>{
-            this.downloadFile(this.data?.station?.playlist_m3u_url);
+            this.downloadFile(this.data?.station?.playlist_m3u_url || '');
         });
 
         // Обновляем Media Session API для мини-плеера и экрана блокировки
@@ -82,6 +93,8 @@ class RadioManager {
         if (typeof updateMobileMenuContent === 'function') {
             updateMobileMenuContent();
         }
+
+        // TODO: реализовать отображение данных на странице
     }
 
     /**
@@ -89,48 +102,46 @@ class RadioManager {
      */
     updateMediaSession() {
         if ('mediaSession' in navigator) {
-            const song = this.data?.now_playing?.song;
-            const station = this.data?.station;
+            const song = this.data?.now_playing?.song || { title: 'Неизвестный трек', artist: 'Неизвестный исполнитель' };
+            const station = this.data?.station || { name: 'Пользовательская станция' };
 
-            if (song && station) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: song.title || 'Unknown Track',
-                    artist: song.artist || 'Unknown Artist',
-                    album: station.name || 'e621.station',
-                    artwork: [
-                        {
-                            src: song.art || '../assets/images/albom.png',
-                            sizes: '512x512',
-                            type: 'image/png'
-                        },
-                        {
-                            src: song.art || '../assets/images/albom.png',
-                            sizes: '256x256',
-                            type: 'image/png'
-                        }
-                    ]
-                });
-
-                // Обработчики для управления воспроизведением через Media Session
-                navigator.mediaSession.setActionHandler('play', () => {
-                    if (this.audio) {
-                        this.audio.play();
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song.title,
+                artist: song.artist,
+                album: station.name,
+                artwork: [
+                    {
+                        src: song.art || '../assets/images/albom.png',
+                        sizes: '512x512',
+                        type: 'image/png'
+                    },
+                    {
+                        src: song.art || '../assets/images/albom.png',
+                        sizes: '256x256',
+                        type: 'image/png'
                     }
-                });
+                ]
+            });
 
-                navigator.mediaSession.setActionHandler('pause', () => {
-                    if (this.audio) {
-                        this.audio.pause();
-                    }
-                });
+            // Обработчики для управления воспроизведением через Media Session
+            navigator.mediaSession.setActionHandler('play', () => {
+                if (this.audio) {
+                    this.audio.play();
+                }
+            });
 
-                navigator.mediaSession.setActionHandler('stop', () => {
-                    if (this.audio) {
-                        this.audio.pause();
-                        this.audio.currentTime = 0;
-                    }
-                });
-            }
+            navigator.mediaSession.setActionHandler('pause', () => {
+                if (this.audio) {
+                    this.audio.pause();
+                }
+            });
+
+            navigator.mediaSession.setActionHandler('stop', () => {
+                if (this.audio) {
+                    this.audio.pause();
+                    this.audio.currentTime = 0;
+                }
+            });
         }
     }
 
@@ -235,6 +246,10 @@ class RadioManager {
     }
 
     downloadFile(url){
+        if (!url) {
+            console.warn('No playlist URL for download');
+            return;
+        }
         console.log('Скачиваю по адресу '+url);
         let a = document.createElement("a");
         a.href = url;
@@ -242,13 +257,17 @@ class RadioManager {
         a.click();
     }
 
-    // Метод для запроса конкретной песни
+    // Метод для запроса конкретной песни (реализуешь сам)
     requestSong(songName) {
         // TODO: реализовать запрос песни на сервер
     }
 
     // Метод для обновления таймера проигрывания песни
     startTimer() {
+        if (this.isDirectStream) {
+            console.log('Timer disabled for direct stream');
+            return; // Нет duration в direct-режиме
+        }
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.timerInterval = setInterval(() => {
             this.timeElapsed++;
@@ -256,8 +275,14 @@ class RadioManager {
         }, 1000);
     }
 
-    // Метод для обновления отображения таймера
+    // Метод для обновления отображения таймера (реализуешь сам)
     updateTimerDisplay() {
+        if (this.isDirectStream) {
+            this.updateElement("span.time-display:nth-child(1)", '00:00');
+            this.updateElement("span.time-display:nth-child(4)", 'N/A');
+            document.querySelector('.progress-bar').style.width = '0%';
+            return;
+        }
         // Получаем данные из this.data
         const playedAt = this.data?.now_playing?.played_at; // timestamp начала воспроизведения
         const duration = this.data?.now_playing?.duration;   // длительность песни в секундах
@@ -304,7 +329,7 @@ class RadioManager {
 
     togglePlayButton(){
         try{    
-            this.togglePlay(this.data?.station?.listen_url);
+            this.togglePlay(this.data?.station?.listen_url || this.apiUrl); // Fallback на apiUrl
             
             let paused = this.audio.paused;
             let btn = document.querySelector('button.control-btn:nth-child(2)');
@@ -333,6 +358,7 @@ class RadioManager {
         if (!this.audio.paused) {
             this.audio.pause();
             this.updateVisualizerState(false);
+            console.log("⏸️ Радио поставлено на паузу");
         } else {
             // Если остановлено — запускаем (если URL изменился — обновляем)
             if (this.audio.src !== url) {
@@ -341,6 +367,7 @@ class RadioManager {
             this.audio.play()
                 .then(() => {
                     this.updateVisualizerState(true);
+                    console.log("▶️ Радио запущено");
                 })
                 .catch(err => console.error("Ошибка при воспроизведении:", err));
         }
@@ -380,7 +407,7 @@ window.radio = new RadioManager("https://radio.bakasenpai.ru/api/nowplaying/e621
 document.addEventListener("DOMContentLoaded", function(event) {
     play_btn = document.querySelector('button.control-btn:nth-child(2)');
 
-    play_btn.addEventListener("click", () => radio.togglePlay(radio.data?.station?.listen_url));
+    play_btn.addEventListener("click", () => radio.togglePlay(radio.data?.station?.listen_url || radio.apiUrl)); // Fallback
 });
 
 

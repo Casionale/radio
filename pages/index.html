@@ -4,50 +4,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
   <title>e621.station - Your Charming AI Companion for Perfect Music Streaming</title>
-
-  <link rel="icon" type="image/png" href="/../assets/images/favicon-96x96.png" sizes="96x96" />
-  <link rel="icon" type="image/svg+xml" href="/../assets/images/favicon.svg" />
-  <link rel="shortcut icon" href="/../assets/images/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/../assets/images/apple-touch-icon.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500&display=swap" rel="stylesheet">
-
-  <meta name="apple-mobile-web-app-title" content="e621.station" />
-  <link rel="manifest" href="/../assets/images/site.webmanifest" />
-
-  <link rel="stylesheet" href="../style/styles.css">
   <meta name="description"
-    content="Stream 90s road trip vibes and pop music on e621.station. Discover classic tracks, create playlists, and enjoy high-quality music streaming with our modern player interface." />
+    content="e621.station — интерактивное AI-радио, где умный чат-ассистент ведёт эфир, общается с вами, делает атмосферные перебивики и помогает находить музыку. Добавляйте свои радиостанции, слушайте плейлисты и наслаждайтесь современным музыкальным плеером." />
   <meta name="keywords"
-    content="music streaming, 90s music, road trip vibes, pop music, playlist, music player, e621 station" />
+    content="AI radio, interactive radio, smart music assistant, chatbot DJ, online radio, create your station, custom radio, music streaming, e621 station" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="e621.station" />
 
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="music.song" />
-  <meta property="og:title" content="e621.station - 90s Road Trip Vibes Music Player" />
-  <meta property="og:description"
-    content="Stream 90s road trip vibes and pop music with our modern music player interface. Create playlists and discover classic tracks." />
-  <meta property="og:image" content="../assets/images/albom.png" />
-  <meta property="og:image:width" content="500" />
-  <meta property="og:image:height" content="500" />
-  <meta property="og:image:alt" content="Album artwork for current track" />
-  <meta property="music:album" content="Current Album" />
-  <meta property="music:musician" content="Current Artist" />
+  <!-- Canonical -->
+  <link rel="canonical" href="https://e621.bakasenpai.ru/" />
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="e621.station - 90s Road Trip Vibes Music Player" />
-  <meta name="twitter:description"
-    content="Stream 90s road trip vibes and pop music with our modern music player interface." />
-  <meta name="twitter:image" content="../assets/images/albom.png" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/assets/images/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg" />
+  <link rel="shortcut icon" href="/assets/images/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png" />
 
-  <!-- Media Session API support -->
-  <meta name="theme-color" content="#7081e1" />
+  <!-- PWA -->
+  <meta name="apple-mobile-web-app-title" content="e621.station" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#7081e1" />
+  <link rel="manifest" href="/assets/images/site.webmanifest" />
 
-  <!--script type="module"-->
-  <script src="../js/radio_manager.js"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/style/styles.css" />
+
+  <!-- Open Graph (Social Sharing) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ru_RU" />
+  <meta property="og:title" content="e621.station — AI-Радио с Умным Чат-Компаньоном" />
+  <meta property="og:description"
+    content="Умное AI-радио, где чат-ассистент ведёт эфир, общается, рассказывает истории и делает интерактивные перебивки. Добавляйте свои радиостанции и слушайте музыку по-новому." />
+  <meta property="og:image" content="https://e621.bakasenpai.ru/assets/images/og-preview.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="AI-радио e621.station — чат, музыка, интерактив" />
+  <meta property="og:url" content="https://e621.bakasenpai.ru/" />
+  <meta property="og:site_name" content="e621.station" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="e621.station — AI-Powered Radio" />
+  <meta name="twitter:description"
+    content="Интерактивное AI-радио с чат-ассистентом, умными перебивками и возможностью добавлять свои станции." />
+  <meta name="twitter:image" content="https://e621.bakasenpai.ru/assets/images/og-preview.png" />
+
+  <!-- Schema.org / JSON-LD (Structured Data) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "RadioStation",
+    "name": "e621.station",
+    "description": "Интерактивное AI-радио с чат-ассистентом, умными перебивками и возможностью добавлять свои станции.",
+    "url": "https://e621.bakasenpai.ru/",
+    "image": "https://e621.bakasenpai.ru/assets/images/og-preview.png",
+    "genre": "various",
+    "creator": {
+      "@type": "Organization",
+      "name": "e621.station"
+    }
+  }
+  </script>
+
+  <!-- Main Script -->
+  <script src="/js/radio_manager.js" defer></script>
 </head>
+
 
 <body>
 
@@ -72,7 +103,7 @@
     <header class="header">
       <div class="header-content">
         <img src="../assets/images/header_logo.svg" alt="e621.station logo" class="logo" />
-        <h1 class="genre-title">90s Road Trip Vibes, Pop</h1>
+        <h1 class="genre-title">AI Companion for Perfect Music</h1>
         <button class="header-button" id="headerButton">
           <span class="button-text active">Тет-а-тет</span>
           <span class="button-text" style="display: none;">Я закончил</span>
@@ -291,12 +322,33 @@
               <img src="../assets/images/dw.svg" alt="Download" width="26" height="32" />
             </button>
 
-            <button class="control-btn play-pause" aria-label="Play/Pause">
-              <div class="pp-container">
-                <img src="../assets/images/play.svg" class="pp-icon pp-play" alt="Play">
-                <img src="../assets/images/paus.svg" class="pp-icon pp-pause" alt="Pause">
-              </div>
-            </button>
+            <button 
+            class="control-btn play-pause" 
+            type="button"
+            aria-label="Воспроизвести"
+            aria-pressed="false">
+            
+            <span class="pp-container">
+              <span class="pp-icon pp-play" aria-hidden="true">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <path d="M40.7692 23.3209C42.4103 24.2894 42.4103 26.7106 40.7692 27.6791C29.6301 33.1461 23.7249 36.6307 13.6923 43.6591C12.0513 44.6276 10 43.417 10 41.48L10 9.51995C10 7.58298 12.0513 6.37237 13.6923 7.34086C23.9004 14.3312 29.8456 17.7817 40.7692 23.3209Z" fill="currentColor"/>
+                  <rect x="10" y="7.74023" width="4.46512" height="34.78" rx="2.23256" fill="currentColor"/>
+                  <rect x="33.0698" y="21.7998" width="1.48837" height="7.4" rx="0.744186" fill="currentColor"/>
+                </svg>
+              </span>
+          
+              <span class="pp-icon pp-pause" aria-hidden="true">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <rect x="14.9536" y="7" width="5.95349" height="37" rx="2.97674" fill="currentColor"/>
+                  <path d="M20.02 24.4985C20.2108 24.6148 20.2108 24.9053 20.02 25.0215C18.7247 25.6776 18.0381 26.0957 16.8715 26.9391C16.6807 27.0554 16.4422 26.9101 16.4422 26.6776L16.4422 22.8424C16.4422 22.61 16.6807 22.4647 16.8715 22.5809C18.0585 23.4198 18.7498 23.8338 20.02 24.4985Z" fill="currentColor"/>
+                  <rect x="29.8369" y="7" width="5.95349" height="37" rx="2.97674" fill="currentColor"/>
+                </svg>
+              </span>
+            </span>
+          
+            <!-- Только для скринридеров -->
+            <span class="visually-hidden">Воспроизвести</span>
+          </button>
 
             <div class="volume-control">
               <button class="control-btn" aria-label="Volume">
@@ -316,7 +368,7 @@
     </footer>
   </div>
 
-  <script src="../js/js.js"></script>
+  <script src="../js/app.js"></script>
   <script src="../js/audio_visualizer.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.4.0/color-thief.umd.js"></script>

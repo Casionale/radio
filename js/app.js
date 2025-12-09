@@ -1,4 +1,3 @@
-// === Авто-выявление переполнения текста и автоскролл при наведении ===
 function initTextScroll() {
     const trackTitles = document.querySelectorAll('.track-title');
     const trackArtists = document.querySelectorAll('.track-artist');
@@ -25,7 +24,6 @@ function initTextScroll() {
         if (textWidth > containerWidth) {
             element.classList.add('overflowing');
 
-            // Считаем смещение
             const scrollDistance = containerWidth - textWidth;
             element.style.setProperty('--scroll-distance', scrollDistance + 'px');
         } else {
@@ -55,7 +53,6 @@ function updateLayoutForScreenSize() {
     const isChatOpen = isChatMode;
 
     if (isSmallScreen && isChatOpen) {
-        // Маленький экран + открытый чат: скрываем sidebar, показываем изображение
         if (sidebar) {
             sidebar.style.display = 'none';
         }
@@ -63,7 +60,6 @@ function updateLayoutForScreenSize() {
             characterIllustration.style.display = 'block';
         }
     } else if (isSmallScreen && !isChatOpen) {
-        // Маленький экран + закрытый чат: показываем sidebar, скрываем изображение
         if (sidebar) {
             sidebar.style.display = '';
         }
@@ -71,7 +67,6 @@ function updateLayoutForScreenSize() {
             characterIllustration.style.display = 'none';
         }
     } else {
-        // Большой экран: всегда показываем sidebar и изображение
         if (sidebar) {
             sidebar.style.display = '';
         }
@@ -83,18 +78,16 @@ function updateLayoutForScreenSize() {
 
 // Функция для установки fallback изображений
 function setupImageFallbacks() {
-    // Находим все изображения, которые могут нуждаться в fallback
     const images = document.querySelectorAll('img.album-artwork, img.mini-album-artwork, img.track-image, img.station-icon');
 
     images.forEach(img => {
-        // Если изображение еще не имеет обработчика ошибки
         if (!img.hasAttribute('data-fallback-set')) {
             const fallbackSrc = getFallbackImageForElement(img);
 
             img.onerror = function() {
                 console.warn(`⚠️ Ошибка загрузки изображения: ${this.src}, используем fallback: ${fallbackSrc}`);
                 this.src = fallbackSrc;
-                this.onerror = null; // Убираем обработчик, чтобы избежать бесконечного цикла
+                this.onerror = null;
             };
 
             img.setAttribute('data-fallback-set', 'true');
@@ -123,15 +116,14 @@ function getFallbackImageForElement(img) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initTextScroll();
-    updateLayoutForScreenSize(); // Инициализируем layout при загрузке
-    setupImageFallbacks(); // Устанавливаем fallback для существующих изображений
+    updateLayoutForScreenSize();
+    setupImageFallbacks();
 
     // Наблюдаем за добавлением новых изображений в DOM
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             mutation.addedNodes.forEach((node) => {
                 if (node.nodeType === Node.ELEMENT_NODE) {
-                    // Проверяем, есть ли в добавленном элементе изображения
                     const images = node.querySelectorAll ? node.querySelectorAll('img.album-artwork, img.mini-album-artwork, img.track-image, img.station-icon') : [];
                     if (images.length > 0 || (node.tagName === 'IMG' && (node.classList.contains('album-artwork') || node.classList.contains('mini-album-artwork') || node.classList.contains('track-image') || node.classList.contains('station-icon')))) {
                         setupImageFallbacks();
@@ -141,13 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Начинаем наблюдение за изменениями в DOM
     observer.observe(document.body, {
         childList: true,
         subtree: true
     });
 
-    // Логика замены логотипа на маленьких экранах
     const logo = document.querySelector('.logo');
     if (logo) {
         function updateLogo() {
@@ -158,10 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Обновляем при загрузке
         updateLogo();
 
-        // Обновляем при изменении размера окна
         window.addEventListener('resize', updateLogo);
     }
 
@@ -174,21 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateDownloadButtonVisibility() {
             const isSmallScreen = window.innerWidth < 600;
             const isMiniAlbumVisible = miniAlbumPlaceholder.children.length > 0 &&
-                                     miniAlbumPlaceholder.querySelector('.mini-album-container.visible');
+                miniAlbumPlaceholder.querySelector('.mini-album-container.visible');
 
             if (isSmallScreen && isMiniAlbumVisible) {
-                // Используем CSS класс для плавного скрытия кнопки
                 downloadBtn.classList.add('hidden-download');
                 controlButtons.classList.add('minimized');
 
-                // Уменьшаем gap когда кнопка скрыта (для маленьких экранов еще меньше)
                 controlButtons.style.setProperty('--control-gap', 'clamp(5px, 2vw, 15px)');
             } else {
-                // Убираем CSS класс для плавного показа кнопки
                 downloadBtn.classList.remove('hidden-download');
                 controlButtons.classList.remove('minimized');
 
-                // Возвращаем обычный gap
                 controlButtons.style.setProperty('--control-gap', 'clamp(20px, 8vw, 100px)');
             }
         }
@@ -205,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Обновляем при изменении размера окна
         window.addEventListener('resize', updateDownloadButtonVisibility);
 
-        // Начальная проверка
         updateDownloadButtonVisibility();
     }
 
@@ -219,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 nextTextSpan.textContent = newText;
                 nextTextSpan.style.display = 'inline-block';
                 
-                // Анимация выхода текущего текста
                 currentTextSpan.classList.remove('active');
                 currentTextSpan.classList.add('exit');
                 
@@ -227,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 nextTextSpan.classList.remove('enter');
                 nextTextSpan.classList.add('active');
                 
-                // После анимации скрываем старый текст
                 setTimeout(() => {
                     currentTextSpan.classList.remove('exit');
                     currentTextSpan.classList.add('enter');
@@ -261,38 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let hideSeekBarTimer;
 
     if (volumeControl && seekBar) {
-        function showSeekBar() {
-            clearTimeout(hideSeekBarTimer);
-            seekBar.style.opacity = '1';
-            seekBar.style.pointerEvents = 'auto';
-            seekBar.style.width = 'clamp(50px, calc(60px + 2vw), 70px)'; /* Устанавливаем полную ширину */
-        }
-
-        function hideSeekBarWithDelay() {
-            clearTimeout(hideSeekBarTimer);
-            hideSeekBarTimer = setTimeout(() => {
-                seekBar.style.opacity = '0';
-                seekBar.style.pointerEvents = 'none';
-                seekBar.style.width = '0'; /* Устанавливаем ширину 0 */
-            }, 1000); // Задержка в 1 секунду
-        }
-
-        volumeControl.addEventListener('mouseenter', showSeekBar);
-        volumeControl.addEventListener('mouseleave', () => {
-            if (!isDragging) {
-                hideSeekBarWithDelay();
-            }
-        });
-        seekBar.addEventListener('mouseenter', showSeekBar);
-        seekBar.addEventListener('mouseleave', () => {
-            if (!isDragging) {
-                hideSeekBarWithDelay();
-            }
-        });
-
-        // Логика управления громкостью
-        let isDragging = false;
-        let currentVolume = 0.5; // Начальный уровень громкости 50%
+        window.savedVolume = localStorage.getItem('savedVolume') ? parseFloat(localStorage.getItem('savedVolume')) : 0.5;
+        let currentVolume = window.savedVolume;
 
         function updateVolumeDisplay(volume) {
             const percentage = volume * 100;
@@ -302,7 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function setVolume(volume) {
-            currentVolume = Math.max(0, Math.min(1, volume)); // Ограничиваем от 0 до 1
+            currentVolume = Math.max(0, Math.min(1, volume));
+            window.savedVolume = currentVolume;
+            localStorage.setItem('savedVolume', window.savedVolume);
             updateVolumeDisplay(currentVolume);
 
             // Используем radio.setVolume для изменения громкости радио
@@ -322,6 +275,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const volume = getVolumeFromPosition(clientX);
             setVolume(volume);
         }
+
+        function showSeekBar() {
+            clearTimeout(hideSeekBarTimer);
+            seekBar.style.opacity = '1';
+            seekBar.style.pointerEvents = 'auto';
+            seekBar.style.width = 'clamp(50px, calc(60px + 2vw), 70px)';
+        }
+
+        function hideSeekBarWithDelay() {
+            clearTimeout(hideSeekBarTimer);
+            hideSeekBarTimer = setTimeout(() => {
+                seekBar.style.opacity = '0';
+                seekBar.style.pointerEvents = 'none';
+                seekBar.style.width = '0';
+            }, 1000);
+        }
+
+        volumeControl.addEventListener('mouseenter', showSeekBar);
+        volumeControl.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+                hideSeekBarWithDelay();
+            }
+        });
+        seekBar.addEventListener('mouseenter', showSeekBar);
+        seekBar.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+                hideSeekBarWithDelay();
+            }
+        });
+
+        // Логика управления громкостью
+        let isDragging = false;
 
         // Обработка клика на ползунке
         seekBar.addEventListener('mousedown', (e) => {
@@ -389,26 +374,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-// Обработка переключения play/pause
 document.querySelectorAll('.play-pause').forEach(button => {
     button.addEventListener('click', function () {
-        this.classList.toggle('playing');
-
-        const isPlaying = this.classList.contains('playing');
-        this.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
-
-        // Обновляем состояние Media Session
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
-        }
-
-        // Обновляем состояние визуализатора
-        if (window.audioVisualizer) {
-            window.audioVisualizer.onPlaybackStateChange(isPlaying);
-        }
+      const isNowPlaying = !this.matches('[aria-pressed="true"]');
+      
+      // Переключаем состояние
+      this.setAttribute('aria-pressed', isNowPlaying);
+      this.querySelector('.visually-hidden').textContent = 
+        isNowPlaying ? 'Поставить на паузу' : 'Воспроизвести';
+  
+      // Media Session API
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = isNowPlaying ? 'playing' : 'paused';
+      }
+  
+      // Твой визуализатор
+      if (window.audioVisualizer) {
+        window.audioVisualizer.onPlaybackStateChange(isNowPlaying);
+      }
     });
-});
-
+  });
+  
 const headerButton = document.getElementById('headerButton');
 const sidebar = document.querySelector('.sidebar');
 const queueSections = document.querySelectorAll('.sidebar-queues .queue-section');
@@ -938,10 +924,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     item.classList.remove('active');
                 });
 
-                // Добавляем активный класс выбранному
                 stationItem.classList.add('active');
 
-                // Обновляем отображение текущей станции
                 if (currentStationName) {
                     currentStationName.textContent = stationName;
                 }
@@ -959,6 +943,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.radio.stopTimer();
                     
                     window.radio = new RadioManager("https://radio.bakasenpai.ru/api/nowplaying/e621.station");
+                    if (window.radio && typeof window.radio.setVolume === 'function') {
+                        window.radio.setVolume(window.savedVolume);
+                    }
+                    
+                    // обновить UI-ползунок
+                    if (seekBar) {
+                        seekBar.style.setProperty('--volume-level', `${window.savedVolume * 100}%`);
+                        seekBar.style.setProperty('--volume-position', `${window.savedVolume * 100}%`);
+                    }
 
                 } else {
                     // Смена на другую радиостанцию
@@ -967,6 +960,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.radio.stopTimer();
                     
                     window.radio = new RadioManager(stationUrl);
+                    if (window.radio && typeof window.radio.setVolume === 'function') {
+                        window.radio.setVolume(window.savedVolume);
+                    }
                     if (window.audioVisualizer && window.radio.audio) {
                         window.audioVisualizer.setAudioSource(window.radio.audio);
                     }
@@ -987,12 +983,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     else
                         btn.classList.toggle('playing');
                 }
-
-                
-                
-                
-                
-
 
                 // Скрываем dropdown
                 stationsDropdown.classList.remove('active');
@@ -1022,7 +1012,6 @@ function changeRadioStation(url, name) {
 
 // Функция для показа модального окна добавления радиостанции
 function showAddStationModal() {
-    // Создаем модальное окно если его нет
     let modal = document.querySelector('.modal-overlay');
     if (!modal) {
         modal = document.createElement('div');
@@ -1050,13 +1039,11 @@ function showAddStationModal() {
         `;
         document.body.appendChild(modal);
 
-        // Обработчики событий
         const cancelBtn = modal.querySelector('#cancelBtn');
         const confirmBtn = modal.querySelector('#confirmBtn');
         const stationUrl = modal.querySelector('#stationUrl');
         const stationName = modal.querySelector('#stationName');
 
-        // Закрытие по клику вне модального окна
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
                 hideAddStationModal();
@@ -1080,7 +1067,6 @@ function showAddStationModal() {
             }
         });
 
-        // Enter для подтверждения
         stationName.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 confirmBtn.click();
@@ -1142,7 +1128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         burgerMenu.classList.toggle('active');
         burgerOverlay.classList.toggle('active');
 
-        // Блокируем/разблокируем прокрутку body при открытом меню
         if (burgerOverlay.classList.contains('active')) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -1150,12 +1135,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Обработчик клика по бургер кнопке
     if (burgerMenu) {
         burgerMenu.addEventListener('click', toggleBurgerMenu);
     }
 
-    // Закрытие меню при клике по overlay (но не по контенту)
     if (burgerOverlay) {
         burgerOverlay.addEventListener('click', (e) => {
             if (e.target === burgerOverlay) {
@@ -1181,33 +1164,30 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const stationType = link.getAttribute('data-station');
 
-            // Имитируем клик по соответствующей станции в sidebar
             const stationItems = document.querySelectorAll('.station-item');
             let targetStation = null;
 
-            // Находим соответствующую станцию
             switch (stationType) {
                 case 'e621.station':
-                    targetStation = stationItems[0]; // Первая станция (e621.station)
+                    targetStation = stationItems[0];
                     break;
                 case 'rock-hits':
-                    targetStation = stationItems[1]; // Rock Hits Radio
+                    targetStation = stationItems[1];
                     break;
                 case 'radio-paradise':
-                    targetStation = stationItems[2]; // Radio Paradise
+                    targetStation = stationItems[2];
                     break;
                 case 'jamendo-lounge':
-                    targetStation = stationItems[3]; // Jamendo Lounge
+                    targetStation = stationItems[3];
                     break;
                 case 'abc-lounge':
-                    targetStation = stationItems[4]; // ABC Lounge
+                    targetStation = stationItems[4];
                     break;
             }
 
             if (targetStation) {
-                // Имитируем клик по станции
                 targetStation.click();
-                toggleBurgerMenu(); // Закрываем бургер меню
+                toggleBurgerMenu();
                 showToast(`Переключено на: ${targetStation.querySelector('.station-name').textContent}`);
             }
         });

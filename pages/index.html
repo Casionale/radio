@@ -36,7 +36,8 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="e621.station - 90s Road Trip Vibes Music Player" />
-  <meta name="twitter:description" content="Stream 90s road trip vibes and pop music with our modern music player interface." />
+  <meta name="twitter:description"
+    content="Stream 90s road trip vibes and pop music with our modern music player interface." />
   <meta name="twitter:image" content="../assets/images/albom.png" />
 
   <!-- Media Session API support -->
@@ -52,47 +53,30 @@
 
   <svg class="visualizer-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
     <defs>
-      <!-- Фильтр для размытия -->
       <filter id="circleBlur" x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
       </filter>
-      
-      <filter id="noiseFilter">
-        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="turbulence"/>
-        <feColorMatrix type="saturate" values="0" result="noise"/>        <feComponentTransfer result="softNoise">
-          <feFuncA type="linear" slope="0.08"/>
-        </feComponentTransfer>
-        <feBlend in="SourceGraphic" in2="softNoise" mode="overlay"/>
-      </filter>
-      
-      <filter id="combinedFilter">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
-        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="turbulence"/>
-        <feColorMatrix type="saturate" values="0" in="turbulence" result="noise"/>
-        <feComponentTransfer in="noise" result="softNoise">
-          <feFuncA type="linear" slope="0.08"/>
-        </feComponentTransfer>
-        <feBlend in="blur" in2="softNoise" mode="overlay"/>
-      </filter>
     </defs>
-    
     <circle class="viz-circle" id="circle1" cx="30" cy="50" r="10" fill="#7081e1" opacity="0.6"
-      filter="url(#combinedFilter)">
+      filter="url(#circleBlur)">
     </circle>
     <circle class="viz-circle" id="circle2" cx="50" cy="50" r="12.5" fill="#4CAF50" opacity="0.6"
-      filter="url(#combinedFilter)">
+      filter="url(#circleBlur)">
     </circle>
     <circle class="viz-circle" id="circle3" cx="70" cy="50" r="9" fill="#f44336" opacity="0.6"
-      filter="url(#combinedFilter)">
+      filter="url(#circleBlur)">
     </circle>
-</svg>
+  </svg>
 
   <div class="main-container">
     <header class="header">
       <div class="header-content">
         <img src="../assets/images/header_logo.svg" alt="e621.station logo" class="logo" />
         <h1 class="genre-title">90s Road Trip Vibes, Pop</h1>
-        <button class="header-button" id="headerButton"><span class="button-text active">Тет-а-тет</span></button>
+        <button class="header-button" id="headerButton">
+          <span class="button-text active">Тет-а-тет</span>
+          <span class="button-text" style="display: none;">Я закончил</span>
+        </button>
         <button class="burger-menu" id="burgerMenu" aria-label="Меню">
           <span class="burger-line"></span>
           <span class="burger-line"></span>
@@ -136,7 +120,8 @@
               <div class="station-name" id="currentStationName">e621.station</div>
               <div class="station-status">Сейчас играет</div>
             </div>
-            <button class="station-toggle" id="stationToggle"><img src="../assets/images/arrowAs.svg" alt="arrow" class="arrow-icon"></button>
+            <button class="station-toggle" id="stationToggle"><img src="../assets/images/arrowAs.svg" alt="arrow"
+                class="arrow-icon"></button>
           </div>
 
           <div class="stations-dropdown" id="stationsDropdown">
@@ -259,8 +244,7 @@
       <main class="main-content">
         <section class="album-section" id="albumSection">
           <div class="album-container">
-            <img src="../assets/images/albom.png" alt="Обложка"
-              class="album-artwork" />
+            <img src="../assets/images/albom.png" alt="Обложка" class="album-artwork" />
             <div class="album-info">
               <h2 class="album-title">Песня</h2>
               <p class="album-artist">Исполнитель</p>

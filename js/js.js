@@ -210,16 +210,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (headerButton) {
-        const initialTextSpan = headerButton.querySelector('.button-text.active');
-        if (initialTextSpan) {
-            // Устанавливаем начальную ширину кнопки
-            tetATetWidth = measureTextWidth('Тет-а-тет', headerButton) + paddingCompensation;
-            yaZakonchilWidth = measureTextWidth('я закончил', headerButton) + paddingCompensation;
-            headerButton.style.width = `${tetATetWidth}px`;
+        // Функция для смены текста
+        function changeButtonText(newText) {
+            const currentTextSpan = headerButton.querySelector('.button-text.active');
+            const nextTextSpan = headerButton.querySelector('.button-text:not(.active)');
+            
+            if (currentTextSpan && nextTextSpan) {
+                nextTextSpan.textContent = newText;
+                nextTextSpan.style.display = 'inline-block';
+                
+                // Анимация выхода текущего текста
+                currentTextSpan.classList.remove('active');
+                currentTextSpan.classList.add('exit');
+                
+                // Анимация входа нового текста
+                nextTextSpan.classList.remove('enter');
+                nextTextSpan.classList.add('active');
+                
+                // После анимации скрываем старый текст
+                setTimeout(() => {
+                    currentTextSpan.classList.remove('exit');
+                    currentTextSpan.classList.add('enter');
+                    currentTextSpan.style.display = 'none';
+                }, 300);
+            }
         }
+
+        const measureTextWidth = (text, element) => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // Получаем стили кнопки
+            const styles = window.getComputedStyle(element);
+            context.font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+            
+            return context.measureText(text).width;
+        };
+        
+        const paddingCompensation = 35;
+        
+        const text1Width = measureTextWidth('Тет-а-тет', headerButton);
+        const text2Width = measureTextWidth('Я закончил', headerButton);
+        const maxWidth = Math.max(text1Width, text2Width);
+        
+        headerButton.style.width = `${maxWidth + paddingCompensation}px`;
     }
 
-    // Логика для отображения seek-bar при наведении на кнопку громкости
     const volumeControl = document.querySelector('.volume-control');
     const seekBar = document.querySelector('.seek-bar');
     let hideSeekBarTimer;
@@ -415,16 +451,13 @@ let miniAlbumContainer = null;
 let isMiniAlbumVisible = false;
 
 if (headerButton) {
-    // Измеряем ширину текстов при загрузке страницы
-    tetATetWidth = measureTextWidth('Тет-а-тет', headerButton) + paddingCompensation;
-    yaZakonchilWidth = measureTextWidth('я закончил', headerButton) + paddingCompensation;
 
     // Устанавливаем начальную ширину кнопки
     headerButton.style.width = `${tetATetWidth}px`;
 
     headerButton.addEventListener('click', () => {
         const currentTextSpan = headerButton.querySelector('.button-text.active');
-        const newText = !isChatMode ? 'я закончил' : 'Тет-а-тет';
+        const newText = !isChatMode ? 'Я закончил' : 'Тет-а-тет';
         const targetWidth = !isChatMode ? yaZakonchilWidth : tetATetWidth;
 
         // Анимация текста кнопки
@@ -488,7 +521,7 @@ if (headerButton) {
                 characterIllustration.style.display = 'block';
             }
         } else if (isSmallScreen && !isChatMode) {
-            // При закрытом чате на маленьком экране: показываем sidebar, скрываем изображение
+
             if (sidebar) {
                 sidebar.style.display = '';
             }
@@ -523,8 +556,7 @@ if (headerButton) {
                             <div class="mini-album-artist">Исполнитель</div>
                         </div>
                     `;
-                    miniAlbumPlaceholder.appendChild(miniAlbumContainer); // Вставляем в плейсхолдер
-                    // Устанавливаем fallback для нового изображения
+                    miniAlbumPlaceholder.appendChild(miniAlbumContainer);
                     setupImageFallbacks();
                 }
                 miniAlbumContainer.classList.add('visible');
@@ -935,7 +967,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.radio.stopTimer();
                     
                     window.radio = new RadioManager(stationUrl);
-
+                    if (window.audioVisualizer && window.radio.audio) {
+                        window.audioVisualizer.setAudioSource(window.radio.audio);
+                    }
+                    
                     await sleep(1000);
 
 

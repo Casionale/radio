@@ -84,7 +84,7 @@ function setupImageFallbacks() {
         if (!img.hasAttribute('data-fallback-set')) {
             const fallbackSrc = getFallbackImageForElement(img);
 
-            img.onerror = function() {
+            img.onerror = function () {
                 console.warn(`⚠️ Ошибка загрузки изображения: ${this.src}, используем fallback: ${fallbackSrc}`);
                 this.src = fallbackSrc;
                 this.onerror = null;
@@ -197,18 +197,18 @@ document.addEventListener('DOMContentLoaded', () => {
         function changeButtonText(newText) {
             const currentTextSpan = headerButton.querySelector('.button-text.active');
             const nextTextSpan = headerButton.querySelector('.button-text:not(.active)');
-            
+
             if (currentTextSpan && nextTextSpan) {
                 nextTextSpan.textContent = newText;
                 nextTextSpan.style.display = 'inline-block';
-                
+
                 currentTextSpan.classList.remove('active');
                 currentTextSpan.classList.add('exit');
-                
+
                 // Анимация входа нового текста
                 nextTextSpan.classList.remove('enter');
                 nextTextSpan.classList.add('active');
-                
+
                 setTimeout(() => {
                     currentTextSpan.classList.remove('exit');
                     currentTextSpan.classList.add('enter');
@@ -220,20 +220,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const measureTextWidth = (text, element) => {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-            
+
             // Получаем стили кнопки
             const styles = window.getComputedStyle(element);
             context.font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
-            
+
             return context.measureText(text).width;
         };
-        
+
         const paddingCompensation = 35;
-        
+
         const text1Width = measureTextWidth('Тет-а-тет', headerButton);
         const text2Width = measureTextWidth('Я закончил', headerButton);
         const maxWidth = Math.max(text1Width, text2Width);
-        
+
         headerButton.style.width = `${maxWidth + paddingCompensation}px`;
     }
 
@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.savedVolume = currentVolume;
             localStorage.setItem('savedVolume', window.savedVolume);
             updateVolumeDisplay(currentVolume);
+            updateVolumeIcon(currentVolume);
 
             // Используем radio.setVolume для изменения громкости радио
             if (window.radio && typeof window.radio.setVolume === 'function') {
@@ -376,25 +377,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.querySelectorAll('.play-pause').forEach(button => {
     button.addEventListener('click', function () {
-      const isNowPlaying = !this.matches('[aria-pressed="true"]');
-      
-      // Переключаем состояние
-      this.setAttribute('aria-pressed', isNowPlaying);
-      this.querySelector('.visually-hidden').textContent = 
-        isNowPlaying ? 'Поставить на паузу' : 'Воспроизвести';
-  
-      // Media Session API
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = isNowPlaying ? 'playing' : 'paused';
-      }
-  
-      // Твой визуализатор
-      if (window.audioVisualizer) {
-        window.audioVisualizer.onPlaybackStateChange(isNowPlaying);
-      }
+        const isNowPlaying = !this.matches('[aria-pressed="true"]');
+
+        // Переключаем состояние
+        this.setAttribute('aria-pressed', isNowPlaying);
+        this.querySelector('.visually-hidden').textContent =
+            isNowPlaying ? 'Поставить на паузу' : 'Воспроизвести';
+
+        // Media Session API
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = isNowPlaying ? 'playing' : 'paused';
+        }
+
+        // Твой визуализатор
+        if (window.audioVisualizer) {
+            window.audioVisualizer.onPlaybackStateChange(isNowPlaying);
+        }
     });
-  });
-  
+});
+
+const vol1 = document.querySelector('.vol-1');
+const vol2 = document.querySelector('.vol-2');
+const vol3 = document.querySelector('.vol-3');
+
+function updateVolumeIcon(volume) {
+    // volume от 0 до 1
+    // vol1 → 0–0.25
+    // vol2 → 0.25–0.75
+    // vol3 → 0.75–1
+
+    if (volume <= 0.25) {
+        vol1.style.opacity = 1;
+        vol2.style.opacity = 0;
+        vol3.style.opacity = 0;
+    }
+    else if (volume <= 0.75) {
+        vol1.style.opacity = 0;
+        vol2.style.opacity = 1;
+        vol3.style.opacity = 0;
+    }
+    else {
+        vol1.style.opacity = 0;
+        vol2.style.opacity = 0;
+        vol3.style.opacity = 1;
+    }
+}
+
+
 const headerButton = document.getElementById('headerButton');
 const sidebar = document.querySelector('.sidebar');
 const queueSections = document.querySelectorAll('.sidebar-queues .queue-section');
@@ -650,12 +679,12 @@ function sendMessage() {
     }
 }
 
-    // Функция для автоматического изменения высоты textarea
-    function autoResizeTextarea() {
-        chatInput.style.height = 'auto'; // Сброс высоты, чтобы scrollHeight корректно уменьшался и позволяем CSS управлять min/max-height
-        // Устанавливаем высоту, ограничивая её до CSS max-height (72px) для 3 строк
-        chatInput.style.height = Math.min(chatInput.scrollHeight, 72) + 'px';
-    }
+// Функция для автоматического изменения высоты textarea
+function autoResizeTextarea() {
+    chatInput.style.height = 'auto'; // Сброс высоты, чтобы scrollHeight корректно уменьшался и позволяем CSS управлять min/max-height
+    // Устанавливаем высоту, ограничивая её до CSS max-height (72px) для 3 строк
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 72) + 'px';
+}
 
 // Эффект капли в футере
 document.addEventListener('DOMContentLoaded', () => {
@@ -857,7 +886,7 @@ function showToast(message) {
 }
 
 // Логика селектора радиостанций
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const currentStationName = document.getElementById('currentStationName');
     const stationToggle = document.getElementById('stationToggle');
     const stationsDropdown = document.getElementById('stationsDropdown');
@@ -881,12 +910,12 @@ document.addEventListener('DOMContentLoaded', function() {
             stationToggle.classList.remove('active');
         }
 
-        currentStation.addEventListener('mouseenter', function() {
+        currentStation.addEventListener('mouseenter', function () {
             isHoveringMenu = true;
             showMenu();
         });
 
-        currentStation.addEventListener('mouseleave', function() {
+        currentStation.addEventListener('mouseleave', function () {
             isHoveringMenu = false;
             // Задержка для проверки, не перешел ли курсор на dropdown
             setTimeout(() => {
@@ -896,11 +925,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
         });
 
-        stationsDropdown.addEventListener('mouseenter', function() {
+        stationsDropdown.addEventListener('mouseenter', function () {
             isHoveringMenu = true;
         });
 
-        stationsDropdown.addEventListener('mouseleave', function() {
+        stationsDropdown.addEventListener('mouseleave', function () {
             isHoveringMenu = false;
             // Задержка для проверки, не перешел ли курсор обратно на currentStation
             setTimeout(() => {
@@ -913,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обработка выбора радиостанции
     if (stationsDropdown) {
-        stationsDropdown.addEventListener('click', async function(e) {
+        stationsDropdown.addEventListener('click', async function (e) {
             const stationItem = e.target.closest('.station-item');
             if (stationItem && !e.target.closest('.add-station-btn')) {
                 const stationUrl = stationItem.dataset.url;
@@ -941,12 +970,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     changeRadioStation(currentRadioUrl, stationName);
                     window.radio.audio.pause();
                     window.radio.stopTimer();
-                    
+
                     window.radio = new RadioManager("https://radio.bakasenpai.ru/api/nowplaying/e621.station");
                     if (window.radio && typeof window.radio.setVolume === 'function') {
                         window.radio.setVolume(window.savedVolume);
                     }
-                    
+
                     // обновить UI-ползунок
                     if (seekBar) {
                         seekBar.style.setProperty('--volume-level', `${window.savedVolume * 100}%`);
@@ -958,7 +987,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     changeRadioStation(stationUrl, stationName);
                     window.radio.audio.pause();
                     window.radio.stopTimer();
-                    
+
                     window.radio = new RadioManager(stationUrl);
                     if (window.radio && typeof window.radio.setVolume === 'function') {
                         window.radio.setVolume(window.savedVolume);
@@ -966,11 +995,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (window.audioVisualizer && window.radio.audio) {
                         window.audioVisualizer.setAudioSource(window.radio.audio);
                     }
-                    
+
                     await sleep(1000);
 
 
-                    if (!paused){
+                    if (!paused) {
                         //console.log('s');
                         await sleep(1000);
                         //console.log('e');
@@ -995,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обработка добавления своей радиостанции
     if (addStationBtn) {
-        addStationBtn.addEventListener('click', function() {
+        addStationBtn.addEventListener('click', function () {
             showAddStationModal();
         });
     }
@@ -1044,7 +1073,7 @@ function showAddStationModal() {
         const stationUrl = modal.querySelector('#stationUrl');
         const stationName = modal.querySelector('#stationName');
 
-        modal.addEventListener('click', function(e) {
+        modal.addEventListener('click', function (e) {
             if (e.target === modal) {
                 hideAddStationModal();
             }
@@ -1054,7 +1083,7 @@ function showAddStationModal() {
         cancelBtn.addEventListener('click', hideAddStationModal);
 
         // Кнопка подтверждения
-        confirmBtn.addEventListener('click', function() {
+        confirmBtn.addEventListener('click', function () {
             const url = stationUrl.value.trim();
             const name = stationName.value.trim() || 'Моя радиостанция';
 
@@ -1067,7 +1096,7 @@ function showAddStationModal() {
             }
         });
 
-        stationName.addEventListener('keypress', function(e) {
+        stationName.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 confirmBtn.click();
             }

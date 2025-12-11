@@ -1385,6 +1385,28 @@ body {
     align-items: center;
 }
 
+.control-btn {
+    position: relative;
+    width: 42px;
+    height: 38px;
+}
+
+.control-btn .vol-icon {
+    position: absolute;
+    inset: 0;
+    width: 42px;
+    height: 38px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+/* По умолчанию пусть отображается средний */
+.control-btn .vol-2 {
+    opacity: 1;
+}
+
+
 @media (max-width: 640px) {
     .volume-control {
         display: none;

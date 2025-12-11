@@ -401,10 +401,7 @@ const vol2 = document.querySelector('.vol-2');
 const vol3 = document.querySelector('.vol-3');
 
 function updateVolumeIcon(volume) {
-    // volume от 0 до 1
-    // vol1 → 0–0.25
-    // vol2 → 0.25–0.75
-    // vol3 → 0.75–1
+
 
     if (volume <= 0.25) {
         vol1.style.opacity = 1;

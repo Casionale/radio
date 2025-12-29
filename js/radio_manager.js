@@ -1,25 +1,55 @@
 class RadioManager {
     constructor(apiUrl, updateInterval = 5000) {
-        this.apiUrl = apiUrl;                     // Адрес API
-        this.updateInterval = updateInterval;     // Интервал обновления JSON
+        this.apiUrl = apiUrl;                     // Адрес API или прямой URL потока
+        this.updateInterval = updateInterval;     // Интервал обновления JSON (только для API)
         this.data = null;                         // Текущее состояние данных станции
         this.timerInterval = null;                // Интервал таймера (обновление времени песни)
         this.timeElapsed = 0;                     // Текущее время проигрывания (в секундах)
 
-        this.start(); // сразу запускаем
+        this.isDirectStream = this.checkIfDirectStream(apiUrl);  // Проверка на прямой поток
 
         this.timesong = 0;
 
         // Создаём аудиоплеер сразу
         this.audio = new Audio();
-        this.audio.crossOrigin = "anonymous"; // если нужно
+        this.audio.crossOrigin = "anonymous"; // для избежания CORS-проблем
         this.audio.src = ""; // пока пусто
         this.audio.load();
 
+        this.start(); // сразу запускаем
+    }
+
+    // Новая функция: Проверяем, является ли URL прямым потоком
+    checkIfDirectStream(url) {
+        const streamExtensions = ['.mp3', '.aac', '.aacp', '.m3u', '.pls'];
+        return streamExtensions.some(ext => url.toLowerCase().endsWith(ext));
     }
 
     // Метод для запроса данных с сервера
     async fetchData() {
+        if (this.isDirectStream) {
+            // Для прямого потока: Нет API, создаём mock-данные для UI
+            this.data = {
+                now_playing: {
+                    song: { title: 'Custom Stream', artist: 'Unknown Artist', art: '../assets/images/albom.png' },
+                    elapsed: 0,
+                    duration: 0  // Для радио duration бесконечна, UI покажет --:--
+                },
+                station: {
+                    listen_url: this.apiUrl,  // Используем apiUrl как поток
+                    name: 'Custom Radio',
+                    image: '../assets/images/preloaderRad.png',
+                    playlist_m3u_url: null  // Нет плейлиста для скачивания
+                },
+                playing_next: { song: { title: 'Next Track', artist: 'Unknown', art: '../assets/images/preloader.png' } },
+                song_history: Array(5).fill({ song: { title: 'History Track', artist: 'Unknown', art: '../assets/images/preloader.png' } })
+            };
+            this.timesong = 0;
+            this.updateHTML();
+            return;  // Не fetch'им ничего
+        }
+
+        // Для API: Стандартный fetch
         try {
             const response = await fetch(this.apiUrl);
             if (!response.ok) throw new Error(`Ошибка ${response.status}`);
@@ -235,6 +265,10 @@ class RadioManager {
     }
 
     downloadFile(url){
+        if (!url) {
+            console.warn('Нет URL для скачивания плейлиста');
+            return;
+        }
         console.log('Скачиваю по адресу '+url);
         let a = document.createElement("a");
         a.href = url;
@@ -258,6 +292,16 @@ class RadioManager {
 
     // Метод для обновления отображения таймера
     updateTimerDisplay() {
+        if (this.isDirectStream) {
+            // Для прямого потока: Нет фиксированной duration, показываем только elapsed и --:-- для total
+            const elapsedStr = formatSeconds(this.timeElapsed);
+            this.updateElement("span.time-display:nth-child(1)", elapsedStr);
+            this.updateElement("span.time-display:nth-child(4)", "--:--");
+            document.querySelector('.progress-bar').style.width = '0%';  // Прогресс не двигается для бесконечного стрима
+            return;
+        }
+
+        // Стандартная логика для API
         // Получаем данные из this.data
         const playedAt = this.data?.now_playing?.played_at; // timestamp начала воспроизведения
         const duration = this.data?.now_playing?.duration;   // длительность песни в секундах
@@ -299,7 +343,10 @@ class RadioManager {
     start() {
         this.fetchData();
         this.startTimer();
-        this.intervalId = setInterval(() => this.fetchData(), this.updateInterval);
+        if (!this.isDirectStream) {
+            // Только для API: Запускаем интервал обновления
+            this.intervalId = setInterval(() => this.fetchData(), this.updateInterval);
+        }
     }
 
     togglePlayButton(){
@@ -320,8 +367,17 @@ class RadioManager {
 
     // Проигрывание / пауза потока
     togglePlay(url) {
-        url = url.replace(/^http:/, "https:");
         console.log(url);
+
+        if (this.isDirectStream) {
+            url = this.apiUrl;  // Для прямого: Используем apiUrl как поток
+        }
+
+        // Убеждаемся, что работаем по HTTPS, если сайт на HTTPS
+        if (window.location.protocol === 'https:' && url.startsWith('http:')) {
+            url = url.replace('http:', 'https:');
+        }
+
         // Если аудиоплеер ещё не создан — создаём
         if (!this.audio) {
             this.audio = new Audio(url);

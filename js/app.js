@@ -403,18 +403,18 @@ const vol3 = document.querySelector('.vol-3');
 function updateVolumeIcon(volume) {
 
 
-    if (volume <= 0.25) {
+    if (volume <= 0.0) {
         vol1.style.opacity = 1;
         vol2.style.opacity = 0;
         vol3.style.opacity = 0;
     }
-    else if (volume <= 0.75) {
-        vol1.style.opacity = 0;
+    else if (volume <= 0.50) {
+        vol1.style.opacity = 1;
         vol2.style.opacity = 1;
         vol3.style.opacity = 0;
     }
     else {
-        vol1.style.opacity = 0;
+        vol1.style.opacity = 1;
         vol2.style.opacity = 0;
         vol3.style.opacity = 1;
     }
@@ -428,7 +428,7 @@ const queueSections = document.querySelectorAll('.sidebar-queues .queue-section'
 let isChatMode = false; // Общее состояние: false = обычный режим, true = режим чата
 let tetATetWidth = 0;
 let yaZakonchilWidth = 0;
-const paddingCompensation = 40; // 20px padding left + 20px padding right
+const paddingCompensation = 40;
 
 // Функция для измерения ширины текста
 function measureTextWidth(text, button) {
@@ -452,19 +452,18 @@ const albumSection = document.getElementById('albumSection');
 const footer = document.querySelector('.footer');
 const footerContent = document.querySelector('.footer-content');
 const mainContent = document.querySelector('.main-content');
-const miniAlbumPlaceholder = document.getElementById('miniAlbumPlaceholder'); // Получаем плейсхолдер
-const characterIllustration = document.querySelector('.character-illustration'); // Получаем иллюстрацию персонажа
-const chatSection = document.getElementById('chatSection'); // Получаем секцию чата
+const miniAlbumPlaceholder = document.getElementById('miniAlbumPlaceholder');   
+const characterIllustration = document.querySelector('.character-illustration');    
+const chatSection = document.getElementById('chatSection'); 
 const chatMessages = chatSection.querySelector('.chat-messages'); // Получаем контейнер для сообщений чата
 const chatInput = chatSection.querySelector('.chat-input');       // Получаем поле ввода чата
 const chatSendBtn = chatSection.querySelector('.chat-send-btn');   // Получаем кнопку отправки чата
-const typingIndicator = document.getElementById('typingIndicator'); // Получаем индикатор печати
+const typingIndicator = document.getElementById('typingIndicator');
 let miniAlbumContainer = null;
 let isMiniAlbumVisible = false;
 
 if (headerButton) {
 
-    // Устанавливаем начальную ширину кнопки
     headerButton.style.width = `${tetATetWidth}px`;
 
     headerButton.addEventListener('click', () => {
@@ -1218,4 +1217,85 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+});
+// Глобальная переменная для хранения события установки
+let deferredInstallPrompt = null;
+
+// Перехватываем событие (лучше всего делать это как можно раньше)
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Отключаем стандартный баннер браузера
+    e.preventDefault();
+    
+    // Сохраняем событие для будущего использования
+    deferredInstallPrompt = e;
+    
+    console.log('PWA install prompt доступен — можно показать кнопку/тост');
+    
+    // Здесь можно сразу показать ваш toast (например, через 10–30 секунд)
+    // setTimeout(() => showInstallToast(), 15000);
+});
+
+// Функция показа вашего уведомления с кнопкой установки
+function showInstallToast() {
+    if (!deferredInstallPrompt) return; // если событие не пришло — не показываем
+    
+    // Показываем ваш существующий toast
+    const toast = document.querySelector('.toast-notification');
+    if (!toast) return;
+    
+    toast.classList.add('show');
+    
+    // Можно динамически менять текст или добавлять кнопку
+    // Например:
+    // toast.innerHTML = `
+    //     <div>Нравится радио? Установите приложение!</div>
+    //     <button id="install-pwa-btn">Установить</button>
+    //     <button class="toast-close">×</button>
+    // `;
+    
+    // Обработчик кнопки "Установить"
+    const installBtn = toast.querySelector('#install-pwa-btn') || 
+                       document.createElement('button'); // если нужно создать
+    
+    if (!installBtn.id) {
+        installBtn.id = 'install-pwa-btn';
+        installBtn.textContent = 'Установить приложение';
+        installBtn.style.marginTop = '10px';
+        toast.appendChild(installBtn);
+    }
+    
+    installBtn.onclick = async () => {
+        if (!deferredInstallPrompt) return;
+        
+        // Показываем нативный диалог установки
+        const { outcome } = await deferredInstallPrompt.prompt();
+        
+        console.log('Результат установки:', outcome);
+        
+        // outcome === 'accepted' → пользователь установил
+        // outcome === 'dismissed' → отказался
+        
+        // Скрываем тост в любом случае
+        toast.classList.remove('show');
+        
+        // Сбрасываем переменную (prompt можно вызвать только один раз)
+        deferredInstallPrompt = null;
+    };
+    
+    // Кнопка закрытия (если есть)
+    const closeBtn = toast.querySelector('.toast-close');
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            toast.classList.remove('show');
+            // Можно отложить показ на следующий визит
+        };
+    }
+}
+
+// Пример: показать тост через 20 секунд после загрузки страницы
+// (можно вызвать из другого места — после первого взаимодействия, после 3 треков и т.д.)
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        showInstallToast();
+    }, 20000); // 20 секунд — пример, подберите удобный момент
 });

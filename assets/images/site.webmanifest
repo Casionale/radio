@@ -21,7 +21,14 @@
       {
         "src": "/assets/images/favicon.svg",
         "sizes": "any",
-        "type": "image/svg+xml"
+        "type": "image/svg+xml",
+        "purpose": "any"
+      },
+      {
+        "src": "/assets/images/icon-maskable.svg", 
+        "sizes": "any",
+        "type": "image/svg+xml",
+        "purpose": "maskable"
       }
     ]
   }

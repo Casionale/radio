@@ -27,6 +27,9 @@ class RadioManager {
 
     // Метод для запроса данных с сервера
     async fetchData() {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/762d430d-1473-4ae4-abd1-161d40827a84',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'radio_manager.js:29',message:'fetchData called',data:{apiUrl:this.apiUrl,isDirectStream:this.isDirectStream,windowOrigin:window.location.origin},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         if (this.isDirectStream) {
             // Для прямого потока: Нет API, создаём mock-данные для UI
             this.data = {
@@ -51,7 +54,13 @@ class RadioManager {
 
         // Для API: Стандартный fetch
         try {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/762d430d-1473-4ae4-abd1-161d40827a84',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'radio_manager.js:53',message:'fetching data',data:{apiUrl:this.apiUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             const response = await fetch(this.apiUrl);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/762d430d-1473-4ae4-abd1-161d40827a84',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'radio_manager.js:56',message:'response received',data:{ok:response.ok,status:response.status,statusText:response.statusText},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
             if (!response.ok) throw new Error(`Ошибка ${response.status}`);
             const json = await response.json();
             this.data = json;
@@ -60,6 +69,9 @@ class RadioManager {
 
             this.updateHTML();
         } catch (error) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/762d430d-1473-4ae4-abd1-161d40827a84',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'radio_manager.js:64',message:'fetchData error',data:{error:error.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             console.error("Ошибка при получении данных:", error);
         }
     }
@@ -276,11 +288,6 @@ class RadioManager {
         a.click();
     }
 
-    // Метод для запроса конкретной песни
-    requestSong(songName) {
-        // TODO: реализовать запрос песни на сервер
-    }
-
     // Метод для обновления таймера проигрывания песни
     startTimer() {
         if (this.timerInterval) clearInterval(this.timerInterval);
@@ -293,7 +300,6 @@ class RadioManager {
     // Метод для обновления отображения таймера
     updateTimerDisplay() {
         if (this.isDirectStream) {
-            // Для прямого потока: Нет фиксированной duration, показываем только elapsed и --:-- для total
             const elapsedStr = formatSeconds(this.timeElapsed);
             this.updateElement("span.time-display:nth-child(1)", elapsedStr);
             this.updateElement("span.time-display:nth-child(4)", "--:--");
@@ -301,43 +307,32 @@ class RadioManager {
             return;
         }
 
-        // Стандартная логика для API
-        // Получаем данные из this.data
-        const playedAt = this.data?.now_playing?.played_at; // timestamp начала воспроизведения
-        const duration = this.data?.now_playing?.duration;   // длительность песни в секундах
+
+        const playedAt = this.data?.now_playing?.played_at;
+        const duration = this.data?.now_playing?.duration;
       
-        // Если данных нет — выходим
         if (!playedAt || !duration) {
           return;
         }
       
-        // Текущее время в миллисекундах
         const currentTime = new Date().getTime()/1000;
       
-        // Прошедшее время в секундах (с округлением до целого)
         const elapsed = Math.floor((currentTime - playedAt));
       
-        // Ограничиваем elapsed длительностью песни
         const safeElapsed = Math.min(elapsed, duration);
       
-        // Оставшееся время
         const remaining = duration - safeElapsed;
       
-        // Форматируем время
         const elapsedStr = formatSeconds(safeElapsed);
         const totalStr = formatSeconds(duration);
       
-        // Обновляем отображение:
-        // - текущее время (elapsed)
-        // - общая длительность (duration)
+
         this.updateElement("span.time-display:nth-child(1)", elapsedStr);
         this.updateElement("span.time-display:nth-child(4)", totalStr);
-      
-        // Обновляем ширину прогресс‑бара (в процентах)
+
         const progressPercent = (safeElapsed / duration) * 100;
         document.querySelector('.progress-bar').style.width = `${progressPercent}%`;
-      
-      }
+}
 
     // Метод запуска автоматического обновления данных
     start() {
@@ -348,22 +343,6 @@ class RadioManager {
             this.intervalId = setInterval(() => this.fetchData(), this.updateInterval);
         }
     }
-
-    togglePlayButton(){
-        try{    
-            this.togglePlay(this.data?.station?.listen_url);
-            
-            let paused = this.audio.paused;
-            let btn = document.querySelector('button.control-btn:nth-child(2)');
-            if (!paused)
-                btn.classList.add('playing');
-            else
-                btn.classList.toggle('playing');
-        }
-        catch{
-            console.error("Нет ссылки на поток!");
-        }
-    } 
 
     // Проигрывание / пауза потока
     togglePlay(url) {

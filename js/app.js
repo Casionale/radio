@@ -455,9 +455,9 @@ const mainContent = document.querySelector('.main-content');
 const miniAlbumPlaceholder = document.getElementById('miniAlbumPlaceholder');   
 const characterIllustration = document.querySelector('.character-illustration');    
 const chatSection = document.getElementById('chatSection'); 
-const chatMessages = chatSection.querySelector('.chat-messages'); // Получаем контейнер для сообщений чата
-const chatInput = chatSection.querySelector('.chat-input');       // Получаем поле ввода чата
-const chatSendBtn = chatSection.querySelector('.chat-send-btn');   // Получаем кнопку отправки чата
+const chatMessages = chatSection.querySelector('.chat-messages');
+const chatInput = chatSection.querySelector('.chat-input');
+const chatSendBtn = chatSection.querySelector('.chat-send-btn');
 const typingIndicator = document.getElementById('typingIndicator');
 let miniAlbumContainer = null;
 let isMiniAlbumVisible = false;
@@ -582,23 +582,6 @@ if (headerButton) {
 }
 
 
-// Функция для генерации ответа от ИИ (временная реализация)
-function generateAIResponse(userMessage) {
-    // Здесь будет логика для подключения к нейронной сети
-    // Пока возвращаем временное сообщение
-
-    const responses = [
-        "Я пока не умею этого, но когда-нибудь я смогу тебе ответить! 🤖",
-        "Извини, но я еще обучаюсь. Скоро смогу вести полноценный разговор! 💭",
-        "Мои алгоритмы еще не готовы к такому уровню общения, но я учусь! 📚",
-        "Технически я еще не подключен к нейронной сети, но скоро это исправим! ⚡",
-        "Спасибо за сообщение! Я пока не могу ответить по-настоящему, но ценю твой интерес! 😊"
-    ];
-
-    // Возвращаем случайный ответ из массива
-    return responses[Math.floor(Math.random() * responses.length)];
-}
-
 // Функция для добавления ответа от ИИ в чат
 function addAIResponse(responseText) {
     const messageElement = document.createElement('div');
@@ -665,20 +648,17 @@ function sendMessage() {
         showTypingIndicator();
 
         // Генерируем ответ от ИИ через небольшую задержку (имитация "размышления")
-        setTimeout(() => {
-            // Скрываем индикатор печати
+        setTimeout(async () => {
             hideTypingIndicator();
-
-            const aiResponse = generateAIResponse(messageText);
+            const aiResponse = await getAIResponse(messageText);
             addAIResponse(aiResponse);
-        }, 1500); // Задержка 1.5 секунды
+        }, 1500);
     }
 }
 
 // Функция для автоматического изменения высоты textarea
 function autoResizeTextarea() {
-    chatInput.style.height = 'auto'; // Сброс высоты, чтобы scrollHeight корректно уменьшался и позволяем CSS управлять min/max-height
-    // Устанавливаем высоту, ограничивая её до CSS max-height (72px) для 3 строк
+    chatInput.style.height = 'auto';
     chatInput.style.height = Math.min(chatInput.scrollHeight, 72) + 'px';
 }
 
@@ -996,9 +976,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                     if (!paused) {
-                        //console.log('s');
                         await sleep(1000);
-                        //console.log('e');
                         window.radio.audio.src = window.radio.data?.station?.listen_url
                         window.radio.audio.play();
                     }
@@ -1218,21 +1196,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-// Глобальная переменная для хранения события установки
 let deferredInstallPrompt = null;
 
-// Перехватываем событие (лучше всего делать это как можно раньше)
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Отключаем стандартный баннер браузера
     e.preventDefault();
     
-    // Сохраняем событие для будущего использования
     deferredInstallPrompt = e;
     
     console.log('PWA install prompt доступен — можно показать кнопку/тост');
     
-    // Здесь можно сразу показать ваш toast (например, через 10–30 секунд)
-    // setTimeout(() => showInstallToast(), 15000);
 });
 
 // Функция показа вашего уведомления с кнопкой установки
@@ -1245,17 +1217,9 @@ function showInstallToast() {
     
     toast.classList.add('show');
     
-    // Можно динамически менять текст или добавлять кнопку
-    // Например:
-    // toast.innerHTML = `
-    //     <div>Нравится радио? Установите приложение!</div>
-    //     <button id="install-pwa-btn">Установить</button>
-    //     <button class="toast-close">×</button>
-    // `;
-    
-    // Обработчик кнопки "Установить"
+
     const installBtn = toast.querySelector('#install-pwa-btn') || 
-                       document.createElement('button'); // если нужно создать
+    document.createElement('button');
     
     if (!installBtn.id) {
         installBtn.id = 'install-pwa-btn';
@@ -1267,35 +1231,26 @@ function showInstallToast() {
     installBtn.onclick = async () => {
         if (!deferredInstallPrompt) return;
         
-        // Показываем нативный диалог установки
         const { outcome } = await deferredInstallPrompt.prompt();
         
         console.log('Результат установки:', outcome);
-        
-        // outcome === 'accepted' → пользователь установил
-        // outcome === 'dismissed' → отказался
-        
-        // Скрываем тост в любом случае
+
         toast.classList.remove('show');
         
-        // Сбрасываем переменную (prompt можно вызвать только один раз)
         deferredInstallPrompt = null;
     };
     
-    // Кнопка закрытия (если есть)
     const closeBtn = toast.querySelector('.toast-close');
     if (closeBtn) {
         closeBtn.onclick = () => {
             toast.classList.remove('show');
-            // Можно отложить показ на следующий визит
         };
     }
 }
 
-// Пример: показать тост через 20 секунд после загрузки страницы
-// (можно вызвать из другого места — после первого взаимодействия, после 3 треков и т.д.)
+
 window.addEventListener('load', () => {
     setTimeout(() => {
         showInstallToast();
-    }, 20000); // 20 секунд — пример, подберите удобный момент
+    }, 5000);
 });

@@ -857,22 +857,37 @@ function showToast(message) {
         // Полностью скрываем элемент после анимации
         setTimeout(() => {
             toast.classList.remove('show', 'hide');
-        }, 300); // Время transition
+        }, 300);
     }, 3000);
 }
 
 // Загружаем сохраненные радиостанции при запуске
 document.addEventListener('DOMContentLoaded', async function () {
-    await loadSavedStations();
-});
+    try {
+        await loadSavedStations();
+    } catch (error) {
+        console.error('Ошибка при загрузке сохраненных станций:', error);
+    }
 
-// Логика селектора радиостанций
-document.addEventListener('DOMContentLoaded', function () {
+    // Устанавливаем правильные статусы для всех станций
+    updateStationStatuses();
+
+    // Логика селектора радиостанций
     const currentStationName = document.getElementById('currentStationName');
     const stationToggle = document.getElementById('stationToggle');
     const stationsDropdown = document.getElementById('stationsDropdown');
     const addStationBtn = document.getElementById('addStationBtn');
     const currentStation = document.querySelector('.current-station');
+
+    // Переменные для бургер-меню
+    const burgerMenu = document.getElementById('burgerMenu');
+    const burgerOverlay = document.getElementById('burgerOverlay');
+    const burgerAddStation = document.getElementById('burgerAddStationBtn');
+    console.log('Burger menu elements found:', {
+        burgerMenu: !!burgerMenu,
+        burgerOverlay: !!burgerOverlay,
+        burgerAddStation: !!burgerAddStation
+    });
 
     // Переменная для хранения текущего URL радиостанции
     let currentRadioUrl = 'https://radio.bakasenpai.ru/stream'; // URL нашей радиостанции
@@ -940,6 +955,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 stationItem.classList.add('active');
+
+                // Обновляем статусы всех станций
+                updateStationStatuses();
 
                 if (currentStationName) {
                     currentStationName.textContent = stationName;
@@ -1027,12 +1045,82 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Обработка добавления своей радиостанции
+    if (addStationBtn) {
+        addStationBtn.addEventListener('click', function () {
+            const stationModal = document.getElementById('stationModal');
+            if (stationModal) {
+                // Сбрасываем состояние в режим добавления
+                resetModalState();
+
+                stationModal.classList.add('active');
+                document.getElementById('stationName').focus();
+            } else {
+                // Fallback to dynamic modal if static modal not found
+                showAddStationModal();
+            }
+        });
+    }
+
+    // === Бургер меню ===
+    // Функция для переключения бургер меню
+    function toggleBurgerMenu() {
+        console.log('Toggling burger menu, burgerOverlay exists:', !!burgerOverlay);
+        if (burgerMenu) burgerMenu.classList.toggle('active');
+        if (burgerOverlay) burgerOverlay.classList.toggle('active');
+
+        if (burgerOverlay && burgerOverlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+
+    if (burgerMenu) {
+        burgerMenu.addEventListener('click', function(e) {
+            e.stopPropagation(); // Предотвращаем всплытие события
+            console.log('Burger menu clicked', e.target, e.currentTarget);
+            toggleBurgerMenu();
+        });
+    }
+
+    if (burgerOverlay) {
+        burgerOverlay.addEventListener('click', (e) => {
+            if (e.target === burgerOverlay) {
+                toggleBurgerMenu();
+            }
+        });
+    }
+
+    // Обработка добавления станции из бургер-меню
+    const burgerAddStationBtn = document.getElementById('burgerAddStationBtn');
+    if (burgerAddStationBtn) {
+        burgerAddStationBtn.addEventListener('click', function (e) {
+            e.stopPropagation(); // Предотвращаем всплытие события
+            const stationModal = document.getElementById('stationModal');
+            if (stationModal) {
+                // Сбрасываем состояние в режим добавления
+                resetModalState();
+
+                stationModal.classList.add('active');
+                document.getElementById('stationName').focus();
+            } else {
+                // Fallback to dynamic modal if static modal not found
+                showAddStationModal();
+            }
+            // Закрываем бургер-меню после клика
+            toggleBurgerMenu();
+        });
+    }
+
     // Обработчик для бургер-меню
     const burgerStationsDropdown = document.getElementById('burgerStationsDropdown');
     if (burgerStationsDropdown) {
         burgerStationsDropdown.addEventListener('click', async function (e) {
+            console.log('Burger stations dropdown clicked', e.target);
             const stationItem = e.target.closest('.station-item');
             if (stationItem && !e.target.closest('.add-station-btn')) {
+                console.log('Station item clicked in burger menu', stationItem);
                 const stationUrl = stationItem.dataset.url;
                 const stationName = stationItem.querySelector('.station-name').textContent;
 
@@ -1042,6 +1130,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 stationItem.classList.add('active');
+
+                // Обновляем статусы всех станций
+                updateStationStatuses();
 
                 if (currentStationName) {
                     currentStationName.textContent = stationName;
@@ -1109,8 +1200,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 // Закрываем бургер-меню после выбора станции
-                const burgerMenu = document.getElementById('burgerMenu');
-                const burgerOverlay = document.getElementById('burgerOverlay');
                 if (burgerMenu && burgerOverlay) {
                     burgerMenu.classList.remove('active');
                     burgerOverlay.classList.remove('active');
@@ -1119,44 +1208,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 showToast(`Переключено на: ${stationName}`);
             }
-        });
-    }
-
-    // Обработка добавления своей радиостанции
-    if (addStationBtn) {
-        addStationBtn.addEventListener('click', function () {
-            const stationModal = document.getElementById('stationModal');
-            if (stationModal) {
-                // Сбрасываем состояние в режим добавления
-                resetModalState();
-
-                stationModal.classList.add('active');
-                document.getElementById('stationName').focus();
-            } else {
-                // Fallback to dynamic modal if static modal not found
-                showAddStationModal();
-            }
-        });
-    }
-
-    // Обработка добавления станции из бургер-меню
-    const burgerAddStationBtn = document.getElementById('burgerAddStationBtn');
-    if (burgerAddStationBtn) {
-        burgerAddStationBtn.addEventListener('click', function (e) {
-            e.stopPropagation(); // Предотвращаем всплытие события
-            const stationModal = document.getElementById('stationModal');
-            if (stationModal) {
-                // Сбрасываем состояние в режим добавления
-                resetModalState();
-
-                stationModal.classList.add('active');
-                document.getElementById('stationName').focus();
-            } else {
-                // Fallback to dynamic modal if static modal not found
-                showAddStationModal();
-            }
-            // Закрываем бургер-меню после клика
-            toggleBurgerMenu();
         });
     }
 });
@@ -1286,20 +1337,20 @@ async function addCustomStation(url, name) {
     stationItem.className = 'station-item';
     stationItem.setAttribute('data-url', url);
 
+    // Определяем, нужно ли показывать кнопку удаления (для r29.station не показываем)
+    const showDeleteButton = name !== 'r29.station' && url !== 'https://radio.bakasenpai.ru/api/nowplaying/r29.station';
+
     stationItem.innerHTML = `
         <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
         <div class="station-details">
             <div class="station-details-top-row">
                 <div class="station-name">${name}</div>
                 <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="${name}" data-url="${url}">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
-                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42
-9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/>
-                    </svg>
+                    <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
                 </button>
-                <button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
+                ${showDeleteButton ? `<button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
                     <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
-                </button>
+                </button>` : ''}
             </div>
             <div class="station-genre">Пользовательская</div>
             <div class="station-listeners">Добавлено</div>
@@ -1314,6 +1365,24 @@ async function addCustomStation(url, name) {
     } else {
         // Fallback: вставляем в конец списка
         stationsList.appendChild(stationItem);
+    }
+
+    // Также добавляем в бургер-меню
+    const burgerStationsList = document.querySelector('#burgerStationsDropdown .stations-list');
+    console.log('Adding station to burger menu, burgerStationsList found:', !!burgerStationsList);
+    if (burgerStationsList) {
+        const burgerStationItem = stationItem.cloneNode(true);
+        // Ищем кнопку "Добавить радиостанцию" в burgerStationsDropdown
+        const burgerAddBtn = document.querySelector('#burgerStationsDropdown .add-station-btn');
+        console.log('Burger add button found:', !!burgerAddBtn);
+        if (burgerAddBtn) {
+            const burgerAddBtnItem = burgerAddBtn.closest('.dropdown-header');
+            burgerStationsList.insertBefore(burgerStationItem, burgerAddBtnItem);
+            console.log('Station added to burger menu before button');
+        } else {
+            burgerStationsList.appendChild(burgerStationItem);
+            console.log('Station added to end of burger menu');
+        }
     }
 
     // Обновляем бургер-меню после добавления станции
@@ -1333,16 +1402,56 @@ async function loadSavedStations() {
     } catch (error) {
         console.error('Ошибка загрузки сохраненных станций:', error);
     }
+
+    // После загрузки всех станций устанавливаем правильные статусы
+    updateStationStatuses();
+}
+
+// Функция для обновления статусов всех станций
+function updateStationStatuses() {
+    document.querySelectorAll('.station-item').forEach(item => {
+        const listenersElement = item.querySelector('.station-listeners');
+        if (listenersElement) {
+            // Проверяем, находится ли элемент в бургер-меню
+            const isInBurgerMenu = item.closest('#burgerStationsDropdown') !== null;
+
+            if (item.classList.contains('active')) {
+                // Активная станция
+                if (isInBurgerMenu) {
+                    listenersElement.textContent = 'Сейчас играет';
+                } else {
+                    listenersElement.textContent = 'Онлайн';
+                }
+            } else {
+                // Проверяем жанр станции
+                const genreElement = item.querySelector('.station-genre');
+                if (genreElement && genreElement.textContent === 'Пользовательская') {
+                    // Станция добавлена пользователем
+                    listenersElement.textContent = 'Добавлено';
+                } else {
+                    // Предустановленная станция
+                    listenersElement.textContent = 'Онлайн';
+                }
+            }
+        }
+    });
 }
 
 // Вспомогательная функция для добавления станции в DOM без сохранения
 function addCustomStationToDOM(url, name) {
-    const stationsList = document.querySelector('.stations-list');
-    if (!stationsList) return;
+    // Находим stations-list именно в сайдбаре (в dropdown), а не в бургер-меню
+    const stationsList = document.querySelector('#stationsDropdown .stations-list');
+    if (!stationsList) {
+        console.error('Stations list not found in sidebar');
+        return;
+    }
 
     const stationItem = document.createElement('div');
     stationItem.className = 'station-item';
     stationItem.setAttribute('data-url', url);
+
+    // Определяем, нужно ли показывать кнопку удаления (для r29.station не показываем)
+    const showDeleteButton = name !== 'r29.station' && url !== 'https://radio.bakasenpai.ru/api/nowplaying/r29.station';
 
     stationItem.innerHTML = `
         <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
@@ -1350,14 +1459,11 @@ function addCustomStationToDOM(url, name) {
             <div class="station-details-top-row">
                 <div class="station-name">${name}</div>
                 <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="${name}" data-url="${url}">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
-                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42
-9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/>
-                    </svg>
+                    <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
                 </button>
-                <button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
+                ${showDeleteButton ? `<button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
                     <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
-                </button>
+                </button>` : ''}
             </div>
             <div class="station-genre">Пользовательская</div>
             <div class="station-listeners">Добавлено</div>
@@ -1459,83 +1565,6 @@ function resetModalState() {
     }
 }
 
-// === Бургер меню ===
-document.addEventListener('DOMContentLoaded', () => {
-    const burgerMenu = document.getElementById('burgerMenu');
-    const burgerOverlay = document.getElementById('burgerOverlay');
-    const burgerChatToggle = document.getElementById('burgerChatToggle');
-    const burgerAddStation = document.getElementById('burgerAddStation');
-
-    // Функция для переключения бургер меню
-    function toggleBurgerMenu() {
-        burgerMenu.classList.toggle('active');
-        burgerOverlay.classList.toggle('active');
-
-        if (burgerOverlay.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-    }
-
-    if (burgerMenu) {
-        burgerMenu.addEventListener('click', toggleBurgerMenu);
-    }
-
-    if (burgerOverlay) {
-        burgerOverlay.addEventListener('click', (e) => {
-            if (e.target === burgerOverlay) {
-                toggleBurgerMenu();
-            }
-        });
-    }
-
-
-    // Обработчик для кнопки "Добавить радиостанцию" в бургер меню
-    if (burgerAddStation) {
-        burgerAddStation.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleBurgerMenu(); // Закрываем бургер меню
-            showAddStationModal();
-        });
-    }
-
-    // Обработчики для ссылок радиостанций в бургер меню
-    const burgerNavLinks = document.querySelectorAll('.burger-nav-link[data-station]');
-    burgerNavLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const stationType = link.getAttribute('data-station');
-
-            const stationItems = document.querySelectorAll('.station-item');
-            let targetStation = null;
-
-            switch (stationType) {
-                case 'e621.station':
-                    targetStation = stationItems[0];
-                    break;
-                case 'rock-hits':
-                    targetStation = stationItems[1];
-                    break;
-                case 'radio-paradise':
-                    targetStation = stationItems[2];
-                    break;
-                case 'jamendo-lounge':
-                    targetStation = stationItems[3];
-                    break;
-                case 'abc-lounge':
-                    targetStation = stationItems[4];
-                    break;
-            }
-
-            if (targetStation) {
-                targetStation.click();
-                toggleBurgerMenu();
-                showToast(`Переключено на: ${targetStation.querySelector('.station-name').textContent}`);
-            }
-        });
-    });
-});
 let deferredInstallPrompt = null;
 
 window.addEventListener('beforeinstallprompt', (e) => {

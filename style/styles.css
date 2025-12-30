@@ -2172,13 +2172,13 @@ input:focus {
 
 .burger-overlay .station-genre {
     font-size: 14px;
-    color: var(--txt-color-light);
+    color: #181a1bb2;
     margin-bottom: 4px;
 }
 
 .burger-overlay .station-listeners {
     font-size: 12px;
-    color: var(--success-color);
+    color: var(--main-color);
     font-weight: 500;
 }
 

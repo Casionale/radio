@@ -924,6 +924,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Обработка выбора радиостанции
     if (stationsDropdown) {
         stationsDropdown.addEventListener('click', async function (e) {
+            // Если клик был в бургер-меню, предотвращаем всплытие
+            if (e.target.closest('.burger-overlay')) {
+                e.stopPropagation();
+            }
+
             const stationItem = e.target.closest('.station-item');
             if (stationItem && !e.target.closest('.add-station-btn')) {
                 const stationUrl = stationItem.dataset.url;
@@ -1022,6 +1027,101 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Обработчик для бургер-меню
+    const burgerStationsDropdown = document.getElementById('burgerStationsDropdown');
+    if (burgerStationsDropdown) {
+        burgerStationsDropdown.addEventListener('click', async function (e) {
+            const stationItem = e.target.closest('.station-item');
+            if (stationItem && !e.target.closest('.add-station-btn')) {
+                const stationUrl = stationItem.dataset.url;
+                const stationName = stationItem.querySelector('.station-name').textContent;
+
+                // Убираем активный класс со всех элементов
+                document.querySelectorAll('.station-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                stationItem.classList.add('active');
+
+                if (currentStationName) {
+                    currentStationName.textContent = stationName;
+                }
+
+                let btn = document.querySelector('button.control-btn:nth-child(2)');
+                let value = btn.getAttribute('aria-label');
+
+                const paused = window.radio.audio.paused;
+
+                // Меняем радиостанцию
+                if (stationUrl === 'current') {
+                    // Ничего не делаем для текущей станции
+                } else {
+                    // Останавливаем текущую станцию
+                    if (window.radio && typeof window.radio.stop === 'function') {
+                        window.radio.stop();
+                    }
+                    if (window.radio && typeof window.radio.stopTimer === 'function') {
+                        window.radio.stopTimer();
+                    }
+
+                    // Создаем новый RadioManager для новой станции
+                    window.radio = new RadioManager(stationUrl);
+                    if (window.radio && typeof window.radio.setVolume === 'function') {
+                        window.radio.setVolume(window.savedVolume);
+                    }
+                    if (window.audioVisualizer && window.radio.audio) {
+                        window.audioVisualizer.setAudioSource(window.radio.audio);
+                    }
+
+                    // Ждем загрузки данных станции
+                    await sleep(1500);
+
+                    // На мобильных устройствах начинаем воспроизведение только после пользовательского взаимодействия
+                    if (!paused) {
+                        try {
+                            // Используем метод togglePlay для правильной обработки на мобильных
+                            const listenUrl = window.radio.data?.station?.listen_url || stationUrl;
+                            await window.radio.togglePlay(listenUrl);
+                            btn.classList.add('playing');
+                        } catch (error) {
+                            console.error('Ошибка воспроизведения на новой станции:', error);
+
+                            // Специальная обработка для мобильных устройств
+                            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                            if (isMobile) {
+                                if (error.name === 'NotAllowedError') {
+                                    showToast('Нажмите кнопку Play для начала воспроизведения');
+                                } else if (error.name === 'AbortError') {
+                                    showToast('Ошибка загрузки. Проверьте интернет-соединение');
+                                } else {
+                                    showToast('Ошибка воспроизведения. Попробуйте другую станцию');
+                                }
+                            } else {
+                                showToast('Ошибка воспроизведения. Попробуйте нажать кнопку Play вручную.');
+                            }
+
+                            // Снимаем класс playing при ошибке
+                            btn.classList.remove('playing');
+                        }
+                    } else {
+                        btn.classList.remove('playing');
+                    }
+                }
+
+                // Закрываем бургер-меню после выбора станции
+                const burgerMenu = document.getElementById('burgerMenu');
+                const burgerOverlay = document.getElementById('burgerOverlay');
+                if (burgerMenu && burgerOverlay) {
+                    burgerMenu.classList.remove('active');
+                    burgerOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+
+                showToast(`Переключено на: ${stationName}`);
+            }
+        });
+    }
+
     // Обработка добавления своей радиостанции
     if (addStationBtn) {
         addStationBtn.addEventListener('click', function () {
@@ -1036,6 +1136,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Fallback to dynamic modal if static modal not found
                 showAddStationModal();
             }
+        });
+    }
+
+    // Обработка добавления станции из бургер-меню
+    const burgerAddStationBtn = document.getElementById('burgerAddStationBtn');
+    if (burgerAddStationBtn) {
+        burgerAddStationBtn.addEventListener('click', function (e) {
+            e.stopPropagation(); // Предотвращаем всплытие события
+            const stationModal = document.getElementById('stationModal');
+            if (stationModal) {
+                // Сбрасываем состояние в режим добавления
+                resetModalState();
+
+                stationModal.classList.add('active');
+                document.getElementById('stationName').focus();
+            } else {
+                // Fallback to dynamic modal if static modal not found
+                showAddStationModal();
+            }
+            // Закрываем бургер-меню после клика
+            toggleBurgerMenu();
         });
     }
 });
@@ -1176,6 +1297,9 @@ async function addCustomStation(url, name) {
 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/>
                     </svg>
                 </button>
+                <button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
+                    <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
+                </button>
             </div>
             <div class="station-genre">Пользовательская</div>
             <div class="station-listeners">Добавлено</div>
@@ -1230,6 +1354,9 @@ function addCustomStationToDOM(url, name) {
                         <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42
 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/>
                     </svg>
+                </button>
+                <button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
+                    <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
                 </button>
             </div>
             <div class="station-genre">Пользовательская</div>
@@ -1309,7 +1436,7 @@ function updateMobileMenuContent() {
     });
 }
 
-let stationModal, saveStationBtn, cancelStationBtn, deleteStationBtn, stationNameInput, stationUrlInput;
+let stationModal, saveStationBtn, cancelStationBtn, stationNameInput, stationUrlInput;
 
 // Функция сброса состояния модального окна
 function resetModalState() {
@@ -1319,11 +1446,6 @@ function resetModalState() {
     stationNameInput.value = '';
     stationUrlInput.value = '';
 
-    // Скрываем кнопку удаления
-    if (deleteStationBtn) {
-        deleteStationBtn.style.display = 'none';
-        deleteStationBtn.removeAttribute('data-url');
-    }
 
     // Сбрасываем заголовок
     const modalTitle = stationModal.querySelector('#modalTitle');
@@ -1473,7 +1595,6 @@ document.addEventListener('DOMContentLoaded', function() {
     stationModal = document.getElementById('stationModal');
     saveStationBtn = document.getElementById('saveStationBtn');
     cancelStationBtn = document.getElementById('cancelStationBtn');
-    deleteStationBtn = document.getElementById('deleteStationBtn');
     stationNameInput = document.getElementById('stationName');
     stationUrlInput = document.getElementById('stationUrl');
 
@@ -1489,7 +1610,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const isEditing = saveStationBtn.textContent === 'Сохранить';
-            const oldUrl = deleteStationBtn ? deleteStationBtn.getAttribute('data-url') : null;
+            const oldUrl = null; // Не используется для новых кнопок удаления
 
             if (isEditing && oldUrl) {
                 // Режим редактирования: обновляем существующую станцию в IndexedDB
@@ -1534,11 +1655,6 @@ document.addEventListener('DOMContentLoaded', function() {
             stationNameInput.value = '';
             stationUrlInput.value = '';
 
-            // Скрываем кнопку удаления
-            if (deleteStationBtn) {
-                deleteStationBtn.style.display = 'none';
-                deleteStationBtn.removeAttribute('data-url');
-            }
 
             // Сбрасываем заголовок
             const modalTitle = stationModal.querySelector('#modalTitle');
@@ -1572,6 +1688,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработчик для кнопок редактирования станций
     document.addEventListener('click', function(e) {
         if (e.target.closest('.edit-station-btn')) {
+            e.stopPropagation(); // Предотвращаем всплытие события
             const btn = e.target.closest('.edit-station-btn');
             const name = btn.getAttribute('data-name');
             const url = btn.getAttribute('data-url');
@@ -1580,12 +1697,6 @@ document.addEventListener('DOMContentLoaded', function() {
             stationNameInput.value = name;
             stationUrlInput.value = url;
 
-            // Показываем кнопку удаления для пользовательских станций
-            if (deleteStationBtn) {
-                deleteStationBtn.style.display = 'block';
-                // Сохраняем данные для удаления
-                deleteStationBtn.setAttribute('data-url', url);
-            }
 
             // Меняем заголовок
             const modalTitle = stationModal.querySelector('#modalTitle');
@@ -1604,11 +1715,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Обработчик для кнопки удаления
-    if (deleteStationBtn) {
-        deleteStationBtn.addEventListener('click', async function() {
-            const url = this.getAttribute('data-url');
-            if (confirm('Вы уверены, что хотите удалить эту радиостанцию?')) {
+
+    // Обработчик для новых кнопок удаления с trash.svg
+    document.addEventListener('click', async function(e) {
+        if (e.target.closest('.delete-station-btn')) {
+            e.stopPropagation(); // Предотвращаем всплытие события
+            const btn = e.target.closest('.delete-station-btn');
+            const url = btn.getAttribute('data-url');
+            const name = btn.getAttribute('data-name');
+
+            if (confirm(`Вы уверены, что хотите удалить радиостанцию "${name}"?`)) {
                 try {
                     // Удаляем из IndexedDB
                     const stations = await offlineStorage.getStations();
@@ -1626,11 +1742,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
 
-                    // Закрываем модальное окно
-                    stationModal.classList.remove('active');
-                    stationNameInput.value = '';
-                    stationUrlInput.value = '';
-
                     // Обновляем бургер-меню после удаления станции
                     updateMobileMenuContent();
 
@@ -1640,8 +1751,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     showToast('Ошибка удаления станции');
                 }
             }
-        });
-    }
+        }
+    });
 });
 
 // Функция для обработки Window Controls Overlay

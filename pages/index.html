@@ -130,27 +130,99 @@
 
       <!-- Бургер меню -->
       <div class="burger-overlay" id="burgerOverlay">
-        <nav class="burger-nav">
-          <div class="burger-nav-content">
-            <div class="burger-nav-section">
-              <h3 class="burger-nav-title">Радиостанции</h3>
-              <div class="burger-nav-links">
-                <a href="#" class="burger-nav-link" data-station="r29.station">r29.station</a>
-                <a href="#" class="burger-nav-link" data-station="rock-hits">Rock Hits Radio</a>
-                <a href="#" class="burger-nav-link" data-station="radio-paradise">Radio Paradise</a>
-                <a href="#" class="burger-nav-link" data-station="jamendo-lounge">Jamendo Lounge</a>
-                <a href="#" class="burger-nav-link" data-station="abc-lounge">ABC Lounge</a>
+        <div class="stations-dropdown" id="burgerStationsDropdown">
+          <div class="dropdown-header">
+            <h4>Выберите радиостанцию</h4>
+            <button class="add-station-btn" id="burgerAddStationBtn" type="button">Добавить радиостанцию</button>
+          </div>
+
+          <div class="stations-list">
+            <div class="station-item active" data-url="https://radio.bakasenpai.ru/api/nowplaying/r29.station">
+              <img src="/assets/images/preloaderRad.png" alt="station icon" class="station-icon">
+              <div class="station-details">
+                <div class="station-details-top-row">
+                  <div class="station-name">r29.station</div>
+                  <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="r29.station" data-url="https://radio.bakasenpai.ru/api/nowplaying/r29.station">
+                    <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                  </button>
+                  <button class="delete-station-btn" aria-label="Удалить станцию" data-name="r29.station" data-url="https://radio.bakasenpai.ru/api/nowplaying/r29.station">
+                    <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
+                  </button>
+                </div>
+                <div class="station-genre">90s Road Trip Vibes</div>
+                <div class="station-listeners">Играет сейчас</div>
               </div>
             </div>
 
-            <div class="burger-nav-section">
-              <h3 class="burger-nav-title">Функции</h3>
-              <div class="burger-nav-links">
-                <a href="#" class="burger-nav-link" id="burgerAddStation">Добавить радиостанцию</a>
+            <div class="station-item" data-url="https://s1.cloudmu.id/api/nowplaying/10">
+              <img src="/assets/images/preloaderRad.png" alt="station icon" class="station-icon">
+              <div class="station-details">
+                <div class="station-details-top-row">
+                  <div class="station-name">Rock Hits Radio</div>
+                  <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="Rock Hits Radio" data-url="https://s1.cloudmu.id/api/nowplaying/10">
+                    <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                  </button>
+                  <button class="delete-station-btn" aria-label="Удалить станцию" data-name="Rock Hits Radio" data-url="https://s1.cloudmu.id/api/nowplaying/10">
+                    <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
+                  </button>
+                </div>
+                <div class="station-genre">Рок музыка</div>
+                <div class="station-listeners">Онлайн</div>
+              </div>
+            </div>
+
+            <div class="station-item" data-url="https://s1.cloudmu.id/api/nowplaying/14">
+              <img src="/assets/images/preloaderRad.png" alt="station icon" class="station-icon">
+              <div class="station-details">
+                <div class="station-details-top-row">
+                  <div class="station-name">Radio Paradise</div>
+                  <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="Radio Paradise" data-url="https://s1.cloudmu.id/api/nowplaying/14">
+                    <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                  </button>
+                  <button class="delete-station-btn" aria-label="Удалить станцию" data-name="Radio Paradise" data-url="https://s1.cloudmu.id/api/nowplaying/14">
+                    <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
+                  </button>
+                </div>
+                <div class="station-genre">Альтернативный рок</div>
+                <div class="station-listeners">Онлайн</div>
+              </div>
+            </div>
+
+            <div class="station-item" data-url="https://s1.cloudmu.id/api/nowplaying/1">
+              <img src="/assets/images/preloaderRad.png" alt="station icon" class="station-icon">
+              <div class="station-details">
+                <div class="station-details-top-row">
+                  <div class="station-name">Jamendo Lounge</div>
+                  <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="Jamendo Lounge" data-url="https://s1.cloudmu.id/api/nowplaying/1">
+                    <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                  </button>
+                  <button class="delete-station-btn" aria-label="Удалить станцию" data-name="Jamendo Lounge" data-url="https://s1.cloudmu.id/api/nowplaying/1">
+                    <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
+                  </button>
+                </div>
+                <div class="station-genre">Электронная музыка</div>
+                <div class="station-listeners">Онлайн</div>
+              </div>
+            </div>
+
+            <div class="station-item" data-url="https://s1.cloudmu.id/api/nowplaying/12">
+              <img src="/assets/images/preloaderRad.png" alt="station icon" class="station-icon">
+              <div class="station-details">
+                <div class="station-details-top-row">
+                  <div class="station-name">ABC Lounge</div>
+                  <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="ABC Lounge" data-url="https://s1.cloudmu.id/api/nowplaying/12">
+                    <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                  </button>
+                  <button class="delete-station-btn" aria-label="Удалить станцию" data-name="ABC Lounge" data-url="https://s1.cloudmu.id/api/nowplaying/12">
+                    <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
+                  </button>
+                </div>
+                <div class="station-genre">Лаунж музыка</div>
+                <div class="station-listeners">Онлайн</div>
               </div>
             </div>
           </div>
-        </nav>
+        </div>
       </div>
     </header>
 
@@ -181,9 +253,10 @@
                   <div class="station-details-top-row">
                     <div class="station-name">r29.station</div>
                     <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="r29.station" data-url="https://radio.bakasenpai.ru/api/nowplaying/r29.station">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
-                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 
-9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/></svg>
+                      <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                    </button>
+                    <button class="delete-station-btn" aria-label="Удалить станцию" data-name="r29.station" data-url="https://radio.bakasenpai.ru/api/nowplaying/r29.station">
+                      <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
                     </button>
                   </div>
                   <div class="station-genre">90s Road Trip Vibes</div>
@@ -197,9 +270,10 @@
                   <div class="station-details-top-row">
                     <div class="station-name">Rock Hits Radio</div>
                     <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="Rock Hits Radio" data-url="https://s1.cloudmu.id/api/nowplaying/10">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
-                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 
-9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/></svg>
+                      <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                    </button>
+                    <button class="delete-station-btn" aria-label="Удалить станцию" data-name="Rock Hits Radio" data-url="https://s1.cloudmu.id/api/nowplaying/10">
+                      <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
                     </button>
                   </div>
                   <div class="station-genre">Рок музыка</div>
@@ -213,9 +287,10 @@
                   <div class="station-details-top-row">
                     <div class="station-name">Radio Paradise</div>
                     <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="Radio Paradise" data-url="https://s1.cloudmu.id/api/nowplaying/14">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
-                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 
-9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/></svg>
+                      <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                    </button>
+                    <button class="delete-station-btn" aria-label="Удалить станцию" data-name="Radio Paradise" data-url="https://s1.cloudmu.id/api/nowplaying/14">
+                      <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
                     </button>
                   </div>
                   <div class="station-genre">Альтернативный рок</div>
@@ -229,9 +304,10 @@
                   <div class="station-details-top-row">
                     <div class="station-name">Jamendo Lounge</div>
                     <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="Jamendo Lounge" data-url="https://s1.cloudmu.id/api/nowplaying/1">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
-                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 
-9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/></svg>
+                      <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                    </button>
+                    <button class="delete-station-btn" aria-label="Удалить станцию" data-name="Jamendo Lounge" data-url="https://s1.cloudmu.id/api/nowplaying/1">
+                      <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
                     </button>
                   </div>
                   <div class="station-genre">Электронная музыка</div>
@@ -245,9 +321,10 @@
                   <div class="station-details-top-row">
                     <div class="station-name">ABC Lounge</div>
                     <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="ABC Lounge" data-url="https://s1.cloudmu.id/api/nowplaying/12">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
-                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 
-9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/></svg>
+                      <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
+                    </button>
+                    <button class="delete-station-btn" aria-label="Удалить станцию" data-name="ABC Lounge" data-url="https://s1.cloudmu.id/api/nowplaying/12">
+                      <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
                     </button>
                   </div>
                   <div class="station-genre">Лаунж музыка</div>
@@ -442,7 +519,6 @@
       </div>
       <div class="modal-footer">
         <button class="modal-btn cancel" id="cancelStationBtn">Отмена</button>
-        <button class="modal-btn delete" id="deleteStationBtn" style="display: none;">Удалить</button>
         <button class="modal-btn add" id="saveStationBtn">Добавить</button>
       </div>
     </div>

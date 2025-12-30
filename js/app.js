@@ -863,6 +863,21 @@ function showToast(message) {
 
 // Загружаем сохраненные радиостанции при запуске
 document.addEventListener('DOMContentLoaded', async function () {
+    // Инициализируем глобальные переменные модального окна
+    stationModal = document.getElementById('stationModal');
+    saveStationBtn = document.getElementById('saveStationBtn');
+    cancelStationBtn = document.getElementById('cancelStationBtn');
+    stationNameInput = document.getElementById('stationName');
+    stationUrlInput = document.getElementById('stationUrl');
+
+    console.log('Modal elements initialized:', {
+        stationModal: !!stationModal,
+        saveStationBtn: !!saveStationBtn,
+        cancelStationBtn: !!cancelStationBtn,
+        stationNameInput: !!stationNameInput,
+        stationUrlInput: !!stationUrlInput
+    });
+
     try {
         await loadSavedStations();
     } catch (error) {
@@ -945,7 +960,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const stationItem = e.target.closest('.station-item');
-            if (stationItem && !e.target.closest('.add-station-btn')) {
+            if (stationItem && !e.target.closest('.add-station-btn') && !e.target.closest('.edit-station-btn') && !e.target.closest('.delete-station-btn')) {
                 const stationUrl = stationItem.dataset.url;
                 const stationName = stationItem.querySelector('.station-name').textContent;
 
@@ -1048,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Обработка добавления своей радиостанции
     if (addStationBtn) {
         addStationBtn.addEventListener('click', function () {
-            const stationModal = document.getElementById('stationModal');
+            console.log('Add station button clicked (sidebar)', !!stationModal);
             if (stationModal) {
                 // Сбрасываем состояние в режим добавления
                 resetModalState();
@@ -1069,10 +1084,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (burgerMenu) burgerMenu.classList.toggle('active');
         if (burgerOverlay) burgerOverlay.classList.toggle('active');
 
-        if (burgerOverlay && burgerOverlay.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
+        // Управляем footer
+        const footer = document.querySelector('.footer');
+        if (footer) {
+            if (burgerOverlay && burgerOverlay.classList.contains('active')) {
+                footer.classList.add('hide');
+                document.body.style.overflow = 'hidden';
+            } else {
+                footer.classList.remove('hide');
+                document.body.style.overflow = '';
+            }
         }
     }
 
@@ -1113,7 +1134,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (burgerAddStationBtn) {
         burgerAddStationBtn.addEventListener('click', function (e) {
             e.stopPropagation(); // Предотвращаем всплытие события
-            const stationModal = document.getElementById('stationModal');
+            console.log('Add station button clicked (burger menu)', !!stationModal);
             if (stationModal) {
                 // Сбрасываем состояние в режим добавления
                 resetModalState();
@@ -1135,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         burgerStationsDropdown.addEventListener('click', async function (e) {
             console.log('Burger stations dropdown clicked', e.target);
             const stationItem = e.target.closest('.station-item');
-            if (stationItem && !e.target.closest('.add-station-btn')) {
+            if (stationItem && !e.target.closest('.add-station-btn') && !e.target.closest('.edit-station-btn') && !e.target.closest('.delete-station-btn')) {
                 console.log('Station item clicked in burger menu', stationItem);
                 const stationUrl = stationItem.dataset.url;
                 const stationName = stationItem.querySelector('.station-name').textContent;
@@ -1220,6 +1241,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                     burgerMenu.classList.remove('active');
                     burgerOverlay.classList.remove('active');
                     document.body.style.overflow = '';
+                }
+
+                // Возвращаем footer
+                const footer = document.querySelector('.footer');
+                if (footer) {
+                    footer.classList.remove('hide');
                 }
 
                 showToast(`Переключено на: ${stationName}`);
@@ -1319,18 +1346,84 @@ function hideAddStationModal() {
 
 // Функция для добавления кастомной радиостанции в список
 async function addCustomStation(url, name) {
-    const stationsList = document.querySelector('.stations-list');
-    if (!stationsList) return;
+    console.log('addCustomStation called:', { url, name });
+    console.log('Current DOM ready state:', document.readyState);
+    console.log('Document body exists:', !!document.body);
+
+    // Проверяем все возможные stations-list
+    const allStationsLists = document.querySelectorAll('.stations-list');
+    console.log('All stations-list elements found:', allStationsLists.length);
+    allStationsLists.forEach((list, i) => {
+        console.log(`List ${i}: parentID=${list.parentElement?.id}, visible=${list.offsetHeight > 0}, children=${list.children.length}`);
+    });
+
+    // Проверяем разные селекторы для поиска stations-list
+    let stationsList = document.querySelector('#stationsDropdown .stations-list');
+    console.log('stationsList via #stationsDropdown .stations-list:', !!stationsList);
+
+    // Если не нашли, попробуем найти первый видимый stations-list
+    if (!stationsList) {
+        console.log('Trying to find visible stations-list...');
+        for (const list of allStationsLists) {
+            if (list.offsetHeight > 0) {
+                console.log('Found visible stations-list, using it');
+                stationsList = list;
+                break;
+            }
+        }
+    }
+
+    // Если всё еще не нашли, используем первый доступный
+    if (!stationsList && allStationsLists.length > 0) {
+        console.log('Using first available stations-list');
+        stationsList = allStationsLists[0];
+    }
+
+    if (!stationsList) {
+        stationsList = document.querySelector('.stations-list');
+        console.log('Fallback to .stations-list:', !!stationsList);
+    }
+
+    if (!stationsList) {
+        console.error('Stations list not found anywhere');
+        console.log('All elements with class stations-list:', document.querySelectorAll('.stations-list'));
+        console.log('Element with id stationsDropdown:', document.getElementById('stationsDropdown'));
+
+        // Проверяем все возможные контейнеры
+        const allDropdowns = document.querySelectorAll('.stations-dropdown');
+        console.log('All stations-dropdown elements:', allDropdowns.length);
+        allDropdowns.forEach((dropdown, i) => {
+            console.log(`Dropdown ${i}: id=${dropdown.id}, visible=${dropdown.offsetHeight > 0}`);
+            const lists = dropdown.querySelectorAll('.stations-list');
+            console.log(`  Lists in dropdown ${i}:`, lists.length);
+        });
+
+        return;
+    }
+
+    console.log('Using stationsList:', stationsList, 'children count:', stationsList.children.length);
+    console.log('Stations list visibility:', {
+        offsetHeight: stationsList.offsetHeight,
+        offsetWidth: stationsList.offsetWidth,
+        clientHeight: stationsList.clientHeight,
+        computedDisplay: getComputedStyle(stationsList).display,
+        computedVisibility: getComputedStyle(stationsList).visibility,
+        parentDisplay: stationsList.parentElement ? getComputedStyle(stationsList.parentElement).display : 'no parent'
+    });
 
     // Проверяем, не существует ли уже такая станция
     const existingStations = stationsList.querySelectorAll('.station-item');
+    console.log('Checking for duplicates, existing stations count:', existingStations.length);
     for (let station of existingStations) {
         const existingUrl = station.getAttribute('data-url');
+        console.log('Checking station:', existingUrl, 'vs', url);
         if (existingUrl === url) {
+            console.log('Duplicate station found, showing toast');
             showToast('Такая радиостанция уже добавлена');
             return;
         }
     }
+    console.log('No duplicates found, proceeding with addition');
 
     // Сохраняем в IndexedDB
     try {
@@ -1342,7 +1435,9 @@ async function addCustomStation(url, name) {
             added: new Date().toISOString()
         };
 
+        console.log('Saving station to IndexedDB:', stationData);
         await offlineStorage.saveStation(stationData);
+        console.log('Station saved successfully');
     } catch (error) {
         console.error('Ошибка сохранения станции:', error);
         showToast('Ошибка сохранения станции');
@@ -1353,18 +1448,18 @@ async function addCustomStation(url, name) {
     stationItem.className = 'station-item';
     stationItem.setAttribute('data-url', url);
 
-    // Определяем, нужно ли показывать кнопку удаления (для r29.station не показываем)
-    const showDeleteButton = name !== 'r29.station' && url !== 'https://radio.bakasenpai.ru/api/nowplaying/r29.station';
+    // Определяем, нужно ли показывать кнопки (для r29.station не показываем)
+    const showButtons = name !== 'r29.station' && url !== 'https://radio.bakasenpai.ru/api/nowplaying/r29.station';
 
     stationItem.innerHTML = `
         <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
         <div class="station-details">
             <div class="station-details-top-row">
                 <div class="station-name">${name}</div>
-                <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="${name}" data-url="${url}">
+                ${showButtons ? `<button class="edit-station-btn" aria-label="Редактировать станцию" data-name="${name}" data-url="${url}">
                     <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
                 </button>
-                ${showDeleteButton ? `<button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
+                <button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
                     <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
                 </button>` : ''}
             </div>
@@ -1373,36 +1468,39 @@ async function addCustomStation(url, name) {
         </div>
     `;
 
-    // Вставляем перед кнопкой "Добавить радиостанцию"
-    const addBtn = stationsList.querySelector('.add-station-btn');
-    if (addBtn) {
-        const addBtnItem = addBtn.closest('.dropdown-header');
-        stationsList.insertBefore(stationItem, addBtnItem);
-    } else {
-        // Fallback: вставляем в конец списка
-        stationsList.appendChild(stationItem);
-    }
+    // Добавляем станцию в конец списка станций
+    console.log('Stations list children before append:', stationsList.children.length);
+    stationsList.appendChild(stationItem);
+    console.log('Station added to end of stations list, children after:', stationsList.children.length);
+
+    console.log('Station item in DOM:', document.contains(stationItem));
+    console.log('Station item visible:', stationItem.offsetHeight > 0);
+    console.log('Stations list visibility:', getComputedStyle(stationsList).display);
+    console.log('Stations list parent visibility:', stationsList.parentElement ? getComputedStyle(stationsList.parentElement).display : 'no parent');
+
+    // Проверяем, что все станции отображаются
+    const allStations = stationsList.querySelectorAll('.station-item');
+    console.log('Total stations in list:', allStations.length);
+    allStations.forEach((station, index) => {
+        console.log(`Station ${index}: ${station.textContent} (visible: ${station.offsetHeight > 0})`);
+    });
 
     // Также добавляем в бургер-меню
     const burgerStationsList = document.querySelector('#burgerStationsDropdown .stations-list');
     console.log('Adding station to burger menu, burgerStationsList found:', !!burgerStationsList);
     if (burgerStationsList) {
         const burgerStationItem = stationItem.cloneNode(true);
-        // Ищем кнопку "Добавить радиостанцию" в burgerStationsDropdown
-        const burgerAddBtn = document.querySelector('#burgerStationsDropdown .add-station-btn');
-        console.log('Burger add button found:', !!burgerAddBtn);
-        if (burgerAddBtn) {
-            const burgerAddBtnItem = burgerAddBtn.closest('.dropdown-header');
-            burgerStationsList.insertBefore(burgerStationItem, burgerAddBtnItem);
-            console.log('Station added to burger menu before button');
-        } else {
-            burgerStationsList.appendChild(burgerStationItem);
-            console.log('Station added to end of burger menu');
-        }
+        burgerStationsList.appendChild(burgerStationItem);
+        console.log('Station added to burger menu');
     }
 
-    // Обновляем бургер-меню после добавления станции
-    updateMobileMenuContent();
+    // Синхронизируем станции между меню
+    syncStationsBetweenMenus();
+
+    // Обновляем статусы станций
+    updateStationStatuses();
+
+    console.log('Station addition completed');
 }
 
 // Функция загрузки сохраненных радиостанций
@@ -1413,6 +1511,8 @@ async function loadSavedStations() {
             // Добавляем в DOM без сохранения (уже сохранены)
             addCustomStationToDOM(station.url, station.name);
         }
+        // Синхронизируем станции между меню после загрузки
+        syncStationsBetweenMenus();
         // Обновляем бургер-меню после загрузки всех станций
         updateMobileMenuContent();
     } catch (error) {
@@ -1466,18 +1566,18 @@ function addCustomStationToDOM(url, name) {
     stationItem.className = 'station-item';
     stationItem.setAttribute('data-url', url);
 
-    // Определяем, нужно ли показывать кнопку удаления (для r29.station не показываем)
-    const showDeleteButton = name !== 'r29.station' && url !== 'https://radio.bakasenpai.ru/api/nowplaying/r29.station';
+    // Определяем, нужно ли показывать кнопки (для r29.station не показываем)
+    const showButtons = name !== 'r29.station' && url !== 'https://radio.bakasenpai.ru/api/nowplaying/r29.station';
 
     stationItem.innerHTML = `
         <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
         <div class="station-details">
             <div class="station-details-top-row">
                 <div class="station-name">${name}</div>
-                <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="${name}" data-url="${url}">
+                ${showButtons ? `<button class="edit-station-btn" aria-label="Редактировать станцию" data-name="${name}" data-url="${url}">
                     <img src="/assets/images/edit.svg" alt="Редактировать" width="20" height="20">
                 </button>
-                ${showDeleteButton ? `<button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
+                <button class="delete-station-btn" aria-label="Удалить станцию" data-name="${name}" data-url="${url}">
                     <img src="/assets/images/icons/trash.svg" alt="Удалить" width="20" height="20">
                 </button>` : ''}
             </div>
@@ -1486,21 +1586,77 @@ function addCustomStationToDOM(url, name) {
         </div>
     `;
 
-    // Вставляем перед кнопкой "Добавить радиостанцию"
-    const addBtn = stationsList.querySelector('.add-station-btn');
-    if (addBtn) {
-        const addBtnItem = addBtn.closest('.dropdown-header');
-        stationsList.insertBefore(stationItem, addBtnItem);
-    } else {
-        // Fallback: вставляем в конец списка
-        stationsList.appendChild(stationItem);
-    }
+    // Добавляем станцию в конец списка станций
+    stationsList.appendChild(stationItem);
 }
 
 // Обновляем layout при изменении размера окна
 window.addEventListener('resize', updateLayoutForScreenSize);
 
 // Глобальные переменные для модального окна
+// Функция для синхронизации станций между sidebar и burger menu
+function syncStationsBetweenMenus() {
+    console.log('syncStationsBetweenMenus called');
+    const sidebarStationsList = document.querySelector('#stationsDropdown .stations-list');
+    const burgerStationsList = document.querySelector('#burgerStationsDropdown .stations-list');
+
+    console.log('Sidebar stations list found:', !!sidebarStationsList);
+    console.log('Burger stations list found:', !!burgerStationsList);
+    console.log('Sidebar element:', document.getElementById('stationsDropdown'));
+    console.log('Burger element:', document.getElementById('burgerStationsDropdown'));
+
+    if (!sidebarStationsList || !burgerStationsList) {
+        console.warn('One of the station lists not found, skipping sync');
+        console.log('All stations-list elements:', document.querySelectorAll('.stations-list'));
+        return;
+    }
+
+    // Очищаем burger menu от всех станций кроме предустановленных
+    const burgerStationItems = burgerStationsList.querySelectorAll('.station-item');
+    burgerStationItems.forEach(item => {
+        const url = item.getAttribute('data-url');
+        // Удаляем только пользовательские станции, оставляем предустановленные
+        if (url && url !== 'https://radio.bakasenpai.ru/api/nowplaying/r29.station') {
+            item.remove();
+        }
+    });
+
+    // Копируем все станции из sidebar в burger menu
+    const sidebarStationItems = sidebarStationsList.querySelectorAll('.station-item');
+    sidebarStationItems.forEach(sidebarItem => {
+        const url = sidebarItem.getAttribute('data-url');
+        const name = sidebarItem.querySelector('.station-name')?.textContent;
+
+        if (url && name) {
+            // Проверяем, существует ли уже такая станция в burger menu
+            const existingBurgerItem = burgerStationsList.querySelector(`.station-item[data-url="${url}"]`);
+            if (!existingBurgerItem) {
+                // Создаем копию для burger menu
+                const burgerItem = sidebarItem.cloneNode(true);
+                burgerStationsList.appendChild(burgerItem);
+            } else {
+                // Обновляем существующую станцию в burger menu
+                const existingName = existingBurgerItem.querySelector('.station-name');
+                if (existingName && existingName.textContent !== name) {
+                    existingName.textContent = name;
+                    // Обновляем атрибуты кнопок редактирования
+                    const editBtn = existingBurgerItem.querySelector('.edit-station-btn');
+                    if (editBtn) {
+                        editBtn.setAttribute('data-name', name);
+                    }
+                    const deleteBtn = existingBurgerItem.querySelector('.delete-station-btn');
+                    if (deleteBtn) {
+                        deleteBtn.setAttribute('data-name', name);
+                    }
+                }
+            }
+        }
+    });
+
+    // Обновляем статусы станций в burger menu
+    updateStationStatuses();
+}
+
 // Функция для обновления бургер-меню с динамическими станциями
 function updateMobileMenuContent() {
     const burgerNavLinks = document.querySelector('.burger-nav-links');
@@ -1558,16 +1714,28 @@ function updateMobileMenuContent() {
     });
 }
 
+// Глобальные переменные для модального окна
 let stationModal, saveStationBtn, cancelStationBtn, stationNameInput, stationUrlInput;
+// Переменная для отслеживания редактируемой станции
+let editingStationUrl = null;
 
 // Функция сброса состояния модального окна
 function resetModalState() {
-    if (!stationModal || !stationNameInput || !stationUrlInput) return;
+    console.log('Resetting modal state:', {
+        stationModal: !!stationModal,
+        stationNameInput: !!stationNameInput,
+        stationUrlInput: !!stationUrlInput,
+        saveStationBtn: !!saveStationBtn
+    });
+
+    if (!stationModal || !stationNameInput || !stationUrlInput) {
+        console.warn('Modal state reset failed - missing elements');
+        return;
+    }
 
     stationModal.classList.remove('active');
     stationNameInput.value = '';
     stationUrlInput.value = '';
-
 
     // Сбрасываем заголовок
     const modalTitle = stationModal.querySelector('#modalTitle');
@@ -1579,6 +1747,9 @@ function resetModalState() {
     if (saveStationBtn) {
         saveStationBtn.textContent = 'Добавить';
     }
+
+    // Сбрасываем переменную редактируемой станции
+    editingStationUrl = null;
 }
 
 let deferredInstallPrompt = null;
@@ -1636,18 +1807,13 @@ function showInstallToast() {
 
 // Обработчики для статического модального окна редактирования станции
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализируем глобальные переменные модального окна
-    stationModal = document.getElementById('stationModal');
-    saveStationBtn = document.getElementById('saveStationBtn');
-    cancelStationBtn = document.getElementById('cancelStationBtn');
-    stationNameInput = document.getElementById('stationName');
-    stationUrlInput = document.getElementById('stationUrl');
-
     // Обработчик для кнопки "Добавить/Сохранить"
     if (saveStationBtn) {
         saveStationBtn.addEventListener('click', async function() {
             const name = stationNameInput.value.trim();
             const url = stationUrlInput.value.trim();
+
+            console.log('Save button clicked:', { name, url, buttonText: saveStationBtn.textContent });
 
             if (!name || !url) {
                 showToast('Заполните все поля');
@@ -1655,13 +1821,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const isEditing = saveStationBtn.textContent === 'Сохранить';
-            const oldUrl = null; // Не используется для новых кнопок удаления
+            console.log('Is editing mode:', isEditing, 'editingStationUrl:', editingStationUrl);
 
-            if (isEditing && oldUrl) {
+            if (isEditing && editingStationUrl) {
                 // Режим редактирования: обновляем существующую станцию в IndexedDB
                 try {
                     const stations = await offlineStorage.getStations();
-                    const stationToUpdate = stations.find(s => s.url === oldUrl);
+                    const stationToUpdate = stations.find(s => s.url === editingStationUrl);
                     if (stationToUpdate) {
                         stationToUpdate.name = name;
                         stationToUpdate.url = url;
@@ -1670,7 +1836,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Обновляем в DOM
                         const stationItems = document.querySelectorAll('.station-item');
                         for (let item of stationItems) {
-                            if (item.getAttribute('data-url') === oldUrl) {
+                            if (item.getAttribute('data-url') === editingStationUrl) {
                                 item.setAttribute('data-url', url);
                                 const nameElement = item.querySelector('.station-name');
                                 if (nameElement) nameElement.textContent = name;
@@ -1679,9 +1845,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                     editBtn.setAttribute('data-name', name);
                                     editBtn.setAttribute('data-url', url);
                                 }
+                                const deleteBtn = item.querySelector('.delete-station-btn');
+                                if (deleteBtn) {
+                                    deleteBtn.setAttribute('data-name', name);
+                                    deleteBtn.setAttribute('data-url', url);
+                                }
                                 break;
                             }
                         }
+
+                        // Синхронизируем изменения между меню
+                        syncStationsBetweenMenus();
                     }
                 } catch (error) {
                     console.error('Ошибка обновления станции:', error);
@@ -1738,10 +1912,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const name = btn.getAttribute('data-name');
             const url = btn.getAttribute('data-url');
 
+            console.log('Edit button clicked:', { name, url });
+
             // Заполняем поля модального окна
             stationNameInput.value = name;
             stationUrlInput.value = url;
 
+            // Устанавливаем URL редактируемой станции
+            editingStationUrl = url;
 
             // Меняем заголовок
             const modalTitle = stationModal.querySelector('#modalTitle');
@@ -1833,12 +2011,105 @@ function initWindowControlsOverlay() {
     }
 }
 
+// Диагностическая функция для проверки DOM
+window.debugStations = function() {
+    console.log('=== STATIONS DEBUG ===');
+    console.log('Document ready state:', document.readyState);
+    console.log('Window location:', window.location.href);
+
+    const sidebarDropdown = document.getElementById('stationsDropdown');
+    const burgerDropdown = document.getElementById('burgerStationsDropdown');
+
+    console.log('Sidebar dropdown exists:', !!sidebarDropdown);
+    if (sidebarDropdown) {
+        console.log('Sidebar dropdown visible:', sidebarDropdown.offsetHeight > 0);
+        console.log('Sidebar dropdown classes:', sidebarDropdown.className);
+        const sidebarList = sidebarDropdown.querySelector('.stations-list');
+        console.log('Sidebar stations-list exists:', !!sidebarList);
+        if (sidebarList) {
+            console.log('Sidebar stations count:', sidebarList.children.length);
+            Array.from(sidebarList.children).forEach((child, i) => {
+                console.log(`  Station ${i}: ${child.querySelector('.station-name')?.textContent || child.textContent}`);
+            });
+        }
+    }
+
+    console.log('Burger dropdown exists:', !!burgerDropdown);
+    if (burgerDropdown) {
+        console.log('Burger dropdown visible:', burgerDropdown.offsetHeight > 0);
+        console.log('Burger dropdown classes:', burgerDropdown.className);
+        const burgerList = burgerDropdown.querySelector('.stations-list');
+        console.log('Burger stations-list exists:', !!burgerList);
+        if (burgerList) {
+            console.log('Burger stations count:', burgerList.children.length);
+            Array.from(burgerList.children).forEach((child, i) => {
+                console.log(`  Station ${i}: ${child.querySelector('.station-name')?.textContent || child.textContent}`);
+            });
+        }
+    }
+
+    const allLists = document.querySelectorAll('.stations-list');
+    console.log('Total stations-list elements:', allLists.length);
+    allLists.forEach((list, i) => {
+        console.log(`List ${i}: parent=${list.parentElement?.id}, children=${list.children.length}, visible=${list.offsetHeight > 0}`);
+    });
+
+    console.log('=== END DEBUG ===');
+};
+
+// Функция для принудительного добавления станции (для тестирования)
+window.forceAddStation = async function(url, name) {
+    console.log('Force adding station:', url, name);
+
+    // Найдем первый доступный stations-list
+    const allLists = document.querySelectorAll('.stations-list');
+    for (const list of allLists) {
+        if (list.offsetHeight > 0 || list.parentElement.offsetHeight > 0) {
+            console.log('Using visible list:', list);
+
+            // Создаем станцию
+            const stationItem = document.createElement('div');
+            stationItem.className = 'station-item';
+            stationItem.setAttribute('data-url', url);
+            stationItem.innerHTML = `
+                <img src="/assets/images/preloaderRad.png" alt="station icon" class="station-icon">
+                <div class="station-details">
+                    <div class="station-details-top-row">
+                        <div class="station-name">${name}</div>
+                    </div>
+                    <div class="station-genre">Пользовательская</div>
+                    <div class="station-listeners">Добавлено</div>
+                </div>
+            `;
+
+            list.appendChild(stationItem);
+            console.log('Station added to list');
+
+            // Синхронизируем
+            syncStationsBetweenMenus();
+            updateStationStatuses();
+            return;
+        }
+    }
+
+    console.error('No suitable list found');
+};
+
 window.addEventListener('load', () => {
     // Обновляем бургер-меню после полной загрузки страницы
     updateMobileMenuContent();
 
     // Инициализируем Window Controls Overlay
     initWindowControlsOverlay();
+
+    // Тестируем синхронизацию станций
+    console.log('🔄 Тестирование синхронизации станций...');
+    syncStationsBetweenMenus();
+
+    // Показываем инструкции для отладки
+    console.log('💡 Для диагностики DOM введите в консоли:');
+    console.log('   debugStations() - проверить состояние списков станций');
+    console.log('   forceAddStation("https://example.com", "Тест") - принудительно добавить станцию');
 
     setTimeout(() => {
         showInstallToast();

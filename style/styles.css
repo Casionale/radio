@@ -341,7 +341,7 @@ body.window-controls-overlay-active .header {
         border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     min-width: 143px;
     box-sizing: border-box;
-    z-index: 1;
+    z-index: 1000;
 }
 
 .header-button .button-text {
@@ -1394,6 +1394,11 @@ body.window-controls-overlay-active .header {
     bottom: 0;
     z-index: 1000;
     overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footer.hide {
+    transform: translateY(100%);
 }
 
 .footer-content {
@@ -2060,10 +2065,11 @@ input:focus {
     background: transparent;
     max-height: none;
     padding: 0;
+    z-index: 999999999;
 }
 
 .burger-overlay .dropdown-header {
-    padding: 0 20px 20px 20px;
+    padding: 20px;
     border-bottom: 1px solid var(--opasity-bg);
     margin-bottom: 20px;
 }
@@ -2096,7 +2102,6 @@ input:focus {
 .burger-overlay .stations-list {
     max-height: calc(100vh - 200px);
     overflow-y: auto;
-    padding-right: 10px;
 }
 
 .burger-overlay .station-item {

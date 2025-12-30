@@ -1077,11 +1077,27 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     if (burgerMenu) {
+        // Обработчик для десктопных устройств
         burgerMenu.addEventListener('click', function(e) {
+            e.preventDefault(); // Предотвращаем стандартное действие
             e.stopPropagation(); // Предотвращаем всплытие события
-            console.log('Burger menu clicked', e.target, e.currentTarget);
-            toggleBurgerMenu();
+            console.log('Burger menu clicked (desktop)', e.target, e.currentTarget, e.target.closest('#burgerMenu'));
+            // Проверяем, что событие исходит от burger menu или его дочерних элементов
+            if (e.target.closest('#burgerMenu')) {
+                toggleBurgerMenu();
+            }
         });
+
+        // Обработчик для мобильных устройств
+        burgerMenu.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Предотвращаем стандартное действие
+            e.stopPropagation(); // Предотвращаем всплытие события
+            console.log('Burger menu touched (mobile)', e.target, e.currentTarget, e.target.closest('#burgerMenu'));
+            // Проверяем, что событие исходит от burger menu или его дочерних элементов
+            if (e.target.closest('#burgerMenu')) {
+                toggleBurgerMenu();
+            }
+        }, { passive: false });
     }
 
     if (burgerOverlay) {

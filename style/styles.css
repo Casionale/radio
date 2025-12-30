@@ -1605,6 +1605,10 @@ body.window-controls-overlay-active .header {
     .volume-control {
         display: none;
     }
+
+    .control-btn[aria-label="Download"] {
+        display: none;
+    }
 }
 
 .progress-container {
@@ -1980,6 +1984,10 @@ input:focus {
     cursor: pointer;
     transition: all 0.3s ease;
     padding: 8px;
+    position: relative;
+    z-index: 1001;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -2018,7 +2026,7 @@ input:focus {
 
 .burger-overlay {
     position: fixed;
-    top: 100%;
+    top: 100px;
     left: 0;
     width: 100vw;
     height: calc(100vh - 100px);
@@ -2251,8 +2259,8 @@ input:focus {
     }
 }
 
-/* Медиа-запрос для бургер меню при экранах меньше 700px */
-@media (max-width: 700px) {
+/* Медиа-запрос для бургер меню при экранах меньше 768px */
+@media (max-width: 768px) {
     .burger-menu {
         display: flex;
     }

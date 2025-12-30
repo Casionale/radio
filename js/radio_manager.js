@@ -12,9 +12,35 @@ class RadioManager {
 
         // Создаём аудиоплеер сразу
         this.audio = new Audio();
+
+        // Проверяем, является ли устройство мобильным
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            this.audio.preload = 'none'; // Не preload на мобильных для экономии трафика
+            this.audio.volume = 0.8; // Немного тише по умолчанию на мобильных
+        } else {
+            this.audio.preload = 'metadata';
+        }
+
         this.audio.crossOrigin = "anonymous"; // для избежания CORS-проблем
         this.audio.src = ""; // пока пусто
         this.audio.load();
+
+        // Добавляем обработчики событий для мобильных устройств
+        if (isMobile) {
+            this.audio.addEventListener('loadstart', () => {
+                console.log('Audio load started on mobile');
+            });
+
+            this.audio.addEventListener('canplay', () => {
+                console.log('Audio can play on mobile');
+            });
+
+            this.audio.addEventListener('error', (e) => {
+                console.error('Audio error on mobile:', e);
+            });
+        }
 
         this.start(); // сразу запускаем
     }
@@ -357,10 +383,26 @@ class RadioManager {
             url = url.replace('http:', 'https:');
         }
 
+        // Проверяем, является ли устройство мобильным
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
         // Если аудиоплеер ещё не создан — создаём
         if (!this.audio) {
-            this.audio = new Audio(url);
+            this.audio = new Audio();
+
+            // Дополнительные настройки для мобильных устройств
+            if (isMobile) {
+                this.audio.preload = 'none'; // Не preload на мобильных для экономии трафика
+                this.audio.volume = 0.8; // Немного тише по умолчанию на мобильных
+            } else {
+                this.audio.preload = 'metadata';
+            }
+
             this.audio.crossOrigin = "anonymous"; // чтобы не было CORS-проблем
+        }
+
+        // Устанавливаем источник, если он изменился
+        if (this.audio.src !== url) {
             this.audio.src = url;
         }
 
@@ -372,12 +414,38 @@ class RadioManager {
             // Если остановлено — запускаем (если URL изменился — обновляем)
             if (this.audio.src !== url) {
                 this.audio.src = url;
+                // Даем время на загрузку источника
+                this.audio.load();
             }
-            this.audio.play()
-                .then(() => {
+
+            // Пытаемся воспроизвести с дополнительной обработкой для мобильных устройств
+            const attemptPlay = async () => {
+                try {
+                    await this.audio.play();
                     this.updateVisualizerState(true);
-                })
-                .catch(err => console.error("Ошибка при воспроизведении:", err));
+                    return true;
+                } catch (err) {
+                    console.error("Ошибка при воспроизведении:", err);
+
+                    // На мобильных устройствах часто требуется пользовательское взаимодействие
+                    // Повторяем попытку через короткое время
+                    if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+                        console.log("Повторная попытка воспроизведения через 500ms...");
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        try {
+                            await this.audio.play();
+                            this.updateVisualizerState(true);
+                            return true;
+                        } catch (retryErr) {
+                            console.error("Повторная попытка также неудачна:", retryErr);
+                            throw retryErr;
+                        }
+                    }
+                    throw err;
+                }
+            };
+
+            return attemptPlay();
         }
     }
 

@@ -969,6 +969,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     window.radio.audio.pause();
                     window.radio.stopTimer();
 
+                    // Создаем новый RadioManager для новой станции
                     window.radio = new RadioManager(stationUrl);
                     if (window.radio && typeof window.radio.setVolume === 'function') {
                         window.radio.setVolume(window.savedVolume);
@@ -977,19 +978,39 @@ document.addEventListener('DOMContentLoaded', function () {
                         window.audioVisualizer.setAudioSource(window.radio.audio);
                     }
 
-                    await sleep(1000);
+                    // Ждем загрузки данных станции
+                    await sleep(1500);
 
-
+                    // На мобильных устройствах начинаем воспроизведение только после пользовательского взаимодействия
                     if (!paused) {
-                        await sleep(1000);
-                        window.radio.audio.src = window.radio.data?.station?.listen_url
-                        window.radio.audio.play();
-                    }
+                        try {
+                            // Используем метод togglePlay для правильной обработки на мобильных
+                            const listenUrl = window.radio.data?.station?.listen_url || stationUrl;
+                            await window.radio.togglePlay(listenUrl);
+                            btn.classList.add('playing');
+                        } catch (error) {
+                            console.error('Ошибка воспроизведения на новой станции:', error);
 
-                    if (!paused)
-                        btn.classList.add('playing');
-                    else
-                        btn.classList.toggle('playing');
+                            // Специальная обработка для мобильных устройств
+                            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                            if (isMobile) {
+                                if (error.name === 'NotAllowedError') {
+                                    showToast('Нажмите кнопку Play для начала воспроизведения');
+                                } else if (error.name === 'AbortError') {
+                                    showToast('Ошибка загрузки. Проверьте интернет-соединение');
+                                } else {
+                                    showToast('Ошибка воспроизведения. Попробуйте другую станцию');
+                                }
+                            } else {
+                                showToast('Ошибка воспроизведения. Попробуйте нажать кнопку Play вручную.');
+                            }
+
+                            // Снимаем класс playing при ошибке
+                            btn.classList.remove('playing');
+                        }
+                    } else {
+                        btn.classList.remove('playing');
+                    }
                 }
 
                 // Скрываем dropdown
@@ -1170,6 +1191,9 @@ async function addCustomStation(url, name) {
         // Fallback: вставляем в конец списка
         stationsList.appendChild(stationItem);
     }
+
+    // Обновляем бургер-меню после добавления станции
+    updateMobileMenuContent();
 }
 
 // Функция загрузки сохраненных радиостанций
@@ -1180,6 +1204,8 @@ async function loadSavedStations() {
             // Добавляем в DOM без сохранения (уже сохранены)
             addCustomStationToDOM(station.url, station.name);
         }
+        // Обновляем бургер-меню после загрузки всех станций
+        updateMobileMenuContent();
     } catch (error) {
         console.error('Ошибка загрузки сохраненных станций:', error);
     }
@@ -1226,6 +1252,63 @@ function addCustomStationToDOM(url, name) {
 window.addEventListener('resize', updateLayoutForScreenSize);
 
 // Глобальные переменные для модального окна
+// Функция для обновления бургер-меню с динамическими станциями
+function updateMobileMenuContent() {
+    const burgerNavLinks = document.querySelector('.burger-nav-links');
+    if (!burgerNavLinks) return;
+
+    // Очищаем текущие ссылки радиостанций, оставляя только "Добавить радиостанцию"
+    const existingLinks = burgerNavLinks.querySelectorAll('.burger-nav-link[data-station]');
+    existingLinks.forEach(link => link.remove());
+
+    // Получаем все станции из основного списка
+    const stationItems = document.querySelectorAll('.station-item');
+    const addStationLink = burgerNavLinks.querySelector('#burgerAddStation');
+
+    // Добавляем ссылки для каждой станции
+    stationItems.forEach((stationItem, index) => {
+        const stationName = stationItem.querySelector('.station-name')?.textContent || `Станция ${index + 1}`;
+        const stationUrl = stationItem.getAttribute('data-url');
+
+        if (stationName && stationUrl) {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.className = 'burger-nav-link';
+            link.setAttribute('data-station', stationUrl);
+            link.textContent = stationName;
+
+            // Вставляем перед ссылкой "Добавить радиостанцию"
+            burgerNavLinks.insertBefore(link, addStationLink);
+        }
+    });
+
+    // Перепривязываем обработчики событий для новых ссылок
+    const newBurgerNavLinks = document.querySelectorAll('.burger-nav-link[data-station]');
+    newBurgerNavLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const stationUrl = link.getAttribute('data-station');
+
+            // Находим соответствующий элемент станции в основном списке
+            const stationItems = document.querySelectorAll('.station-item');
+            let targetStation = null;
+
+            for (let stationItem of stationItems) {
+                if (stationItem.getAttribute('data-url') === stationUrl) {
+                    targetStation = stationItem;
+                    break;
+                }
+            }
+
+            if (targetStation) {
+                targetStation.click();
+                toggleBurgerMenu();
+                showToast(`Переключено на: ${targetStation.querySelector('.station-name').textContent}`);
+            }
+        });
+    });
+}
+
 let stationModal, saveStationBtn, cancelStationBtn, deleteStationBtn, stationNameInput, stationUrlInput;
 
 // Функция сброса состояния модального окна
@@ -1548,6 +1631,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     stationNameInput.value = '';
                     stationUrlInput.value = '';
 
+                    // Обновляем бургер-меню после удаления станции
+                    updateMobileMenuContent();
+
                     showToast('Радиостанция удалена');
                 } catch (error) {
                     console.error('Ошибка удаления станции:', error);
@@ -1559,6 +1645,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.addEventListener('load', () => {
+    // Обновляем бургер-меню после полной загрузки страницы
+    updateMobileMenuContent();
+
     setTimeout(() => {
         showInstallToast();
     }, 5000);

@@ -4,7 +4,13 @@
     --main-color: #7182E2;
     --txt-color: #181A1B;
     --white-color: #ffffff;
-    --opasity-bg: rgba(112, 129, 225, 0.2)
+    --opasity-bg: rgba(112, 129, 225, 0.2);
+
+    /* Window Controls Overlay variables */
+    --titlebar-area-x: env(titlebar-area-x, 0);
+    --titlebar-area-y: env(titlebar-area-y, 0);
+    --titlebar-area-width: env(titlebar-area-width, 100%);
+    --titlebar-area-height: env(titlebar-area-height, 40px)
 }
 
 @font-face {
@@ -41,6 +47,12 @@ body {
     overflow: hidden;
     min-height: 100dvh;
     padding-bottom: env(safe-area-inset-bottom)
+}
+
+/* Window Controls Overlay styles */
+body.window-controls-overlay-active {
+    /* Дополнительные стили для режима window-controls-overlay */
+    /* Можно добавить специфические правила для этого режима */
 }
 
 * {
@@ -278,6 +290,13 @@ body {
     top: 0;
     z-index: 1000;
     box-sizing: border-box;
+}
+
+/* Window Controls Overlay support - применяется только в PWA режиме */
+body.window-controls-overlay-active .header {
+    padding-top: max(20px, var(--titlebar-area-height, 20px));
+    padding-left: max(20px, var(--titlebar-area-x, 20px));
+    padding-right: max(20px, calc(100vw - var(--titlebar-area-x, 0) - var(--titlebar-area-width, 100vw)));
 }
 
 .header-content {

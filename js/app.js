@@ -1644,9 +1644,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Функция для обработки Window Controls Overlay
+function initWindowControlsOverlay() {
+    // Проверяем поддержку Window Controls Overlay API и что мы в режиме window-controls-overlay
+    if ('windowControlsOverlay' in navigator &&
+        navigator.windowControlsOverlay.visible &&
+        window.matchMedia('(display-mode: window-controls-overlay)').matches) {
+
+        const wco = navigator.windowControlsOverlay;
+
+        // Функция обновления CSS переменных
+        function updateTitlebarArea() {
+            const rect = wco.getTitlebarAreaRect();
+            const root = document.documentElement;
+
+            root.style.setProperty('--titlebar-area-x', rect.x + 'px');
+            root.style.setProperty('--titlebar-area-y', rect.y + 'px');
+            root.style.setProperty('--titlebar-area-width', rect.width + 'px');
+            root.style.setProperty('--titlebar-area-height', rect.height + 'px');
+
+            // Добавляем класс для стилизации
+            document.body.classList.add('window-controls-overlay-active');
+        }
+
+        // Обновляем при изменении геометрии
+        wco.addEventListener('geometrychange', updateTitlebarArea);
+
+        // Начальное обновление
+        updateTitlebarArea();
+
+        console.log('Window Controls Overlay initialized and active');
+    }
+}
+
 window.addEventListener('load', () => {
     // Обновляем бургер-меню после полной загрузки страницы
     updateMobileMenuContent();
+
+    // Инициализируем Window Controls Overlay
+    initWindowControlsOverlay();
 
     setTimeout(() => {
         showInstallToast();

@@ -3,7 +3,7 @@
   "short_name": "r29.station",
   "description": "Интерактивное AI-радио с чат-ассистентом для идеального стриминга музыки",
   "start_url": "/",
-  "display": "standalone",
+  "display": "window-controls-overlay",
   "background_color": "#7081e1",
   "theme_color": "#7081e1",
   "orientation": "portrait-primary",
@@ -39,12 +39,6 @@
       "purpose": "any"
     },
     {
-      "src": "/assets/images/icons/favicon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
       "src": "/assets/images/icons/favicon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
@@ -75,5 +69,36 @@
       "purpose": "monochrome"
     }
   ],
-  "lang": "ru"
+  "screenshots": [
+    {
+      "src": "/assets/images/header_logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "label": "Логотип r29.station - AI радио с чат-ассистентом",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/assets/images/albom.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "label": "Обложка альбома - музыкальный плеер",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/assets/images/img_neco.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "Персонаж r29.station - AI компаньон",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/assets/images/preloader.png",
+      "sizes": "100x100",
+      "type": "image/png",
+      "label": "Загрузка - интерфейс плеера",
+      "form_factor": "wide"
+    }
+  ],
+  "lang": "ru",
+  "id": "radio"
 }

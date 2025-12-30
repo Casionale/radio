@@ -861,6 +861,11 @@ function showToast(message) {
     }, 3000);
 }
 
+// Загружаем сохраненные радиостанции при запуске
+document.addEventListener('DOMContentLoaded', async function () {
+    await loadSavedStations();
+});
+
 // Логика селектора радиостанций
 document.addEventListener('DOMContentLoaded', function () {
     const currentStationName = document.getElementById('currentStationName');
@@ -999,7 +1004,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // Обработка добавления своей радиостанции
     if (addStationBtn) {
         addStationBtn.addEventListener('click', function () {
-            showAddStationModal();
+            const stationModal = document.getElementById('stationModal');
+            if (stationModal) {
+                // Сбрасываем состояние в режим добавления
+                resetModalState();
+
+                stationModal.classList.add('active');
+                document.getElementById('stationName').focus();
+            } else {
+                // Fallback to dynamic modal if static modal not found
+                showAddStationModal();
+            }
         });
     }
 });
@@ -1094,7 +1109,84 @@ function hideAddStationModal() {
 }
 
 // Функция для добавления кастомной радиостанции в список
-function addCustomStation(url, name) {
+async function addCustomStation(url, name) {
+    const stationsList = document.querySelector('.stations-list');
+    if (!stationsList) return;
+
+    // Проверяем, не существует ли уже такая станция
+    const existingStations = stationsList.querySelectorAll('.station-item');
+    for (let station of existingStations) {
+        const existingUrl = station.getAttribute('data-url');
+        if (existingUrl === url) {
+            showToast('Такая радиостанция уже добавлена');
+            return;
+        }
+    }
+
+    // Сохраняем в IndexedDB
+    try {
+        const stationData = {
+            id: Date.now().toString(),
+            name: name,
+            url: url,
+            type: 'custom',
+            added: new Date().toISOString()
+        };
+
+        await offlineStorage.saveStation(stationData);
+    } catch (error) {
+        console.error('Ошибка сохранения станции:', error);
+        showToast('Ошибка сохранения станции');
+        return;
+    }
+
+    const stationItem = document.createElement('div');
+    stationItem.className = 'station-item';
+    stationItem.setAttribute('data-url', url);
+
+    stationItem.innerHTML = `
+        <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
+        <div class="station-details">
+            <div class="station-details-top-row">
+                <div class="station-name">${name}</div>
+                <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="${name}" data-url="${url}">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
+                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42
+9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="station-genre">Пользовательская</div>
+            <div class="station-listeners">Добавлено</div>
+        </div>
+    `;
+
+    // Вставляем перед кнопкой "Добавить радиостанцию"
+    const addBtn = stationsList.querySelector('.add-station-btn');
+    if (addBtn) {
+        const addBtnItem = addBtn.closest('.dropdown-header');
+        stationsList.insertBefore(stationItem, addBtnItem);
+    } else {
+        // Fallback: вставляем в конец списка
+        stationsList.appendChild(stationItem);
+    }
+}
+
+// Функция загрузки сохраненных радиостанций
+async function loadSavedStations() {
+    try {
+        const savedStations = await offlineStorage.getStations();
+        for (const station of savedStations) {
+            // Добавляем в DOM без сохранения (уже сохранены)
+            addCustomStationToDOM(station.url, station.name);
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки сохраненных станций:', error);
+    }
+}
+
+// Вспомогательная функция для добавления станции в DOM без сохранения
+function addCustomStationToDOM(url, name) {
     const stationsList = document.querySelector('.stations-list');
     if (!stationsList) return;
 
@@ -1105,19 +1197,62 @@ function addCustomStation(url, name) {
     stationItem.innerHTML = `
         <img src="../assets/images/preloaderRad.png" alt="station icon" class="station-icon">
         <div class="station-details">
-            <div class="station-name">${name}</div>
+            <div class="station-details-top-row">
+                <div class="station-name">${name}</div>
+                <button class="edit-station-btn" aria-label="Редактировать станцию" data-name="${name}" data-url="${url}">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="20px" height="20px">
+                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42
+9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"/>
+                    </svg>
+                </button>
+            </div>
             <div class="station-genre">Пользовательская</div>
             <div class="station-listeners">Добавлено</div>
         </div>
     `;
 
-    // Вставляем перед последним элементом (чтобы не было в конце)
-    const lastItem = stationsList.lastElementChild;
-    stationsList.insertBefore(stationItem, lastItem);
+    // Вставляем перед кнопкой "Добавить радиостанцию"
+    const addBtn = stationsList.querySelector('.add-station-btn');
+    if (addBtn) {
+        const addBtnItem = addBtn.closest('.dropdown-header');
+        stationsList.insertBefore(stationItem, addBtnItem);
+    } else {
+        // Fallback: вставляем в конец списка
+        stationsList.appendChild(stationItem);
+    }
 }
 
 // Обновляем layout при изменении размера окна
 window.addEventListener('resize', updateLayoutForScreenSize);
+
+// Глобальные переменные для модального окна
+let stationModal, saveStationBtn, cancelStationBtn, deleteStationBtn, stationNameInput, stationUrlInput;
+
+// Функция сброса состояния модального окна
+function resetModalState() {
+    if (!stationModal || !stationNameInput || !stationUrlInput) return;
+
+    stationModal.classList.remove('active');
+    stationNameInput.value = '';
+    stationUrlInput.value = '';
+
+    // Скрываем кнопку удаления
+    if (deleteStationBtn) {
+        deleteStationBtn.style.display = 'none';
+        deleteStationBtn.removeAttribute('data-url');
+    }
+
+    // Сбрасываем заголовок
+    const modalTitle = stationModal.querySelector('#modalTitle');
+    if (modalTitle) {
+        modalTitle.textContent = 'Добавить радиостанцию';
+    }
+
+    // Сбрасываем текст кнопки
+    if (saveStationBtn) {
+        saveStationBtn.textContent = 'Добавить';
+    }
+}
 
 // === Бургер меню ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -1248,6 +1383,180 @@ function showInstallToast() {
     }
 }
 
+
+// Обработчики для статического модального окна редактирования станции
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализируем глобальные переменные модального окна
+    stationModal = document.getElementById('stationModal');
+    saveStationBtn = document.getElementById('saveStationBtn');
+    cancelStationBtn = document.getElementById('cancelStationBtn');
+    deleteStationBtn = document.getElementById('deleteStationBtn');
+    stationNameInput = document.getElementById('stationName');
+    stationUrlInput = document.getElementById('stationUrl');
+
+    // Обработчик для кнопки "Добавить/Сохранить"
+    if (saveStationBtn) {
+        saveStationBtn.addEventListener('click', async function() {
+            const name = stationNameInput.value.trim();
+            const url = stationUrlInput.value.trim();
+
+            if (!name || !url) {
+                showToast('Заполните все поля');
+                return;
+            }
+
+            const isEditing = saveStationBtn.textContent === 'Сохранить';
+            const oldUrl = deleteStationBtn ? deleteStationBtn.getAttribute('data-url') : null;
+
+            if (isEditing && oldUrl) {
+                // Режим редактирования: обновляем существующую станцию в IndexedDB
+                try {
+                    const stations = await offlineStorage.getStations();
+                    const stationToUpdate = stations.find(s => s.url === oldUrl);
+                    if (stationToUpdate) {
+                        stationToUpdate.name = name;
+                        stationToUpdate.url = url;
+                        await offlineStorage.updateStation(stationToUpdate);
+
+                        // Обновляем в DOM
+                        const stationItems = document.querySelectorAll('.station-item');
+                        for (let item of stationItems) {
+                            if (item.getAttribute('data-url') === oldUrl) {
+                                item.setAttribute('data-url', url);
+                                const nameElement = item.querySelector('.station-name');
+                                if (nameElement) nameElement.textContent = name;
+                                const editBtn = item.querySelector('.edit-station-btn');
+                                if (editBtn) {
+                                    editBtn.setAttribute('data-name', name);
+                                    editBtn.setAttribute('data-url', url);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка обновления станции:', error);
+                    showToast('Ошибка обновления станции');
+                    return;
+                }
+            } else {
+                // Добавляем новую радиостанцию
+                await addCustomStation(url, name);
+            }
+
+            // Закрываем модальное окно
+            stationModal.classList.remove('active');
+
+            // Очищаем поля и сбрасываем состояние
+            stationNameInput.value = '';
+            stationUrlInput.value = '';
+
+            // Скрываем кнопку удаления
+            if (deleteStationBtn) {
+                deleteStationBtn.style.display = 'none';
+                deleteStationBtn.removeAttribute('data-url');
+            }
+
+            // Сбрасываем заголовок
+            const modalTitle = stationModal.querySelector('#modalTitle');
+            if (modalTitle) {
+                modalTitle.textContent = 'Добавить радиостанцию';
+            }
+
+            // Сбрасываем текст кнопки
+            saveStationBtn.textContent = 'Добавить';
+
+            showToast(isEditing ? 'Радиостанция обновлена' : 'Радиостанция добавлена');
+        });
+    }
+
+    // Обработчик для кнопки "Отмена"
+    if (cancelStationBtn) {
+        cancelStationBtn.addEventListener('click', function() {
+            resetModalState();
+        });
+    }
+
+    // Закрытие модального окна при клике на оверлей
+    if (stationModal) {
+        stationModal.addEventListener('click', function(e) {
+            if (e.target === stationModal) {
+                resetModalState();
+            }
+        });
+    }
+
+    // Обработчик для кнопок редактирования станций
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.edit-station-btn')) {
+            const btn = e.target.closest('.edit-station-btn');
+            const name = btn.getAttribute('data-name');
+            const url = btn.getAttribute('data-url');
+
+            // Заполняем поля модального окна
+            stationNameInput.value = name;
+            stationUrlInput.value = url;
+
+            // Показываем кнопку удаления для пользовательских станций
+            if (deleteStationBtn) {
+                deleteStationBtn.style.display = 'block';
+                // Сохраняем данные для удаления
+                deleteStationBtn.setAttribute('data-url', url);
+            }
+
+            // Меняем заголовок
+            const modalTitle = stationModal.querySelector('#modalTitle');
+            if (modalTitle) {
+                modalTitle.textContent = 'Редактировать радиостанцию';
+            }
+
+            // Меняем текст кнопки
+            if (saveStationBtn) {
+                saveStationBtn.textContent = 'Сохранить';
+            }
+
+            // Открываем модальное окно
+            stationModal.classList.add('active');
+            stationNameInput.focus();
+        }
+    });
+
+    // Обработчик для кнопки удаления
+    if (deleteStationBtn) {
+        deleteStationBtn.addEventListener('click', async function() {
+            const url = this.getAttribute('data-url');
+            if (confirm('Вы уверены, что хотите удалить эту радиостанцию?')) {
+                try {
+                    // Удаляем из IndexedDB
+                    const stations = await offlineStorage.getStations();
+                    const stationToDelete = stations.find(s => s.url === url);
+                    if (stationToDelete) {
+                        await offlineStorage.deleteStation(stationToDelete.id);
+                    }
+
+                    // Находим и удаляем станцию из DOM
+                    const stationItems = document.querySelectorAll('.station-item');
+                    for (let item of stationItems) {
+                        if (item.getAttribute('data-url') === url) {
+                            item.remove();
+                            break;
+                        }
+                    }
+
+                    // Закрываем модальное окно
+                    stationModal.classList.remove('active');
+                    stationNameInput.value = '';
+                    stationUrlInput.value = '';
+
+                    showToast('Радиостанция удалена');
+                } catch (error) {
+                    console.error('Ошибка удаления станции:', error);
+                    showToast('Ошибка удаления станции');
+                }
+            }
+        });
+    }
+});
 
 window.addEventListener('load', () => {
     setTimeout(() => {

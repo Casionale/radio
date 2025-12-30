@@ -1,34 +1,78 @@
 {
-    "name": "r29.station",
-    "short_name": "r29.station",
-    "description": "Интерактивное AI-радио с чат-ассистентом для идеального стриминга музыки",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#7081e1",
-    "theme_color": "#7081e1",
-    "orientation": "portrait-primary",
-    "icons": [
-      {
-        "src": "/assets/images/favicon-96x96.png",
-        "sizes": "96x96",
-        "type": "image/png"
-      },
-      {
-        "src": "/assets/images/apple-touch-icon.png",
-        "sizes": "180x180",
-        "type": "image/png"
-      },
-      {
-        "src": "/assets/images/favicon.svg",
-        "sizes": "any",
-        "type": "image/svg+xml",
-        "purpose": "any"
-      },
-      {
-        "src": "/assets/images/icon-maskable.svg", 
-        "sizes": "any",
-        "type": "image/svg+xml",
-        "purpose": "maskable"
-      }
-    ]
-  }
+  "name": "r29.station",
+  "short_name": "r29.station",
+  "description": "Интерактивное AI-радио с чат-ассистентом для идеального стриминга музыки",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#7081e1",
+  "theme_color": "#7081e1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/images/icons/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/icons/favicon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/icons/favicon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/icons/favicon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/icons/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/icons/favicon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/icons/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/images/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/images/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/images/icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "monochrome"
+    }
+  ]
+}

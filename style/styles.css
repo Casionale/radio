@@ -546,6 +546,36 @@ body {
     color: var(--main-color);
 }
 
+.edit-station-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 8px;
+    transition: transform 0.2s ease;
+}
+
+.edit-station-btn svg {
+    fill: var(--main-color);
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .edit-station-btn:hover {
+        transform: scale(1.1);
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .edit-station-btn:active {
+        transform: scale(1.1);
+    }
+}
+
 .station-toggle {
     background: none;
     border: none;
@@ -584,7 +614,7 @@ body {
     opacity: 0;
     transform: translateY(-10px);
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease 0.5s, transform 0.3s ease 0.5s, visibility 0s linear 0.8s;
     pointer-events: none;
 }
 
@@ -593,6 +623,7 @@ body {
     transform: translateY(0);
     visibility: visible;
     pointer-events: auto;
+    transition: opacity 0.2s ease 0s, transform 0.2s ease 0s, visibility 0s linear 0s;
 }
 
 .stations-list::-webkit-scrollbar {
@@ -684,13 +715,6 @@ body {
     margin-bottom: 20px;
 }
 
-.modal-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--txt-color);
-    margin: 0;
-}
-
 .modal-body {
     margin-bottom: 24px;
 }
@@ -748,27 +772,44 @@ body {
 
 @media (hover: hover) and (pointer: fine) {
     .modal-btn.cancel:hover {
-        background: rgba(112, 129, 225, 0.1)
+        color: #ffffff;
+        background: var(--main-color)
     }
 
     .modal-btn.add:hover {
         background: var(--main-color)
     }
+
+    .modal-btn.delete:hover {
+        background: #E27171;
+        color: #ffffff
+    }
 }
 
 @media (hover: none) and (pointer: coarse) {
     .modal-btn.cancel:active {
-        background: rgba(112, 129, 225, 0.1)
+        color: #ffffff;
+        background: var(--main-color)
     }
 
     .modal-btn.add:active {
         background: var(--main-color)
+    }
+
+    .modal-btn.delete:active {
+        background: #E27171;
+        color: #ffffff
     }
 }
 
 .modal-btn.add {
     background: var(--main-color);
     color: var(--white-color)
+}
+
+.modal-btn.delete {
+    background: #e271713f;
+    color: #E27171
 }
 
 /* Toast уведомления */
@@ -882,12 +923,33 @@ body {
 
 .station-details {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* align-items: flex-start; */
+}
+
+.station-details-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 2px;
 }
 
 .station-item .station-name {
     font-weight: 500;
     color: var(--txt-color);
-    margin-bottom: 2px;
+    /* Удаляем margin-bottom, так как он теперь в .station-details-top-row */
+}
+
+.station-item .edit-station-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.station-item:hover .edit-station-btn svg {
+    opacity: 1;
 }
 
 .station-item .station-genre {
@@ -2385,4 +2447,34 @@ input:focus {
     50% {
         transform: translateY(-5px);
     }
+}
+
+.install-app-btn {
+    display: inline-block;
+    font-family: 'Geologica', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--white-color);
+    background-color: var(--main-color);
+    border: 1px solid var(--main-color);
+    border-radius: 12px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+    box-sizing: border-box
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .install-app-btn:hover {
+        background-color: transparent;
+        color: var(--main-color);
+        box-shadow: 0 4px 12px var(--opasity-bg)
+    }
+}
+
+.install-app-btn:active {
+    opacity: 0.9
 }

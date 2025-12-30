@@ -9,10 +9,10 @@ const urlsToCache = [
   '/js/radio_manager.js',
   '/js/app.js',
   '/js/audio_visualizer.js',
-  '/assets/images/favicon-96x96.png',
-  '/assets/images/favicon.svg',
-  '/assets/images/favicon.ico',
-  '/assets/images/apple-touch-icon.png',
+  '/assets/images/icons/favicon-96x96.png',
+  '/assets/images/icons/favicon.svg',
+  '/assets/images/icons/favicon.ico',
+  '/assets/images/icons/apple-touch-icon.png',
   '/assets/images/site.webmanifest',
   '/assets/images/header_logo.svg',
   '/assets/images/arrowAs.svg',
@@ -24,7 +24,7 @@ const urlsToCache = [
   '/assets/images/vol2.svg',
   '/assets/images/vol3.svg',
   '/assets/images/img_neco.png',
-  '/assets/images/icon-maskable.svg',
+  '/assets/images/icons/icon-maskable.svg',
   // Если в новой версии добавлены файлы (например, новые изображения или JS), добавьте их пути сюда
 ];
 
@@ -141,8 +141,8 @@ self.addEventListener('push', event => {
     const data = event.data.json();
     const options = {
       body: data.body || 'Новое уведомление от r29.station',
-      icon: data.icon || '/assets/images/favicon-192x192.png',
-      badge: '/assets/images/favicon-96x96.png',
+      icon: data.icon || '/assets/images/icons/favicon-192x192.png',
+      badge: '/assets/images/icons/favicon-96x96.png',
       tag: data.tag || 'r29-station-push',
       requireInteraction: data.requireInteraction || false,
       data: data.data || {}

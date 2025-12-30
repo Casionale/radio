@@ -76,8 +76,8 @@ class PushNotifications {
 
         const options = {
             body: `Сейчас играет: ${trackInfo.title} - ${trackInfo.artist}`,
-            icon: trackInfo.art || '/assets/images/favicon-192x192.png',
-            badge: '/assets/images/favicon-96x96.png',
+            icon: trackInfo.art || '/assets/images/icons/favicon-192x192.png',
+            badge: '/assets/images/icons/favicon-96x96.png',
             tag: 'now-playing',
             requireInteraction: false,
             silent: false,
@@ -107,8 +107,8 @@ class PushNotifications {
 
         const options = {
             body: `Переключились на: ${stationName}`,
-            icon: '/assets/images/favicon-192x192.png',
-            badge: '/assets/images/favicon-96x96.png',
+            icon: '/assets/images/icons/favicon-192x192.png',
+            badge: '/assets/images/icons/favicon-96x96.png',
             tag: 'station-change',
             requireInteraction: false,
             silent: true,
@@ -126,33 +126,4 @@ class PushNotifications {
     }
 }
 
-// Добавляем обработку push-событий в сервис-воркер
-// Это нужно добавить в sw.js
-/*
-self.addEventListener('push', event => {
-    if (event.data) {
-        const data = event.data.json();
-        const options = {
-            body: data.body,
-            icon: data.icon || '/assets/images/favicon-192x192.png',
-            badge: '/assets/images/favicon-96x96.png',
-            data: data.data
-        };
-
-        event.waitUntil(
-            self.registration.showNotification(data.title || 'r29.station', options)
-        );
-    }
-});
-
-self.addEventListener('notificationclick', event => {
-    event.notification.close();
-
-    event.waitUntil(
-        clients.openWindow('/')
-    );
-});
-*/
-
-// Создаем глобальный экземпляр
 const pushNotifications = new PushNotifications;
